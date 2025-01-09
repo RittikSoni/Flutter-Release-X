@@ -1,3 +1,7 @@
+## 0.0.3
+
+- Add example and improvements.
+
 ## 0.0.2
 
 - Improve documentation & optimizations.
