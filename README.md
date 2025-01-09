@@ -21,22 +21,19 @@ flutter_release_x build
 Create a `config.yaml` file in the root directory of your project to specify your upload options and QR code generation settings:
 
 ```yaml
+# e.g. C:/dev/flutter/bin/flutter.bat
+flutter_path: FLUTTER/BINARY/PATH
+
 upload_options:
   github:
     enabled: true
     token: YOUR_GITHUB_TOKEN
+    repo: REPO/PATH # e.g. RittikSoni/Flutter-Release-X
   google_drive:
     enabled: true
     credentials_path: /path/to/credentials.json
     client_id: YOUR_CLIENT_ID
     client_secret: YOUR_CLIENT_SECRET
-  dropbox:
-    enabled: true
-    token: YOUR_DROPBOX_TOKEN
-  wetransfer:
-    enabled: true
-  anonfiles:
-    enabled: true
 
 # QR Code generation settings
 qr_code:
