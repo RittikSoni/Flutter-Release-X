@@ -14,9 +14,6 @@ issue_tracker: https://github.com/RittikSoni/Flutter-Release-X/issues
 environment:
   sdk: ^3.6.0
 
-executables:
-  flutter_release_x: bin/flutter_release_x.dart
-
 # Add regular dependencies here.
 dependencies:
   ansicolor: ^2.0.3
@@ -46,6 +43,10 @@ keywords:
   - windows
   - cloud
   - google-drive
+  - aws
+  - google-playstore
+  - app-store
+  - aab
   - github
   - aab
   - publish
