@@ -1,3 +1,7 @@
+## 0.0.2
+
+- Improve documentation & optimizations.
+
 ## 0.0.1
 
 ### Added
