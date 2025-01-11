@@ -7,39 +7,40 @@ import 'package:http_parser/http_parser.dart';
 
 class GitHubUploaderService {
   static Future<void> uploadToGitHub(String apkPath) async {
-    Config.loadConfig();
-    final config = Config.config;
+    final config = Config().config;
 
-    if (config == null || !config['upload_options'].containsKey('github')) {
-      print(
-          '❌ GitHub configuration not found. Please check your config.yaml file.');
+    final gitHubConfig = config.uploadOptions.github;
+    final gitHubToken = config.uploadOptions.github.token;
+    final gitHubRepo = config.uploadOptions.github.repo;
+    final gitHubTag = config.uploadOptions.github.tag;
+
+    if (!gitHubConfig.enabled) {
+      return;
+    } else if (gitHubToken == null) {
+      print('❌ GitHub token not found. Please check your config yaml file.');
+      return;
+    } else if (gitHubRepo == null) {
+      print('❌ GitHub Repo not found. Please check your config yaml file.');
       return;
     }
 
-    final token = config['upload_options']['github']['token'];
-    final repo = config['upload_options']['github']['repo'];
-
-    if (token == null) {
-      print('❌ GitHub token not found. Please check your config.yaml file.');
-      return;
-    }
-
-    final tag = 'v1.0.0'; // Use a dynamic versioning system if needed
+    final tag = gitHubTag; // Use a dynamic versioning system if needed
     final releaseName = 'Release $tag';
-    final releaseDescription = 'Description of the release';
+    final releaseDescription =
+        '🚀 Release built using Flutter Release X. For more details, visit: https://pub.dev/packages/flutter_release_x';
     final fileName = 'app-release.apk';
 
     try {
-      final release = await _findReleaseByTag(repo, tag, token);
+      final release = await _findReleaseByTag(gitHubRepo, tag, gitHubToken);
       if (release != null) {
         // If release exists, delete it and re-create the release
-        await _deleteRelease(repo, release['id'], token);
-        await _createAndUploadNewRelease(repo, tag, releaseName,
-            releaseDescription, apkPath, fileName, token);
+        await _deleteRelease(gitHubRepo, release['id'], gitHubToken);
+        await _createAndUploadNewRelease(gitHubRepo, tag, releaseName,
+            releaseDescription, apkPath, fileName, gitHubToken);
       } else {
         // If release doesn't exist, create a new release
-        await _createAndUploadNewRelease(repo, tag, releaseName,
-            releaseDescription, apkPath, fileName, token);
+        await _createAndUploadNewRelease(gitHubRepo, tag, releaseName,
+            releaseDescription, apkPath, fileName, gitHubToken);
       }
     } catch (e) {
       print('❌ Error: $e');

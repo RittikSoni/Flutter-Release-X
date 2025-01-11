@@ -25,11 +25,11 @@ class Helpers {
     // Directly accessing UploadState and updating it
     final uploadState = UploadState();
 
-    final String uploadLink = uploadState.uploadLink.toString();
+    final String? uploadLink = uploadState.uploadLink;
 
-    if (generateQr == true) {
+    if (generateQr == true && (uploadLink != null || url != null)) {
       final qrCode = QrCode.fromData(
-        data: url ?? uploadLink,
+        data: url ?? uploadLink.toString(),
         errorCorrectLevel: QrErrorCorrectLevel.L,
       );
       final qrImg = QrImage(qrCode);
@@ -61,7 +61,7 @@ class Helpers {
         highLightmessage: Kstrings.qrCodeSavePath,
       );
     }
-    if (generateLink == true) {
+    if (generateLink == true && (uploadLink != null || url != null)) {
       Helpers.showHighlight(
         firstMessage: '📥 Download the APK here:',
         highLightmessage: url ?? uploadLink,
@@ -83,31 +83,33 @@ class Helpers {
   }
 
   static String? getFlutterPath() {
-    Config.loadConfig();
-    final config = Config.config;
+    final config = Config().config;
 
-    if (config == null || !config.containsKey('flutter_path')) {
+    if (config.flutterPath == null) {
       print(
-          '❌ Flutter Path configuration not found. Please check your config.yaml file.');
+        '⚠️ Custom Flutter Path configuration not found. We recommend specifying it in the config.yaml file for better functionality.',
+      );
       return null;
     }
 
-    final flutterPath = config['flutter_path'];
+    final flutterPath = config.flutterPath;
     return flutterPath;
   }
 
   /// Check if Flutter is available in the system
   static Future<bool> checkFlutterAvailability() async {
-    final String? flutterPath = getFlutterPath();
-    if (flutterPath == null) {
-      return false;
-    }
-    final result = await Process.run(flutterPath, ['--version']);
+    try {
+      final String? flutterPath = getFlutterPath();
+      final result = await Process.run(flutterPath ?? 'flutter', ['--version']);
 
-    if (result.exitCode == 0) {
-      return true;
-    } else {
-      print('Flutter not found: ${result.stderr}');
+      if (result.exitCode == 0) {
+        return true;
+      } else {
+        print('Flutter not found: ${result.stderr}');
+        return false;
+      }
+    } catch (e) {
+      print('Flutter not found: $e');
       return false;
     }
   }
@@ -168,5 +170,26 @@ class Helpers {
     print('$firstMessage ${pen(
       highLightmessage ?? "",
     )}  ${lastMessage ?? ""}');
+  }
+
+  static void showUserConfig() {
+    print('🔧 Current configuration file path: ${Config().configPath}');
+    print('Current configuration:');
+    print(
+        'Flutter Path: ${Config().config.flutterPath ?? "No Custom Flutter Path Found."}');
+    print('Upload Options:');
+    print('  GitHub Enabled: ${Config().config.uploadOptions.github.enabled}');
+    print(
+        '  Google Drive Enabled: ${Config().config.uploadOptions.googleDrive.enabled}');
+    print('QR Code Settings:');
+    print('  Enabled: ${Config().config.qrCode.enabled}');
+    print('  Save Path: ${Config().config.qrCode.savePath}');
+  }
+
+  /// For debug print only.
+  ///
+  /// Make sure to remove all these print before PR or Deployment.
+  static void debugPrint(String message) {
+    print('Debug Print, Delete me before deploying: $message');
   }
 }

@@ -12,19 +12,23 @@ class UploadService {
   }
 
   static Future<void> uploadToGoogleDrive(String apkPath) async {
-    Config.loadConfig();
-    final config = Config.config;
+    final config = Config().config;
 
-    if (config == null ||
-        !config['upload_options'].containsKey('google_drive')) {
+    final googleDriveConfig = config.uploadOptions.googleDrive;
+    final clientId = googleDriveConfig.clientId;
+    final clientSecret = googleDriveConfig.clientSecret;
+
+    if (!googleDriveConfig.enabled) {
+      return;
+    } else if (clientId == null) {
       print(
-          '❌ Google Drive configuration not found. Please check your config.yaml file.');
+          '❌ Google Drive Client ID not found. Please check your config yaml file.');
+      return;
+    } else if (clientSecret == null) {
+      print(
+          '❌ Google Drive Client Secret not found. Please check your config yaml file.');
       return;
     }
-
-    final clientId = config['upload_options']['google_drive']['client_id'];
-    final clientSecret =
-        config['upload_options']['google_drive']['client_secret'];
 
     final uploader = GoogleDriveUploader(
       clientId: clientId,
@@ -44,17 +48,17 @@ class UploadService {
   }
 
   static Future<void> uploadToAWS(String apkPath) async {
-    print('Uploading to Dropbox...');
+    print('☁️ AWS upload coming soon—stay tuned! 🚀');
     // TODO: Implement AWS API upload logic
   }
 
   static Future<void> uploadToPlayStore(String apkPath) async {
-    print('Uploading to Play Store...');
+    print('📱 Google Play Store upload coming soon—stay tuned! 🚀');
     // TODO: Implement Google Playstore API upload logic
   }
 
   static Future<void> uploadToAppStore(String apkPath) async {
-    print('Uploading to App Store...');
+    print('🍎 App Store upload coming soon—stay tuned! 🚀');
     // TODO: Implement App Store API upload logic
   }
 }

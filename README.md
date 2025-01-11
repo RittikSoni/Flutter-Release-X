@@ -16,12 +16,25 @@ To build the release APK, upload it to GitHub, and generate a QR code:
 flutter_release_x build
 ```
 
+`--show-config`: Display the current configuration from `config.yaml` to verify setup.
+
+```bash
+frx build -s
+```
+
+`--config`: Use this flag to point to a specific configuration file
+
+```bash
+frx build -c config/file/path
+```
+
 ## Configuration
 
 Create a `config.yaml` file in the root directory of your project to specify your upload options and QR code generation settings:
 
 ```yaml
-# e.g. C:/dev/flutter/bin/flutter.bat
+# e.g. Windows: C:/dev/flutter/bin/flutter.bat
+# macOS: /Users/USER_NAME/development/flutter/bin/flutter
 flutter_path: FLUTTER/BINARY/PATH
 
 upload_options:
@@ -29,13 +42,14 @@ upload_options:
     enabled: true
     token: YOUR_GITHUB_TOKEN
     repo: REPO/PATH # e.g. RittikSoni/Flutter-Release-X
+    tag: v0.0.1
   google_drive:
     enabled: true
-    credentials_path: /path/to/credentials.json
     client_id: YOUR_CLIENT_ID
     client_secret: YOUR_CLIENT_SECRET
 
 # QR Code generation settings
+# Default settings:
 qr_code:
   enabled: true # Whether or not to generate QR codes
   save_file: true # Flag to save the QR code image to the file system (true/false)
@@ -82,52 +96,54 @@ To enable your Flutter CLI tool to upload and delete releases on GitHub, you'll 
 
 To upload files to Google Drive, follow these steps to set up your credentials:
 
-1.  **Create a Google Cloud Project**:
+1. **Create a Google Cloud Project**:
 
-    - Go to the Google Cloud Console.
-    - Create a new project or select an existing one.
+   - Go to the Google Cloud Console.
+   - Create a new project or select an existing one.
 
-2.  **Enable the Drive API**:
+2. **Enable the Drive API**:
 
-    - In the Google Cloud Console, navigate to **APIs & Services > Library**.
-    - Search for "Google Drive API" and enable it.
+   - In the Google Cloud Console, navigate to **APIs & Services > Library**.
+   - Search for "Google Drive API" and enable it.
 
-3.  **Create OAuth 2.0 Credentials**:
+3. **Create OAuth 2.0 Credentials**:
 
-    - Go to **APIs & Services > Credentials**.
-    - Click on **Create Credentials** and select **OAuth Client ID**.
-    - Configure the consent screen if prompted.
-    - Set the application type to **Desktop App**.
-    - Note down the generated **Client ID** and **Client Secret**.
+   - Go to **APIs & Services > Credentials**.
+   - Click on **Create Credentials** and select **OAuth Client ID**.
+   - Configure the consent screen if prompted.
+   - Set the application type to **Desktop App**.
+   - Note down the generated **Client ID** and **Client Secret**.
 
-4.  **Set Up Your Project**:
+4. **Set Up Your Project**:
 
-    ```yaml
-    google_drive:
-      enabled: true
-      client_id: YOUR_CLIENT_ID
-      client_secret: YOUR_CLIENT_SECRET
-    ```
+   ```yaml
+   google_drive:
+     enabled: true
+     client_id: YOUR_CLIENT_ID
+     client_secret: YOUR_CLIENT_SECRET
+   ```
 
-    By following these steps, your application will be able to authenticate with Google Drive using the client ID and secret to upload files.
+   By following these steps, your application will be able to authenticate with Google Drive using the client ID and secret to upload files.
 
 ## Features Overview
 
-| Feature                  | Status        |
-| ------------------------ | ------------- |
-| APK Builds               | ✅ Integrated |
-| GitHub Upload            | ✅ Integrated |
-| Google Drive Upload      | ✅ Integrated |
-| Upload Link Generation   | ✅ Integrated |
-| QR Code Generation       | ✅ Integrated |
-| iOS Builds               | ⚒ Planned     |
-| Windows Builds           | ⚒ Planned     |
-| macOS Builds             | ⚒ Planned     |
-| Linux Builds             | ⚒ Planned     |
-| AWS S3 Upload            | ⚒ Planned     |
-| GitLab Upload            | ⚒ Planned     |
-| Google Play Store Upload | ⚒ Planned     |
-| Apple App Store Upload   | ⚒ Planned     |
+| Feature                  | Status         |
+| ------------------------ | -------------- |
+| APK Builds               | ✅ Integrated  |
+| GitHub Upload            | ✅ Integrated  |
+| Google Drive Upload      | ✅ Integrated  |
+| Upload Link Generation   | ✅ Integrated  |
+| QR Code Generation       | ✅ Integrated  |
+| iOS Builds               | 🚀 Coming Soon |
+| Windows Builds           | 🚀 Coming Soon |
+| macOS Builds             | 🚀 Coming Soon |
+| Linux Builds             | 🚀 Coming Soon |
+| AWS S3 Upload            | 🚀 Coming Soon |
+| GitLab Upload            | 🚀 Coming Soon |
+| Google Play Store Upload | 🚀 Coming Soon |
+| Apple App Store Upload   | 🚀 Coming Soon |
+
+Stay tuned for exciting updates and more cloud upload functionalities like AWS S3, Google Play Store, and Apple App Store integrations. 🚀
 
 ## Support the package (optional)
 
@@ -135,7 +151,7 @@ If you find this package useful, you can support it for free by giving it a thum
 
 <p align='center'><a href="https://www.buymeacoffee.com/kingrittik" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a></p>
 
-## Get Involved!
+## Get Involved
 
 ❤️💙🩵 Love using Flutter Release X? We're expanding its capabilities and would love your input! If you have ideas or want to contribute, check out our GitHub repository and star the project to show your support.
 

@@ -16,12 +16,25 @@ To build the release APK, upload it to GitHub, and generate a QR code:
 flutter_release_x build
 ```
 
+`--show-config`: Display the current configuration from `config.yaml` to verify setup.
+
+```bash
+frx build -s
+```
+
+`--config`: Use this flag to point to a specific configuration file
+
+```bash
+frx build -c config/file/path
+```
+
 ## Configuration
 
 Create a `config.yaml` file in the root directory of your project to specify your upload options and QR code generation settings:
 
 ```yaml
-# e.g. C:/dev/flutter/bin/flutter.bat
+# e.g. Windows: C:/dev/flutter/bin/flutter.bat
+# macOS: /Users/USER_NAME/development/flutter/bin/flutter
 flutter_path: FLUTTER/BINARY/PATH
 
 upload_options:
@@ -29,13 +42,14 @@ upload_options:
     enabled: true
     token: YOUR_GITHUB_TOKEN
     repo: REPO/PATH # e.g. RittikSoni/Flutter-Release-X
+    tag: v0.0.1
   google_drive:
     enabled: true
-    credentials_path: /path/to/credentials.json
     client_id: YOUR_CLIENT_ID
     client_secret: YOUR_CLIENT_SECRET
 
 # QR Code generation settings
+# Default settings:
 qr_code:
   enabled: true # Whether or not to generate QR codes
   save_file: true # Flag to save the QR code image to the file system (true/false)
