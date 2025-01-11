@@ -1,3 +1,9 @@
+## 0.0.4
+
+- Added new commands: `frx build --config` & `frx build --show-config` for easier configuration management.
+- Updated dependency: Required `path: ^1.9.0`.
+- Optimized performance for a smoother experience.
+
 ## 0.0.3
 
 - Add example and improvements.
