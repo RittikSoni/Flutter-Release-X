@@ -43,7 +43,7 @@ class Config {
       }
     } catch (e) {
       print('⚠️ Config file not found. $e');
-      return;
+      exit(0);
     }
   }
 

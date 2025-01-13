@@ -1,40 +1,74 @@
 # Flutter Release X
 
-A powerful CLI tool to build and release Flutter apps effortlessly. Generate release builds, upload to the cloud, and share QR codes and download links for quick and easy distribution.
+Flutter Release X is a powerful CLI tool designed to streamline the process of building and releasing Flutter apps. With this tool, you can effortlessly generate release builds, upload them to the cloud, and share QR codes and download links for quick and easy distribution.
+
+## Features Overview
+
+| Feature                  | Status         |
+| ------------------------ | -------------- |
+| APK Builds               | ✅ Integrated  |
+| GitHub Upload            | ✅ Integrated  |
+| Google Drive Upload      | ✅ Integrated  |
+| Upload Link Generation   | ✅ Integrated  |
+| QR Code Generation       | ✅ Integrated  |
+| iOS Builds               | 🚀 Coming Soon |
+| Windows Builds           | 🚀 Coming Soon |
+| macOS Builds             | 🚀 Coming Soon |
+| Linux Builds             | 🚀 Coming Soon |
+| AWS S3 Upload            | 🚀 Coming Soon |
+| GitLab Upload            | 🚀 Coming Soon |
+| Google Play Store Upload | 🚀 Coming Soon |
+| Apple App Store Upload   | 🚀 Coming Soon |
+
+Stay tuned for exciting updates and more cloud upload functionalities like AWS S3, Google Play Store, and Apple App Store integrations. 🚀
 
 ## Installation
+
+You can install Flutter Release X globally using `dart`:
 
 ```bash
 dart pub global activate flutter_release_x
 ```
 
-or
+Alternatively, add it as a dependency in your `pubspec.yaml`:
 
 ```bash
 dart pub add flutter_release_x
 ```
 
-## Usage
+## 🛠 Usage
 
-To build the release APK, upload it to GitHub, and generate a QR code:
+Flutter Release X provides easy commands to build, upload, and manage your releases. Here are the main commands:
 
-```bash
-flutter_release_x build
-```
+| Command                         | Description                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `frx build`                     | Builds the release APK, uploads to GitHub, and generates a QR code & link.                       |
+| `frx build -s`                  | Displays the current configuration settings. This helps verify if your setup is correct.         |
+| `frx build -c <path_to_config>` | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
 
-`--show-config`: Displays the current configuration settings. By default, it reads from `config.yaml`. If a custom file path is provided, it reads from the specified file. Use this option to verify that the setup is correctly configured.
+### Example
 
-```bash
-frx build -s
-```
+- To build the release APK, upload it to Cloud, and generate a QR code & Downloadable link:
 
-`--config`: Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. This allows you to point to a specific configuration file as needed.
+  ```bash
+  frx build
+  ```
 
-```bash
-frx build -c config/file/path
-```
+- To verify your configuration, run:
 
-## Configuration
+  `--show-config`: Displays the current configuration settings. By default, it reads from `config.yaml`. If a custom file path is provided, it reads from the specified file. Use this option to verify that the setup is correctly configured.
+
+  ```bash
+  frx build -s
+  ```
+
+- `--config`: Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. This allows you to point to a specific configuration file as needed.
+
+  ```bash
+  frx build -c config/file/path
+  ```
+
+## ⚙️ Configuration
 
 Create a `config.yaml` file in the root directory of your project to specify your upload options and QR code generation settings:
 
@@ -64,6 +98,32 @@ qr_code:
   error_correction_level: low # Error correction level for the QR code (low, medium, quartile, high)
   save_path: "./release-qr-code.png" # Path where the QR code will be saved.
 ```
+
+## Steps for Setup
+
+1. **Configure config.yaml**
+   Create a config.yaml file with the settings shown above. If you have a custom file path, you can specify it with the -c flag.
+2. **Generate Cloud Credentials**
+   For cloud uploads (GitHub or Google Drive), follow these steps:
+
+   - GitHub Configuration
+
+     - Generate a Personal Access Token (PAT) in GitHub and add it to your config.yaml.
+
+   - Google Drive Configuration
+     - Create a Google Cloud Project and enable the Google Drive API.
+     - Generate OAuth 2.0 credentials for your app and add the client_id and client_secret to your config.yaml.
+
+3. **Run the Tool**
+   After setting up the configuration, run:
+
+   ```bash
+   frx build
+   ```
+
+   This command will build your Flutter project, upload it, and generate a QR code & shareable link.
+
+## 🌐 Cloud Integration
 
 ### Generating a GitHub Personal Access Token
 
@@ -131,25 +191,18 @@ To upload files to Google Drive, follow these steps to set up your credentials:
 
    By following these steps, your application will be able to authenticate with Google Drive using the client ID and secret to upload files.
 
-## Features Overview
+## 📱 QR Code Configuration
 
-| Feature                  | Status         |
-| ------------------------ | -------------- |
-| APK Builds               | ✅ Integrated  |
-| GitHub Upload            | ✅ Integrated  |
-| Google Drive Upload      | ✅ Integrated  |
-| Upload Link Generation   | ✅ Integrated  |
-| QR Code Generation       | ✅ Integrated  |
-| iOS Builds               | 🚀 Coming Soon |
-| Windows Builds           | 🚀 Coming Soon |
-| macOS Builds             | 🚀 Coming Soon |
-| Linux Builds             | 🚀 Coming Soon |
-| AWS S3 Upload            | 🚀 Coming Soon |
-| GitLab Upload            | 🚀 Coming Soon |
-| Google Play Store Upload | 🚀 Coming Soon |
-| Apple App Store Upload   | 🚀 Coming Soon |
+Flutter Release X can generate QR codes for quick sharing. The QR codes can be customized with various settings.
 
-Stay tuned for exciting updates and more cloud upload functionalities like AWS S3, Google Play Store, and Apple App Store integrations. 🚀
+| Setting                  | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `enabled`                | Enable or disable QR code generation. (true/false)           |
+| `save_file`              | Flag to save the QR code image. (true/false)                 |
+| `show_in_command`        | Display the QR code in the command line output. (true/false) |
+| `size`                   | QR code image size (e.g., 256).                              |
+| `error_correction_level` | Error correction level (low, medium, quartile, high).        |
+| `save_path`              | File path to save the QR code image.                         |
 
 ## Support the package (optional)
 
