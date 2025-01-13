@@ -5,7 +5,13 @@ A powerful CLI tool to build and release Flutter apps effortlessly. Generate rel
 ## Installation
 
 ```bash
-pub global activate flutter_release_x
+dart pub global activate flutter_release_x
+```
+
+or
+
+```bash
+dart pub add flutter_release_x
 ```
 
 ## Usage
@@ -16,13 +22,13 @@ To build the release APK, upload it to GitHub, and generate a QR code:
 flutter_release_x build
 ```
 
-`--show-config`: Display the current configuration from `config.yaml` to verify setup.
+`--show-config`: Displays the current configuration settings. By default, it reads from `config.yaml`. If a custom file path is provided, it reads from the specified file. Use this option to verify that the setup is correctly configured.
 
 ```bash
 frx build -s
 ```
 
-`--config`: Use this flag to point to a specific configuration file
+`--config`: Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. This allows you to point to a specific configuration file as needed.
 
 ```bash
 frx build -c config/file/path
@@ -54,9 +60,9 @@ qr_code:
   enabled: true # Whether or not to generate QR codes
   save_file: true # Flag to save the QR code image to the file system (true/false)
   show_in_command: true # Flag to show the QR code in the command line output (true/false)
-  size: 256 # The size of the generated QR code 256 x 256
-  error_correction_level: L # Error correction level for the QR code (L, M, Q, H)
-  save_path: "./release-qr-code.png" # Path where the QR code will be saved
+  size: 256 # The size of the generated QR code Image 256 x 256
+  error_correction_level: low # Error correction level for the QR code (low, medium, quartile, high)
+  save_path: "./release-qr-code.png" # Path where the QR code will be saved.
 ```
 
 ### Generating a GitHub Personal Access Token

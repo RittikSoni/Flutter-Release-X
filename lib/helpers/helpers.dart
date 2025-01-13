@@ -12,6 +12,24 @@ class Helpers {
   /// Store the timer for stopping later
   static Timer? _loadingTimer;
 
+  /// Get the QR error correction level
+  ///
+  /// Default value is 'low'.
+  static int getQrCorrectionLevel(qrCorrectionLevel) {
+    switch (qrCorrectionLevel) {
+      case 'low':
+        return QrErrorCorrectLevel.L;
+      case 'medium':
+        return QrErrorCorrectLevel.M;
+      case 'quartile':
+        return QrErrorCorrectLevel.Q;
+      case 'high':
+        return QrErrorCorrectLevel.H;
+      default:
+        return QrErrorCorrectLevel.L;
+    }
+  }
+
   /// Generate a QR code and displays & save it.
   /// Optionally, print a download link.
   ///
@@ -19,21 +37,31 @@ class Helpers {
   /// Default values for [generateQr] and [generateLink] are true.
   static Future<void> generateQrCodeAndLink({
     String? url,
-    bool? generateQr = true,
     bool? generateLink = true,
   }) async {
+    final qrConfig = Config().config.qrCode;
+    final isQrEnable = qrConfig.enabled;
+    final isQrShowInConsole = qrConfig.showInCommand;
+    final qrImgSize = qrConfig.size;
+    final isQrSaveFile = qrConfig.saveFile;
+    final qrImgSavePath = qrConfig.savePath;
+    final qrCorrectionLevel = qrConfig.errorCorrectionLevel;
+
     // Directly accessing UploadState and updating it
     final uploadState = UploadState();
 
     final String? uploadLink = uploadState.uploadLink;
 
-    if (generateQr == true && (uploadLink != null || url != null)) {
+    if (isQrEnable && (uploadLink != null || url != null)) {
       final qrCode = QrCode.fromData(
         data: url ?? uploadLink.toString(),
-        errorCorrectLevel: QrErrorCorrectLevel.L,
+        errorCorrectLevel: getQrCorrectionLevel(qrCorrectionLevel),
       );
       final qrImg = QrImage(qrCode);
-      printQrCode(qrImg);
+
+      if (isQrShowInConsole) {
+        printQrCode(qrImg);
+      }
 
       // Create an empty image with the same dimensions as the QR code
       final qrImage =
@@ -52,14 +80,19 @@ class Helpers {
           );
         }
       }
-
-      final scaledImage = img.copyResize(qrImage, width: 256, height: 256);
-      final file = File(Kstrings.qrCodeSavePath);
-      file.writeAsBytesSync(img.encodePng(scaledImage));
-      showHighlight(
-        firstMessage: 'QR code saved to',
-        highLightmessage: Kstrings.qrCodeSavePath,
-      );
+      if (isQrSaveFile) {
+        final scaledImage = img.copyResize(
+          qrImage,
+          width: qrImgSize,
+          height: qrImgSize,
+        );
+        final file = File(qrImgSavePath);
+        file.writeAsBytesSync(img.encodePng(scaledImage));
+        showHighlight(
+          firstMessage: 'QR code saved to',
+          highLightmessage: qrImgSavePath,
+        );
+      }
     }
     if (generateLink == true && (uploadLink != null || url != null)) {
       Helpers.showHighlight(
@@ -82,25 +115,25 @@ class Helpers {
     }
   }
 
-  static String? getFlutterPath() {
+  static String getFlutterPath() {
     final config = Config().config;
+    final flutterPath = config.flutterPath;
 
-    if (config.flutterPath == null) {
+    if (flutterPath == null) {
       print(
-        '⚠️ Custom Flutter Path configuration not found. We recommend specifying it in the config.yaml file for better functionality.',
+        '⚠️ Custom Flutter Path configuration not found. We recommend specifying it in the your config yaml file for better functionality.',
       );
-      return null;
+      return Kstrings.defaultFlutterBinPath;
     }
 
-    final flutterPath = config.flutterPath;
     return flutterPath;
   }
 
   /// Check if Flutter is available in the system
   static Future<bool> checkFlutterAvailability() async {
     try {
-      final String? flutterPath = getFlutterPath();
-      final result = await Process.run(flutterPath ?? 'flutter', ['--version']);
+      final String flutterPath = getFlutterPath();
+      final result = await Process.run(flutterPath, ['--version']);
 
       if (result.exitCode == 0) {
         return true;
@@ -116,10 +149,8 @@ class Helpers {
 
   /// Build the APK using Flutter CLI
   static Future<bool> buildApk() async {
-    final String? flutterPath = getFlutterPath();
-    if (flutterPath == null) {
-      return false;
-    }
+    final String flutterPath = getFlutterPath();
+
     showLoading("🚀 Starting the build process...");
     final result =
         await Process.run(flutterPath, ['build', 'apk', '--release']);
@@ -173,17 +204,64 @@ class Helpers {
   }
 
   static void showUserConfig() {
-    print('🔧 Current configuration file path: ${Config().configPath}');
-    print('Current configuration:');
+    final config = Config().config;
+    final configPath = Config().configPath.trim();
+    final flutterPath =
+        config.flutterPath?.trim() ?? "No Custom Flutter Path Found";
+
+    print('\n🔧 Current Configuration Overview\n');
+
+    print('${getStatusEmoji(configPath.isNotEmpty)} Configuration File Path:');
     print(
-        'Flutter Path: ${Config().config.flutterPath ?? "No Custom Flutter Path Found."}');
-    print('Upload Options:');
-    print('  GitHub Enabled: ${Config().config.uploadOptions.github.enabled}');
+        '   ${highlight(configPath.isNotEmpty ? configPath : "No configuration file path specified.")}\n');
+
+    print('${getStatusEmoji(flutterPath.isNotEmpty)} Flutter Path:');
+    print('   ${highlight(flutterPath)}\n');
+
+    print('☁️ Upload Options:');
+    print('   GitHub:');
     print(
-        '  Google Drive Enabled: ${Config().config.uploadOptions.googleDrive.enabled}');
-    print('QR Code Settings:');
-    print('  Enabled: ${Config().config.qrCode.enabled}');
-    print('  Save Path: ${Config().config.qrCode.savePath}');
+        '      ${getStatusEmoji(config.uploadOptions.github.enabled)} Enabled: ${highlight(config.uploadOptions.github.enabled ? "Yes" : "No")}');
+    if (config.uploadOptions.github.enabled) {
+      print(
+          '      Token: ${highlight(config.uploadOptions.github.token ?? "Not set")}');
+      print(
+          '      Repo: ${highlight(config.uploadOptions.github.repo ?? "Not set")}');
+      print('      Tag: ${highlight(config.uploadOptions.github.tag)}\n');
+    }
+
+    print('   Google Drive:');
+    print(
+        '      ${getStatusEmoji(config.uploadOptions.googleDrive.enabled)} Enabled: ${highlight(config.uploadOptions.googleDrive.enabled ? "Yes" : "No")}');
+    if (config.uploadOptions.googleDrive.enabled) {
+      print(
+          '      Client ID: ${highlight(config.uploadOptions.googleDrive.clientId ?? "Not set")}');
+      print(
+          '      Client Secret: ${highlight(config.uploadOptions.googleDrive.clientSecret ?? "Not set")}\n');
+    }
+
+    print('🎨 QR Code Settings:');
+    print(
+        '   ${getStatusEmoji(config.qrCode.enabled)} QR Code: ${highlight(config.qrCode.enabled ? "Enabled" : "Disabled")}');
+    print('   Save Path: ${highlight(config.qrCode.savePath)}');
+    print(
+        '   Save QR Image: ${highlight(config.qrCode.saveFile ? "Yes" : "No")}');
+    print('   Image Size: ${highlight(config.qrCode.size.toString())}');
+    print(
+        '   Show in Console: ${highlight(config.qrCode.showInCommand ? "Yes" : "No")}');
+    print(
+        '   Error Correction Level: ${highlight(config.qrCode.errorCorrectionLevel.toString())}\n');
+
+    print(
+        '✨ Use this information to ensure your configuration is set up correctly.');
+  }
+
+  static String getStatusEmoji(bool isSuccessful) {
+    return isSuccessful ? '✅' : '⚠️';
+  }
+
+  static String highlight(String text) {
+    return '\x1B[36m$text\x1B[0m'; // ANSI escape code for cyan text
   }
 
   /// For debug print only.

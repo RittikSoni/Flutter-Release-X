@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter_release_x/constants/kstrings.dart';
+
 class AppConfigModel {
   final String? flutterPath;
   final UploadOptions uploadOptions;
@@ -162,8 +164,8 @@ class QrCode {
     this.saveFile = true, // Default for saveFile
     this.showInCommand = true, // Default for showInCommand
     this.size = 256, // Default for size
-    this.errorCorrectionLevel = 'L', // Default for errorCorrectionLevel
-    this.savePath = './release-qr-code.png', // Default for savePath
+    this.errorCorrectionLevel = 'low', // Default for errorCorrectionLevel
+    this.savePath = Kstrings.qrCodeSavePath, // Default for savePath
   });
 
   factory QrCode.fromYaml(Map<dynamic, dynamic> yamlMap) {
@@ -172,8 +174,8 @@ class QrCode {
       saveFile: yamlMap['save_file'] ?? true,
       showInCommand: yamlMap['show_in_command'] ?? true,
       size: yamlMap['size'] ?? 256,
-      errorCorrectionLevel: yamlMap['error_correction_level'] ?? 'L',
-      savePath: yamlMap['save_path'] ?? './release-qr-code.png',
+      errorCorrectionLevel: yamlMap['error_correction_level'] ?? 'low',
+      savePath: yamlMap['save_path'] ?? Kstrings.qrCodeSavePath,
     );
   }
 

@@ -11,4 +11,6 @@ class Kstrings {
 
   /// Replace this with the real project config path
   static const String demoConfigPath = 'config.yaml';
+
+  static const String defaultFlutterBinPath = 'flutter.bat';
 }
