@@ -1,5 +1,10 @@
 # Flutter Release X
 
+[![Pub Version](https://img.shields.io/pub/v/flutter_release_x.svg)](https://pub.dev/packages/flutter_release_x)
+[![Pub Points](https://img.shields.io/pub/points/flutter_release_x.svg)](https://pub.dev/packages/flutter_release_x)
+[![Issues](https://img.shields.io/github/issues/RittikSoni/Flutter-Release-X)](https://github.com/RittikSoni/Flutter-Release-X/issues)
+[![License](https://img.shields.io/github/license/RittikSoni/Flutter-Release-X)](LICENSE)
+
 **Flutter Release X** is a powerful command-line tool that transforms your Flutter app release process. Designed for efficiency and ease of use, it allows you to:
 
 - **Simplify Your Workflow**: Replace complex CI/CD pipelines with a single command to effortlessly generate and distribute release builds.

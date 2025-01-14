@@ -1,3 +1,9 @@
+## 0.1.0
+
+- **New Feature**: Added **Slack Integration** for seamless build sharing and notifications.
+- **Updated Documentation**: Improved clarity and added new sections for Slack integration setup.
+- **Optimizations**: Enhanced performance for faster build generation and smoother user experience.
+
 ## 0.0.4
 
 - Added new commands: `frx build --config` & `frx build --show-config` for easier configuration management.
