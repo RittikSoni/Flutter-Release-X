@@ -21,14 +21,15 @@ Future<void> promptUploadOption(String apkPath) async {
       break;
     case '3':
       await UploadService.uploadToAWS(apkPath);
-      break;
+      exit(0);
     case '4':
       await UploadService.uploadToPlayStore(apkPath);
-      break;
+      exit(0);
     case '5':
       await UploadService.uploadToAppStore(apkPath);
-      break;
+      exit(0);
     default:
       print('Invalid choice. Please try again.');
+      exit(0);
   }
 }

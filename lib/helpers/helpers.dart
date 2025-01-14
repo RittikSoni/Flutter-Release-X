@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
+import 'package:flutter_release_x/services/slack_service.dart';
 import 'package:flutter_release_x/state_management/upload_state.dart';
 import 'package:qr/qr.dart';
 import 'package:image/image.dart' as img;
@@ -11,6 +12,51 @@ import 'package:image/image.dart' as img;
 class Helpers {
   /// Store the timer for stopping later
   static Timer? _loadingTimer;
+
+  static notifySlack() async {
+    final slackService = SlackService();
+    final uploadState = UploadState();
+
+    final String? downloadLink = uploadState.uploadLink;
+    final slackConfig = Config().config.uploadOptions.slack;
+    final bool isSlackEnabled = slackConfig.enabled;
+    final String? slackBotToken = slackConfig.botUserOauthToken;
+    final String? channelId = slackConfig.defaultChannelId;
+    final String? customMessage = slackConfig.customMessage;
+    final List<String>? mentionUsers = slackConfig.mentionUsers;
+    final bool isShareDownloadLink = slackConfig.shareLink;
+    final bool isShareQR = slackConfig.shareQR;
+    final File qrFile = File('./release-qr-code.png');
+
+    if (isSlackEnabled && slackBotToken != null && channelId != null) {
+      try {
+        print('🔔 Sharing on Slack...');
+        Helpers.showLoading('🔔 Sharing on Slack...');
+
+        await slackService.sendLinkAndQr(
+          slackBotToken: slackBotToken,
+          fileSizeInBytes: qrFile.lengthSync(),
+          file: qrFile,
+          channelId: channelId,
+          message: customMessage ?? '🎉 Your app is ready for download!',
+          mentions: mentionUsers,
+          downloadLink: downloadLink ?? Kstrings.packageLink,
+          isShareQR: isShareQR,
+          isShareDownloadLink: isShareDownloadLink,
+        );
+        print('Message sent successfully to Slack.');
+      } catch (e, s) {
+        showHighlight(
+          firstMessage: 'Slack error:',
+          highLightmessage: e.toString(),
+          lastMessage: s.toString(),
+        );
+        exit(0);
+      } finally {
+        Helpers.stopLoading();
+      }
+    }
+  }
 
   /// Get the QR error correction level
   ///

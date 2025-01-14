@@ -44,6 +44,7 @@ class GitHubUploaderService {
       }
     } catch (e) {
       print('❌ Error: $e');
+      exit(0);
     }
   }
 

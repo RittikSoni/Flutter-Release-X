@@ -65,17 +65,21 @@ qr_code:
 class UploadOptions {
   final Github github;
   final GoogleDrive googleDrive;
+  final Slack slack;
 
   UploadOptions({
     Github? github,
     GoogleDrive? googleDrive,
+    Slack? slack,
   })  : github = github ?? Github(), // Default for github
-        googleDrive = googleDrive ?? GoogleDrive(); // Default for googleDrive
+        googleDrive = googleDrive ?? GoogleDrive(), // Default for googleDrive
+        slack = slack ?? Slack();
 
   factory UploadOptions.fromYaml(Map<dynamic, dynamic> yamlMap) {
     return UploadOptions(
       github: Github.fromYaml(yamlMap['github']),
       googleDrive: GoogleDrive.fromYaml(yamlMap['google_drive']),
+      slack: Slack.fromYaml(yamlMap['slack']),
     );
   }
 
@@ -83,6 +87,7 @@ class UploadOptions {
     return {
       'github': github.toMap(),
       'google_drive': googleDrive.toMap(),
+      'slack': googleDrive.toMap(),
     };
   }
 }
@@ -115,6 +120,54 @@ class Github {
       'token': token,
       'repo': repo,
       'tag': tag,
+    };
+  }
+}
+
+class Slack {
+  final bool enabled;
+  final bool shareQR;
+  final bool shareLink;
+  final String? botUserOauthToken;
+  final String? defaultChannelId;
+  final String? customMessage;
+  final List<String>? mentionUsers;
+
+  Slack({
+    this.enabled = false,
+    this.shareQR = true,
+    this.shareLink = true,
+    this.botUserOauthToken,
+    this.defaultChannelId,
+    this.customMessage,
+    this.mentionUsers,
+  });
+
+  // Factory constructor to create an instance from YAML
+  factory Slack.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    return Slack(
+      enabled: yamlMap['enabled'] ?? false,
+      shareQR: yamlMap['share_QR'] ?? true,
+      shareLink: yamlMap['share_link'] ?? true,
+      botUserOauthToken: yamlMap['bot_user_oauth_token'],
+      defaultChannelId: yamlMap['default_channel_id'],
+      customMessage: yamlMap['custom_message'],
+      mentionUsers: yamlMap['mention_users'] != null
+          ? List<String>.from(yamlMap['mention_users'])
+          : null,
+    );
+  }
+
+  // Method to convert the object to a Map
+  Map<String, dynamic> toMap() {
+    return {
+      'enabled': enabled,
+      'share_QR': shareQR,
+      'share_link': shareLink,
+      'bot_user_oauth_token': botUserOauthToken,
+      'default_channel_id': defaultChannelId,
+      'custom_message': customMessage,
+      'mention_users': mentionUsers,
     };
   }
 }

@@ -23,6 +23,7 @@ environment:
 dependencies:
   ansicolor: ^2.0.3
   args: ^2.6.0
+  dio: ^5.7.0
   googleapis: ^13.2.0
   googleapis_auth: ^1.6.0
   http: ^1.2.2

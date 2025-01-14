@@ -122,6 +122,7 @@ class GoogleDriveUploader {
       }
     } catch (e) {
       print('Error uploading to Google Drive: $e');
+      exit(0);
     }
   }
 }

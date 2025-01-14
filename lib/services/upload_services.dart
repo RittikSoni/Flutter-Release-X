@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
@@ -43,7 +45,7 @@ class UploadService {
       Helpers.stopLoading();
     } else {
       print('Authentication failed. Please try again.');
-      return;
+      exit(0);
     }
   }
 

@@ -54,7 +54,12 @@ class BuildCommand extends Command {
 
         // Upload APK to GitHub or other storage option
         await promptUploadOption(apkPath);
+
+        /// Generate QR code and link.
         await Helpers.generateQrCodeAndLink();
+
+        /// Notify Slack.
+        await Helpers.notifySlack();
         print('🚀 APK built and ready to share!');
       } else {
         print('❌ Failed to build APK');
