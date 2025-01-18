@@ -5,6 +5,8 @@
 [![Issues](https://img.shields.io/github/issues/RittikSoni/Flutter-Release-X)](https://github.com/RittikSoni/Flutter-Release-X/issues)
 [![License](https://img.shields.io/github/license/RittikSoni/Flutter-Release-X)](LICENSE)
 
+[![Watch the tutorial on YouTube](assets/flutter_release_x_tutorial.jpg)](https://youtu.be/8WuSyGD3Smg?si=_DOKxBANN-rXvggN)
+
 **Flutter Release X** is a powerful command-line tool that transforms your Flutter app release process. Designed for efficiency and ease of use, it allows you to:
 
 - **Simplify Your Workflow**: Replace complex CI/CD pipelines with a single command to effortlessly generate and distribute release builds.
@@ -12,6 +14,22 @@
 - **Instant Distribution**: Automatically generate QR codes and download links for your builds, enabling quick and easy distribution to your team or users with no additional effort.
 
 With **Flutter Release X**, streamline your release process, enhance collaboration, and reduce time-to-market—all while focusing on what truly matters: building amazing apps.
+
+## Table of Contents
+
+- [Features Overview](#features-overview)
+- [Installation](#installation)
+- [🛠 Usage](#🛠-usage)
+- [⚙️ Configuration](#⚙️-configuration)
+- [Steps for Setup](#steps-for-setup)
+- [🌐 Cloud Integration](#🌐-cloud-integration)
+  - [GitHub Setup](#github-configuration)
+  - [Google Drive Setup](#google-drive-configuration)
+- [Slack Setup Guide](#slack-configuration-setup-guide)
+- [📱 QR Code Configuration](#📱-qr-code-configuration)
+- [License](#license)
+- [🤝 Contributors](#🤝-contributors)
+- [Contribute or Support (optional)](#support-the-package-optional)
 
 ## Features Overview
 
@@ -54,7 +72,7 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 
 | Command                         | Description                                                                                      |
 | ------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `frx build`                     | Builds the release APK, uploads to GitHub, and generates a QR code & link.                       |
+| `frx build`                     | Builds the release APK, uploads to Cloud, and generates a QR code & link.                        |
 | `frx build -s`                  | Displays the current configuration settings. This helps verify if your setup is correct.         |
 | `frx build -c <path_to_config>` | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
 
@@ -133,12 +151,12 @@ qr_code:
 
 ### GitHub
 
-| Key       | Description                        | Required | Example                        |
-| --------- | ---------------------------------- | -------- | ------------------------------ |
-| `enabled` | Enable GitHub upload               | Yes      | `true`                         |
-| `token`   | Personal Access Token for GitHub   | Yes      | `YOUR_GITHUB_TOKEN`            |
-| `repo`    | GitHub repository path             | Yes      | `RittikSoni/Flutter-Release-X` |
-| `tag`     | Release tag (e.g., version number) | Yes      | `v0.0.1`                       |
+| Key       | Description                        | Required | Example                         |
+| --------- | ---------------------------------- | -------- | ------------------------------- |
+| `enabled` | Enable GitHub upload               | Yes      | `true`                          |
+| `token`   | Personal Access Token for GitHub   | Yes      | `YOUR_GITHUB_TOKEN`             |
+| `repo`    | GitHub repository path             | Yes      | `RittikSoni/Flutter-Release-X`  |
+| `tag`     | Release tag (e.g., version number) | No       | `v0.0.1` (Defaults to `v0.0.1`) |
 
 ### Google Drive
 
@@ -188,7 +206,9 @@ qr_code:
      - Create a Google Cloud Project and enable the Google Drive API.
      - Generate OAuth 2.0 credentials for your app and add the client_id and client_secret to your config.yaml.
 
-3. **Run the Tool**
+3. **Generate Slack Credentials** (Optional)
+
+4. **Run the Tool**
    After setting up the configuration, run:
 
    ```bash
@@ -198,6 +218,8 @@ qr_code:
    This command will build your Flutter project, upload it, and generate a QR code & shareable link.
 
 ## 🌐 Cloud Integration
+
+### Github Configuration
 
 ### Generating a GitHub Personal Access Token
 
@@ -343,16 +365,6 @@ Flutter Release X can generate QR codes for quick sharing. The QR codes can be c
 | `error_correction_level` | Error correction level (low, medium, quartile, high).        |
 | `save_path`              | File path to save the QR code image.                         |
 
-## Get Involved
-
-❤️💙 Love using Flutter Release X? We're expanding its capabilities and would love your input! If you have ideas or want to contribute, check out our GitHub repository and star the project to show your support.
-
-```bash
-https://github.com/RittikSoni/Flutter-Release-X
-```
-
-Let's make Flutter Release X even more awesome together! 🌟
-
 ## License
 
 This project is licensed under the MIT License - see the [MIT LICENSE](LICENSE) file for details.
@@ -373,6 +385,16 @@ Feel free to reach out to me:
 ---
 
 ## 🤝 Contributors
+
+### Get Involved
+
+❤️💙 Love using Flutter Release X? We're expanding its capabilities and would love your input! If you have ideas or want to contribute, check out our GitHub repository and star the project to show your support.
+
+```bash
+https://github.com/RittikSoni/Flutter-Release-X
+```
+
+Let's make Flutter Release X even more awesome together! 🌟
 
 Looking to contribute? Join me on this journey!  
 Check out the [Contributing Guidelines](CONTRIBUTING.md) and submit your pull requests.

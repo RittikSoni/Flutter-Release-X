@@ -22,7 +22,7 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 
 | Command                         | Description                                                                                      |
 | ------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `frx build`                     | Builds the release APK, uploads to GitHub, and generates a QR code & link.                       |
+| `frx build`                     | Builds the release APK, uploads to Cloud, and generates a QR code & link.                        |
 | `frx build -s`                  | Displays the current configuration settings. This helps verify if your setup is correct.         |
 | `frx build -c <path_to_config>` | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
 
