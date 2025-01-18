@@ -1,3 +1,8 @@
+## 0.1.1
+
+- **Updated Documentation**: Enhanced clarity, reorganized sections, and added detailed instructions for easier setup and usage.
+- **Video Tutorial**: Released a comprehensive video tutorial to walk users through the setup process and highlight key features.
+
 ## 0.1.0
 
 - **New Feature**: Added **Slack Integration** for seamless build sharing and notifications.
