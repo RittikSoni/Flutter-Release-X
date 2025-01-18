@@ -17,18 +17,19 @@ With **Flutter Release X**, streamline your release process, enhance collaborati
 
 ## Table of Contents
 
-- [Features Overview](#features-overview)
-- [Installation](#installation)
-- [🛠 Usage](#🛠-usage)
-- [⚙️ Configuration](#⚙️-configuration)
-- [Steps for Setup](#steps-for-setup)
-- [🌐 Cloud Integration](#🌐-cloud-integration)
+- [✨ Features Overview](#features-overview)
+- [💿 Installation](#installation)
+- [🛠 Usage](#usage)
+- [⚙️ Configuration](#configuration)
+- [✅ Steps for Setup](#steps-for-setup)
+- [🌐 Cloud Integration](#cloud-integration)
   - [GitHub Setup](#github-configuration)
   - [Google Drive Setup](#google-drive-configuration)
-- [Slack Setup Guide](#slack-configuration-setup-guide)
-- [📱 QR Code Configuration](#📱-qr-code-configuration)
+- [🔔 Slack Setup Guide](#slack-configuration-setup-guide)
+- [📱 QR Code Configuration](#qr-code-configuration)
 - [License](#license)
-- [🤝 Contributors](#🤝-contributors)
+- [🌟 Want to Connect?](#want-to-connect)
+- [🤝 Contributors](#contributors)
 - [Contribute or Support (optional)](#support-the-package-optional)
 
 ## Features Overview
@@ -66,7 +67,7 @@ Alternatively, add it as a dependency in your `pubspec.yaml`:
 dart pub add flutter_release_x
 ```
 
-## 🛠 Usage
+## Usage
 
 Flutter Release X provides easy commands to build, upload, and manage your releases. Here are the main commands:
 
@@ -98,7 +99,7 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
   frx build -c config/file/path
   ```
 
-## ⚙️ Configuration
+## Configuration
 
 Create a `config.yaml` file in the root directory of your project to specify your upload options and QR code generation settings:
 
@@ -217,7 +218,7 @@ qr_code:
 
    This command will build your Flutter project, upload it, and generate a QR code & shareable link.
 
-## 🌐 Cloud Integration
+## Cloud Integration
 
 ### Github Configuration
 
@@ -352,7 +353,7 @@ If you want to mention specific users in the Slack message, you will need their 
 
 Now, you can use the `YOUR_BOT_TOKEN`, `CHANNEL_ID`, and `member_ids` in your configuration to automate Slack file uploads and download link sending.
 
-## 📱 QR Code Configuration
+## QR Code Configuration
 
 Flutter Release X can generate QR codes for quick sharing. The QR codes can be customized with various settings.
 
@@ -369,7 +370,7 @@ Flutter Release X can generate QR codes for quick sharing. The QR codes can be c
 
 This project is licensed under the MIT License - see the [MIT LICENSE](LICENSE) file for details.
 
-## 🌟 Want to Connect?
+## Want to Connect?
 
 💡 **Have suggestions or ideas?** I’d love to hear them!
 🐞 **Found a bug?** Don’t worry, I’ll squash it in no time!
@@ -384,7 +385,7 @@ Feel free to reach out to me:
 
 ---
 
-## 🤝 Contributors
+## Contributors
 
 ### Get Involved
 
