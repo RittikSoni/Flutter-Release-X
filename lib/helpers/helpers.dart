@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kenums.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
@@ -244,8 +243,7 @@ class Helpers {
     String? highLightmessage,
     String? lastMessage,
   }) {
-    final AnsiPen pen = AnsiPen()..green(bold: true);
-    print('$firstMessage ${pen(
+    print('$firstMessage ${highlight(
       highLightmessage ?? "",
     )}  ${lastMessage ?? ""}');
   }
@@ -317,8 +315,6 @@ class Helpers {
   static void debugPrint(String message) {
     print('Debug Print, Delete me before deploying: $message');
   }
-
-// TODO: remove ansicolor and http dependecies
 
   /// Check Upload options availability
   ///
