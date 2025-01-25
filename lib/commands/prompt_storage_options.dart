@@ -26,14 +26,18 @@ Future<void> promptUploadOption(String apkPath) async {
   String? choice = stdin.readLineSync();
   switch (choice) {
     case '1':
-      isGitHubAvailable
-          ? await UploadService.uploadToGitHub(apkPath)
-          : print('Please configure it first.');
+      if (isGitHubAvailable) {
+        await UploadService.uploadToGitHub(apkPath);
+        break;
+      }
+      print('Please configure it first.');
       exit(0);
     case '2':
-      isGoogleDriveAvailable
-          ? await UploadService.uploadToGoogleDrive(apkPath)
-          : print('Please configure it first.');
+      if (isGoogleDriveAvailable) {
+        await UploadService.uploadToGoogleDrive(apkPath);
+        break;
+      }
+      print('Please configure it first.');
       exit(0);
     case '3':
       await UploadService.uploadToAWS(apkPath);
