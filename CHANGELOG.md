@@ -1,3 +1,9 @@
+## v0.1.2
+
+- **Added Gitignore Section**: Included a Gitignore section in the documentation to guide best practices and prevent committing sensitive information.
+- **Removed Redundant Dependencies**: Cleaned up unnecessary dependencies.
+- **Availability Flags**: Real-time update for upload options showing which are configured and available.
+
 ## 0.1.1
 
 - **Updated Documentation**: Enhanced clarity, reorganized sections, and added detailed instructions for easier setup and usage.
