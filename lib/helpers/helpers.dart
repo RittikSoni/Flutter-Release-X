@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter_release_x/configs/config.dart';
+import 'package:flutter_release_x/constants/kenums.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/services/slack_service.dart';
 import 'package:flutter_release_x/state_management/upload_state.dart';
@@ -315,5 +316,48 @@ class Helpers {
   /// Make sure to remove all these print before PR or Deployment.
   static void debugPrint(String message) {
     print('Debug Print, Delete me before deploying: $message');
+  }
+
+// TODO: remove ansicolor and http dependecies
+
+  /// Check Upload options availability
+  ///
+  /// Whether the upload option is configured or not.
+  static bool isUploadOptionAvailable(KenumUploadOptions option) {
+    final config = Config().config;
+
+    // GITHUB
+    final gitHub = config.uploadOptions.github;
+    final isGitHubEnabled = gitHub.enabled;
+    final isGitHubRepoProvided =
+        gitHub.repo != null && gitHub.repo!.trim().isNotEmpty;
+    final isGitHubRepoToken =
+        gitHub.token != null && gitHub.token!.trim().isNotEmpty;
+
+    // GOOGLE DRIVE
+    final googleDrive = config.uploadOptions.googleDrive;
+    final isGoogleDriveEnabled = googleDrive.enabled;
+    final isGoogleDriveClientIdProvided =
+        googleDrive.clientId != null && googleDrive.clientId!.trim().isNotEmpty;
+    final isGoogleDriveClientSecretProvided =
+        googleDrive.clientSecret != null &&
+            googleDrive.clientSecret!.trim().isNotEmpty;
+
+    switch (option) {
+      case KenumUploadOptions.github:
+        if (isGitHubEnabled && isGitHubRepoProvided && isGitHubRepoToken) {
+          return true;
+        }
+        return false;
+      case KenumUploadOptions.googleDrive:
+        if (isGoogleDriveEnabled &&
+            isGoogleDriveClientIdProvided &&
+            isGoogleDriveClientSecretProvided) {
+          return true;
+        }
+        return false;
+      default:
+        return false;
+    }
   }
 }

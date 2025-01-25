@@ -54,6 +54,11 @@ class UploadService {
     // TODO: Implement AWS API upload logic
   }
 
+  static Future<void> uploadToGitlab(String apkPath) async {
+    print('📱 Gitlab upload coming soon—stay tuned! 🚀');
+    // TODO: Implement Google Playstore API upload logic
+  }
+
   static Future<void> uploadToPlayStore(String apkPath) async {
     print('📱 Google Play Store upload coming soon—stay tuned! 🚀');
     // TODO: Implement Google Playstore API upload logic
