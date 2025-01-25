@@ -4,6 +4,8 @@
 [![Pub Points](https://img.shields.io/pub/points/flutter_release_x.svg)](https://pub.dev/packages/flutter_release_x)
 [![Issues](https://img.shields.io/github/issues/RittikSoni/Flutter-Release-X)](https://github.com/RittikSoni/Flutter-Release-X/issues)
 [![License](https://img.shields.io/github/license/RittikSoni/Flutter-Release-X)](LICENSE)
+[![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/RittikSoni)
+[![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white)](https://www.youtube.com/@king_rittik?sub_confirmation=1)
 
 [![Watch the tutorial on YouTube](assets/flutter_release_x_tutorial.jpg)](https://youtu.be/8WuSyGD3Smg?si=_DOKxBANN-rXvggN)
 
@@ -27,10 +29,11 @@ With **Flutter Release X**, streamline your release process, enhance collaborati
   - [Google Drive Setup](#google-drive-configuration)
 - [🔔 Slack Setup Guide](#slack-configuration-setup-guide)
 - [📱 QR Code Configuration](#qr-code-configuration)
-- [License](#license)
+- [🔐 .gitignore Configuration](#recommended-gitignore-configuration)
+- [⚖️ License](#license)
 - [🌟 Want to Connect?](#want-to-connect)
 - [🤝 Contributors](#contributors)
-- [Contribute or Support (optional)](#support-the-package-optional)
+- [💖 Contribute or Support (optional)](#support-the-package-optional)
 
 ## Features Overview
 
@@ -261,7 +264,7 @@ To upload files to Google Drive, follow these steps to set up your credentials:
 
 1. **Create a Google Cloud Project**:
 
-   - Go to the Google Cloud Console.
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
    - Create a new project or select an existing one.
 
 2. **Enable the Drive API**:
@@ -365,6 +368,15 @@ Flutter Release X can generate QR codes for quick sharing. The QR codes can be c
 | `size`                   | QR code image size (e.g., 256).                              |
 | `error_correction_level` | Error correction level (low, medium, quartile, high).        |
 | `save_path`              | File path to save the QR code image.                         |
+
+## Recommended .gitignore Configuration
+
+To prevent exposing sensitive information or to safeguard your project from unintentionally committing sensitive information or unnecessary files, we strongly recommend adding the following entries to your .gitignore file to excluded from version control:
+
+- `gdcredentials.json`: Contains credentials such as API keys and authentication tokens.
+- `config.yaml`: Includes custom configuration or environment-specific data, which may contain sensitive information (e.g., database credentials).
+
+If you're using a custom configuration file, replace `config.yaml` with the actual filename (e.g., `custom_config.yaml`).
 
 ## License
 
