@@ -1,3 +1,17 @@
+## v0.2.0
+
+### New Features
+
+- **Pipeline System**:
+  - Introduced a powerful new pipeline feature that allows users to automate a series of tasks with customizable conditions.
+  - The pipeline supports key configurations such as `customExitCondition`, `uploadOutput`, `notifySlack`, and more to offer fine-grained control over the flow of tasks.
+
+### Enhancements
+
+- **Documentation**:
+  - Comprehensive updates to the documentation, including detailed examples and explanations of the new pipeline system.
+  - Added clear instructions on how to configure and use the pipeline, ensuring an easier onboarding process.
+
 ## v0.1.2
 
 - **Added Gitignore Section**: Included a Gitignore section in the documentation to guide best practices and prevent committing sensitive information.
