@@ -1,19 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter_release_x/configs/config.dart';
-import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:flutter_release_x/services/github_upload_service.dart';
 import 'package:flutter_release_x/services/google_drive_upload_service.dart';
 
 class UploadService {
-  static Future<void> uploadToGitHub(String apkPath) async {
+  static Future<void> uploadToGitHub(String artifactPath) async {
     Helpers.showLoading('☁️ Uploading APK to GitHub...');
-    await GitHubUploaderService.uploadToGitHub(apkPath);
+    await GitHubUploaderService.uploadToGitHub(artifactPath);
     Helpers.stopLoading();
   }
 
-  static Future<void> uploadToGoogleDrive(String apkPath) async {
+  static Future<void> uploadToGoogleDrive(String artifactPath) async {
     final config = Config().config;
 
     final googleDriveConfig = config.uploadOptions.googleDrive;
@@ -41,7 +40,7 @@ class UploadService {
     if (isAuthenticated) {
       Helpers.showLoading('☁️ Uploading APK to Google Drive...');
 
-      await uploader.uploadToGoogleDrive(Kstrings.releaseApkPath);
+      await uploader.uploadToGoogleDrive(artifactPath);
       Helpers.stopLoading();
     } else {
       print('Authentication failed. Please try again.');

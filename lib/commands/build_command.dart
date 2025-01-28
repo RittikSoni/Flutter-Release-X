@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:flutter_release_x/commands/prompt_storage_options.dart';
 import 'package:flutter_release_x/configs/config.dart';
@@ -43,29 +45,39 @@ class BuildCommand extends Command {
       return;
     }
 
-    print('Building the release APK...');
-    final isFlutterAvailable = await Helpers.checkFlutterAvailability();
+    /// Advance is not enabled, `pipeline = null`.
+    ///
+    /// Go with the Default flow.
+    if (Config().config.pipelineSteps == null) {
+      print('Building the release APK...');
+      final isFlutterAvailable = await Helpers.checkFlutterAvailability();
 
-    if (isFlutterAvailable) {
-      final apkBuilt = await Helpers.buildApk();
-
-      if (apkBuilt) {
+      if (isFlutterAvailable) {
         final apkPath = Kstrings.releaseApkPath;
+        final apkBuilt = await Helpers.buildApk(apkPath);
 
-        // Upload APK to GitHub or other storage option
-        await promptUploadOption(apkPath);
+        if (apkBuilt) {
+          // Upload APK to GitHub or other storage option
+          await promptUploadOption(apkPath);
 
-        /// Generate QR code and link.
-        await Helpers.generateQrCodeAndLink();
+          /// Generate QR code and link.
+          await Helpers.generateQrCodeAndLink();
 
-        /// Notify Slack.
-        await Helpers.notifySlack();
-        print('🚀 APK built and ready to share!');
+          /// Notify Slack.
+          await Helpers.notifySlack();
+          print('🚀 APK built and ready to share!');
+        } else {
+          print('❌ Failed to build APK');
+        }
       } else {
-        print('❌ Failed to build APK');
+        print('🐦 Please install Flutter to proceed.');
       }
     } else {
-      print('🐦 Please install Flutter to proceed.');
+      /// Advance is enabled, `pipeline != null`.
+      ///
+      /// Go with user's custom flow
+      await Helpers.executePipeline();
+      exit(0);
     }
   }
 }

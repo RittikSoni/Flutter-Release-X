@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_release_x/commands/prompt_storage_options.dart';
 import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kenums.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
+import 'package:flutter_release_x/models/app_config_model.dart';
 import 'package:flutter_release_x/services/slack_service.dart';
 import 'package:flutter_release_x/state_management/upload_state.dart';
 import 'package:qr/qr.dart';
 import 'package:image/image.dart' as img;
+import 'package:yaml/yaml.dart';
 
 class Helpers {
   /// Store the timer for stopping later
@@ -193,8 +196,123 @@ class Helpers {
     }
   }
 
+  /// Import env data.
+  Future<Map<String, String>> loadGlobalEnv() async {
+    final config = loadYaml('config.yaml');
+    final Map<String, String> env = {};
+    if (config['pipeline']['global_env'] != null) {
+      config['pipeline']['global_env'].forEach((key, value) {
+        env[key] = value;
+      });
+    }
+    return env;
+  }
+
+  /// Execute Pipeline stages commands.
+  static Future<ProcessResult> _executeCommand(
+    String command,
+    Map<String, String> env,
+    String? exitCondition,
+  ) async {
+    final args = command.split(' ');
+    final executable = args.first;
+    final commandArgs = args.sublist(1);
+
+    // Log the command being executed
+    print('🔧 Executing Command: $executable ${commandArgs.join(' ')}');
+    print('🌍 Environment Variables: ${env.isNotEmpty ? env : "None"}');
+
+    // Execute the command
+    final result = await Process.run(
+      executable,
+      commandArgs,
+      environment: env,
+      runInShell: true,
+    );
+
+    // Log the result
+    print('📜 Output00: ${result.stdout}');
+
+    if (result.stderr.isNotEmpty) {
+      print('⚠️ Error: ${result.stderr}');
+    }
+
+    // Handle custom exit condition if provided
+    if (exitCondition != null) {
+      final customCondition = RegExp(exitCondition);
+      if (customCondition.hasMatch(result.stdout) ||
+          customCondition.hasMatch(result.stderr)) {
+        print("✅ Custom exit condition matched.");
+      } else {
+        print("❌ Custom exit condition failed.");
+        return ProcessResult(result.pid, 1, result.stdout, result.stderr);
+      }
+    }
+
+    return result;
+  }
+
+  /// Executes Pipeline Step
+  static Future<bool> _executeStep(
+    PipelineStepModel step,
+    Map<String, String> env,
+  ) async {
+    print('🔧 Executing step: ${step.name}');
+
+    /// Executed command result.
+    ///
+    /// `ProcessResult`
+    final result =
+        await _executeCommand(step.command, env, step.customExitCondition);
+
+    if (result.exitCode == 0) {
+      return true;
+    } else {
+      print('❌ Step failed: ${step.name}');
+      print('Error: ${result.stderr}');
+      return false;
+    }
+  }
+
+  /// Execute Pipeline
+  static Future<void> executePipeline() async {
+    final config = Config().config;
+
+    final List<PipelineStepModel>? stages = config.pipelineSteps;
+
+    for (final stage in stages!) {
+      final String stageName = stage.name;
+      print('🚀 Starting stage: $stageName');
+
+      final success = await _executeStep(stage, {});
+      if (!success) {
+        print('❌ Pipeline failed at step: $stageName');
+        return;
+      }
+
+      /// Upload artifact, if `outputPath != null && uploadOutput = true`.
+      if (stage.uploadOutput && stage.outputPath != null) {
+        // Upload artifact to Cloud.
+        await promptUploadOption(stage.outputPath!);
+
+        /// Generate QR code and link.
+        await generateQrCodeAndLink();
+      }
+
+      /// Notify slack, if `notifySlack = true`.
+      if (stage.notifySlack) {
+        /// Notify Slack.
+        await notifySlack();
+      }
+
+      print('✅ Stage completed: $stageName');
+    }
+
+    print('🎉 Pipeline executed successfully!');
+  }
+
   /// Build the APK using Flutter CLI
-  static Future<bool> buildApk() async {
+  static Future<bool> buildApk(String apkPath) async {
     final String flutterPath = getFlutterPath();
 
     showLoading("🚀 Starting the build process...");
@@ -205,7 +323,7 @@ class Helpers {
     if (result.exitCode == 0) {
       showHighlight(
         firstMessage: '🎁 APK built successfully',
-        highLightmessage: Kstrings.releaseApkPath,
+        highLightmessage: apkPath,
       );
       return true;
     } else {

@@ -4,17 +4,19 @@ import 'package:flutter_release_x/constants/kstrings.dart';
 
 class AppConfigModel {
   final String? flutterPath;
-  final UploadOptions uploadOptions;
-  final QrCode qrCode;
+  final UploadOptionsModel uploadOptions;
+  final QrCodeModel qrCode;
+  final List<PipelineStepModel>? pipelineSteps;
 
   // Constructor with default values
   AppConfigModel({
     this.flutterPath,
-    UploadOptions? uploadOptions,
-    QrCode? qrCode,
+    UploadOptionsModel? uploadOptions,
+    QrCodeModel? qrCode,
+    this.pipelineSteps,
   })  : uploadOptions =
-            uploadOptions ?? UploadOptions(), // Default for uploadOptions
-        qrCode = qrCode ?? QrCode(); // Default for qrCode
+            uploadOptions ?? UploadOptionsModel(), // Default for uploadOptions
+        qrCode = qrCode ?? QrCodeModel(); // Default for qrCode
 
   // Factory constructor to create an instance from a YAML file
   factory AppConfigModel.fromYaml(yamlPath) {
@@ -22,8 +24,16 @@ class AppConfigModel {
 
     return AppConfigModel(
       flutterPath: yamlMap['flutter_path'],
-      uploadOptions: UploadOptions.fromYaml(yamlMap['upload_options']),
-      qrCode: QrCode.fromYaml(yamlMap['qr_code']),
+      uploadOptions: UploadOptionsModel.fromYaml(yamlMap['upload_options']),
+      qrCode: QrCodeModel.fromYaml(yamlMap['qr_code']),
+      pipelineSteps: yamlMap['pipeline_steps'] != null
+          ? List<PipelineStepModel>.from(
+              (yamlMap['pipeline_steps'] as List).map(
+                (step) =>
+                    PipelineStepModel.fromYaml(Map<String, dynamic>.from(step)),
+              ),
+            )
+          : null,
     );
   }
 
@@ -33,53 +43,30 @@ class AppConfigModel {
       'flutter_path': flutterPath,
       'upload_options': uploadOptions.toMap(),
       'qr_code': qrCode.toMap(),
+      'pipeline_steps': pipelineSteps?.map((step) => step.toMap()).toList(),
     };
-  }
-
-  // Optionally, save this configuration back to the file
-  void saveToFile() {
-    final yamlContent = '''
-flutter_path: $flutterPath
-upload_options:
-  github:
-    enabled: ${uploadOptions.github.enabled}
-    token: ${uploadOptions.github.token}
-    repo: ${uploadOptions.github.repo}
-  google_drive:
-    enabled: ${uploadOptions.googleDrive.enabled}
-    credentials_path: ${uploadOptions.googleDrive.credentialsPath}
-    client_id: ${uploadOptions.googleDrive.clientId}
-    client_secret: ${uploadOptions.googleDrive.clientSecret}
-qr_code:
-  enabled: ${qrCode.enabled}
-  save_file: ${qrCode.saveFile}
-  show_in_command: ${qrCode.showInCommand}
-  size: ${qrCode.size}
-  error_correction_level: ${qrCode.errorCorrectionLevel}
-  save_path: ${qrCode.savePath}
-''';
-    File('config.yaml').writeAsStringSync(yamlContent);
   }
 }
 
-class UploadOptions {
-  final Github github;
-  final GoogleDrive googleDrive;
-  final Slack slack;
+class UploadOptionsModel {
+  final GithubModel github;
+  final GoogleDriveModel googleDrive;
+  final SlackModel slack;
 
-  UploadOptions({
-    Github? github,
-    GoogleDrive? googleDrive,
-    Slack? slack,
-  })  : github = github ?? Github(), // Default for github
-        googleDrive = googleDrive ?? GoogleDrive(), // Default for googleDrive
-        slack = slack ?? Slack();
+  UploadOptionsModel({
+    GithubModel? github,
+    GoogleDriveModel? googleDrive,
+    SlackModel? slack,
+  })  : github = github ?? GithubModel(), // Default for github
+        googleDrive =
+            googleDrive ?? GoogleDriveModel(), // Default for googleDrive
+        slack = slack ?? SlackModel();
 
-  factory UploadOptions.fromYaml(Map<dynamic, dynamic> yamlMap) {
-    return UploadOptions(
-      github: Github.fromYaml(yamlMap['github']),
-      googleDrive: GoogleDrive.fromYaml(yamlMap['google_drive']),
-      slack: Slack.fromYaml(yamlMap['slack']),
+  factory UploadOptionsModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    return UploadOptionsModel(
+      github: GithubModel.fromYaml(yamlMap['github']),
+      googleDrive: GoogleDriveModel.fromYaml(yamlMap['google_drive']),
+      slack: SlackModel.fromYaml(yamlMap['slack']),
     );
   }
 
@@ -92,21 +79,21 @@ class UploadOptions {
   }
 }
 
-class Github {
+class GithubModel {
   final bool enabled;
   final String? token;
   final String? repo;
   final String tag;
 
-  Github({
+  GithubModel({
     this.enabled = false, // Default for enabled
     this.token,
     this.repo,
     String? tag,
   }) : tag = tag ?? 'v0.0.1';
 
-  factory Github.fromYaml(Map<dynamic, dynamic> yamlMap) {
-    return Github(
+  factory GithubModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    return GithubModel(
       enabled: yamlMap['enabled'] ?? false,
       token: yamlMap['token'],
       repo: yamlMap['repo'],
@@ -124,7 +111,7 @@ class Github {
   }
 }
 
-class Slack {
+class SlackModel {
   final bool enabled;
   final bool shareQR;
   final bool shareLink;
@@ -133,7 +120,7 @@ class Slack {
   final String? customMessage;
   final List<String>? mentionUsers;
 
-  Slack({
+  SlackModel({
     this.enabled = false,
     this.shareQR = true,
     this.shareLink = true,
@@ -144,8 +131,8 @@ class Slack {
   });
 
   // Factory constructor to create an instance from YAML
-  factory Slack.fromYaml(Map<dynamic, dynamic> yamlMap) {
-    return Slack(
+  factory SlackModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    return SlackModel(
       enabled: yamlMap['enabled'] ?? false,
       shareQR: yamlMap['share_QR'] ?? true,
       shareLink: yamlMap['share_link'] ?? true,
@@ -172,21 +159,21 @@ class Slack {
   }
 }
 
-class GoogleDrive {
+class GoogleDriveModel {
   final bool enabled;
   final String? credentialsPath;
   final String? clientId;
   final String? clientSecret;
 
-  GoogleDrive({
+  GoogleDriveModel({
     this.enabled = false, // Default for enabled
     this.credentialsPath,
     this.clientId,
     this.clientSecret,
   });
 
-  factory GoogleDrive.fromYaml(Map<dynamic, dynamic> yamlMap) {
-    return GoogleDrive(
+  factory GoogleDriveModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    return GoogleDriveModel(
       enabled: yamlMap['enabled'] ?? false,
       credentialsPath: yamlMap['credentials_path'],
       clientId: yamlMap['client_id'],
@@ -204,7 +191,7 @@ class GoogleDrive {
   }
 }
 
-class QrCode {
+class QrCodeModel {
   final bool enabled;
   final bool saveFile;
   final bool showInCommand;
@@ -212,7 +199,7 @@ class QrCode {
   final String errorCorrectionLevel;
   final String savePath;
 
-  QrCode({
+  QrCodeModel({
     this.enabled = true, // Default for enabled
     this.saveFile = true, // Default for saveFile
     this.showInCommand = true, // Default for showInCommand
@@ -221,8 +208,8 @@ class QrCode {
     this.savePath = Kstrings.qrCodeSavePath, // Default for savePath
   });
 
-  factory QrCode.fromYaml(Map<dynamic, dynamic> yamlMap) {
-    return QrCode(
+  factory QrCodeModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    return QrCodeModel(
       enabled: yamlMap['enabled'] ?? true,
       saveFile: yamlMap['save_file'] ?? true,
       showInCommand: yamlMap['show_in_command'] ?? true,
@@ -240,6 +227,84 @@ class QrCode {
       'size': size,
       'error_correction_level': errorCorrectionLevel,
       'save_path': savePath,
+    };
+  }
+}
+
+class PipelineStepModel {
+  final String name;
+  final String command;
+  final List<String> dependsOn;
+
+  /// Flag to enable uploading for this step.
+  ///
+  /// Defaults to `false`
+  final bool uploadOutput;
+
+  /// Path of the save artifact.
+  final String? outputPath;
+
+  /// Flag to notify Slack after this step
+  ///
+  /// Defaults to `false`
+  final bool notifySlack;
+
+  /// Defaults to `true`
+  ///
+  /// Whether to stop pipeline or not when any step fails.
+  final bool? stopOnFailure;
+
+  /// Custom Condition For exit condition
+  ///
+  /// e.g.
+  /// ```yaml
+  /// pipeline_steps:
+  ///     - name: "Analyze Code"
+  ///       command: "flutter analyze"
+  ///       custom_exit_condition: "No issues found!" # Matches specific output to determine success
+  ///       stop_on_failure: true
+  /// ```
+  final String? customExitCondition;
+
+  PipelineStepModel({
+    required this.name,
+    required this.command,
+    this.dependsOn = const [],
+    this.uploadOutput = false, // Default to false if not specified
+    this.outputPath, // Optional: Path of the artifact to upload
+    this.notifySlack = false, // Default to false if not specified
+    this.customExitCondition,
+    this.stopOnFailure = true,
+  });
+
+  factory PipelineStepModel.fromYaml(Map<String, dynamic> yamlMap) {
+    final stepMap = Map<String, dynamic>.from(yamlMap);
+    if (yamlMap['name'] == null || yamlMap['command'] == null) {
+      print('❌ Provide Stage name and command in pipeline');
+      exit(1);
+    }
+    return PipelineStepModel(
+      name: yamlMap['name'],
+      command: yamlMap['command'],
+      dependsOn: List<String>.from(stepMap['depends_on'] ?? []),
+      uploadOutput: yamlMap['upload_output'] ?? false,
+      outputPath: yamlMap['output_path'], // Load output path
+      notifySlack: yamlMap['notify_slack'] ?? false,
+      stopOnFailure: yamlMap['stop_on_failure'] ?? true,
+      customExitCondition: yamlMap['custom_exit_condition'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'command': command,
+      'depends_on': dependsOn,
+      'upload_output': uploadOutput,
+      'output_path': outputPath, // Save output path
+      'notify_slack': notifySlack,
+      'stop_on_failure': stopOnFailure,
+      'custom_exit_condition': customExitCondition,
     };
   }
 }

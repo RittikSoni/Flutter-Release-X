@@ -4,7 +4,7 @@ import 'package:flutter_release_x/constants/kenums.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:flutter_release_x/services/upload_services.dart';
 
-Future<void> promptUploadOption(String apkPath) async {
+Future<void> promptUploadOption(String artifactPath) async {
   final isGitHubAvailable =
       Helpers.isUploadOptionAvailable(KenumUploadOptions.github);
   final isGoogleDriveAvailable =
@@ -27,29 +27,29 @@ Future<void> promptUploadOption(String apkPath) async {
   switch (choice) {
     case '1':
       if (isGitHubAvailable) {
-        await UploadService.uploadToGitHub(apkPath);
+        await UploadService.uploadToGitHub(artifactPath);
         break;
       }
       print('Please configure it first.');
       exit(0);
     case '2':
       if (isGoogleDriveAvailable) {
-        await UploadService.uploadToGoogleDrive(apkPath);
+        await UploadService.uploadToGoogleDrive(artifactPath);
         break;
       }
       print('Please configure it first.');
       exit(0);
     case '3':
-      await UploadService.uploadToAWS(apkPath);
+      await UploadService.uploadToAWS(artifactPath);
       exit(0);
     case '4':
-      await UploadService.uploadToGitlab(apkPath);
+      await UploadService.uploadToGitlab(artifactPath);
       exit(0);
     case '5':
-      await UploadService.uploadToPlayStore(apkPath);
+      await UploadService.uploadToPlayStore(artifactPath);
       exit(0);
     case '6':
-      await UploadService.uploadToAppStore(apkPath);
+      await UploadService.uploadToAppStore(artifactPath);
       exit(0);
     default:
       print('Invalid choice. Please try again.');
