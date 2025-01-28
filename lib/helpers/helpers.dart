@@ -242,10 +242,10 @@ class Helpers {
       final customCondition = RegExp(exitCondition);
       if (customCondition.hasMatch(result.stdout) ||
           customCondition.hasMatch(result.stderr)) {
-        print("✅ Custom exit condition matched.");
-      } else {
-        print("❌ Custom exit condition failed.");
+        print("❌ Custom exit condition matched. Stopping the pipeline.");
         return ProcessResult(result.pid, 1, result.stdout, result.stderr);
+      } else {
+        print("✅ Custom exit condition not matched. Continuing the pipeline.");
       }
     }
 

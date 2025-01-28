@@ -19,10 +19,19 @@ With **Flutter Release X**, streamline your release process, enhance collaborati
 
 ## Table of Contents
 
-- [✨ Features Overview](#features-overview)
+- [✨ What's New](#whats-new)
+- [🌟 Features Overview](#features-overview)
 - [💿 Installation](#installation)
 - [🛠 Usage](#usage)
 - [⚙️ Configuration](#configuration)
+  - [Config file with example](#config-file)
+  - [Flutter Path](#flutter-path)
+  - [Upload Options](#upload-options)
+    - [GitHub](#github)
+    - [Google Drive](#google-drive)
+    - [Slack](#slack)
+  - [QR Code Generation Settings](#qr-code-generation-settings)
+  - [Advance Pipeline](#advance-pipeline)
 - [✅ Steps for Setup](#steps-for-setup)
 - [🌐 Cloud Integration](#cloud-integration)
   - [GitHub Setup](#github-configuration)
@@ -35,10 +44,17 @@ With **Flutter Release X**, streamline your release process, enhance collaborati
 - [🤝 Contributors](#contributors)
 - [💖 Contribute or Support (optional)](#support-the-package-optional)
 
+## What's New
+
+| Feature               | Description                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Advanced Pipeline** | Automate and streamline your CI/CD pipeline with the new advanced pipeline feature, integrating multiple steps in one command. |
+
 ## Features Overview
 
 | Feature                      | Status         | Description                                                         |
 | ---------------------------- | -------------- | ------------------------------------------------------------------- |
+| ✨ **Advanced Pipeline**     | ✅ New         | Automate your CI/CD pipeline steps into one streamlined command.    |
 | **APK Builds**               | ✅ Integrated  | Seamless APK build process fully integrated.                        |
 | **GitHub Upload**            | ✅ Integrated  | Direct upload to GitHub repository for easy sharing.                |
 | **Google Drive Upload**      | ✅ Integrated  | Upload builds to Google Drive for secure cloud storage.             |
@@ -106,6 +122,8 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 
 Create a `config.yaml` file in the root directory of your project to specify your upload options and QR code generation settings:
 
+## Config file
+
 ```yaml
 # Path to Flutter binary
 # Example for Windows: C:/dev/flutter/bin/flutter.bat
@@ -141,6 +159,50 @@ qr_code:
   size: 256 # Size of the generated QR code (pixels)
   error_correction_level: low # Error correction level: low, medium, quartile, high
   save_path: "./release-qr-code.png" # File path to save the QR code image
+
+# Advanced Pipeline Configuration [OPTIONAL]
+# This section allows you to define multiple pipeline steps that can be executed in sequence. Each step can have its own commands, dependencies, and upload options.
+
+# If a custom pipeline is provided, it will override the default flow and behavior.
+# Ensure that the pipeline steps are properly defined to reflect the intended execution order.
+
+# e.g.,
+pipeline_steps:
+  - name: "Build APK"
+    command: "flutter build apk --release"
+    customExitCondition: "error: some specific error message" # Stop if this error appears in the output
+    upload_output: true # Enable upload for this step
+    output_path: "./build/app/outputs/flutter-apk/app-release.apk" # APK path
+    notify_slack: false # Do not notify Slack after this step
+
+  - name: "Run Tests"
+    command: "flutter test"
+    customExitCondition: "Test failed" # Stop if tests fail
+    upload_output: false # No upload for this step
+    notify_slack: true # Notify Slack after tests complete
+
+  - name: "Lint"
+    command: "flutter analyze"
+    customExitCondition: "issues found" # Stop if issues found
+
+  - name: "Package Release"
+    command: "node --version"
+    customExitCondition: "version mismatch" # Stop if version mismatch is found
+    upload_output: true # Upload to cloud on success
+    output_path: "./release-package.zip" # Path to release package
+    notify_slack: true # Notify on Slack on success
+
+  - name: "Deploy to Cloud"
+    command: "./deploy_to_cloud.sh"
+    customExitCondition: "deployment failed" # Stop if deployment fails
+    upload_output: false # No upload as deployment is handled separately
+    notify_slack: true # Notify on Slack on success
+
+# Note: The order of steps in the pipeline is crucial!
+# Each step depends on the successful completion of the previous step.
+# If a step fails due to a custom exit condition, the pipeline will halt immediately,
+# and subsequent steps will not be executed. Ensure that custom exit conditions are properly defined
+# to avoid unwanted interruptions in the pipeline flow.
 ```
 
 ## Flutter Path
@@ -194,6 +256,17 @@ qr_code:
 | `size`                   | Size of the generated QR code (in pixels)            | `256`                   | `256`                                        |
 | `error_correction_level` | Error correction level for the QR code               | `low`                   | `low` (Options: low, medium, quartile, high) |
 | `save_path`              | File path to save the QR code image                  | `./release-qr-code.png` | `./release-qr-code.png`                      |
+
+## Advance Pipeline
+
+| Field                     | Description                                                                                                                                                                                  | Example Value                                                                          | Required | Default Value |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------- | ------------- |
+| **name**                  | The name of the pipeline step.                                                                                                                                                               | "Build APK"                                                                            | Yes      | N/A           |
+| **command**               | The command to run for this pipeline step.                                                                                                                                                   | `flutter build apk --release`                                                          | Yes      | N/A           |
+| **upload_output**         | Whether to upload the output from this step.                                                                                                                                                 | `true` or `false`                                                                      | No       | `false`       |
+| **output_path**           | The file path where the output is stored (if applicable).                                                                                                                                    | `./build/app/outputs/flutter-apk/app-release.apk`                                      | No       | N/A           |
+| **notify_slack**          | Whether to notify Slack after this step completes.                                                                                                                                           | `true` or `false`                                                                      | No       | `false`       |
+| **custom_exit_condition** | Custom condition for when to **stop** the pipeline step. It checks for a specific match in the `stdout` or `stderr`. If matched, the pipeline stops. If not matched, the pipeline continues. | `"error: some specific error message"` (Stop if a specific error occurs in the output) | No       | N/A           |
 
 ## Steps for Setup
 
