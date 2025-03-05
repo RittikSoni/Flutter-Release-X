@@ -1,3 +1,7 @@
+## v0.2.1
+
+- add better documentation.
+
 ## v0.2.0
 
 ### New Features
