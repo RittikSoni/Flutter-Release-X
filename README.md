@@ -3,11 +3,12 @@
 [![Pub Version](https://img.shields.io/pub/v/flutter_release_x.svg)](https://pub.dev/packages/flutter_release_x)
 [![Pub Points](https://img.shields.io/pub/points/flutter_release_x.svg)](https://pub.dev/packages/flutter_release_x)
 [![Issues](https://img.shields.io/github/issues/RittikSoni/Flutter-Release-X)](https://github.com/RittikSoni/Flutter-Release-X/issues)
+[![📖 - docs](https://img.shields.io/badge/📖-docs-13D4D4)](https://frx.elpisverse.com)
 [![License](https://img.shields.io/github/license/RittikSoni/Flutter-Release-X)](LICENSE)
 [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/RittikSoni)
 [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white)](https://www.youtube.com/@king_rittik?sub_confirmation=1)
 
-![Flutter Release X](assets/frx_gif_banner.gif "FRX")
+[![Flutter Release X](assets/frx_gif_banner.gif)](https://frx.elpisverse.com)
 
 [![Watch the tutorial on YouTube](assets/flutter_release_x_tutorial.jpg)](https://youtu.be/8WuSyGD3Smg?si=_DOKxBANN-rXvggN)
 

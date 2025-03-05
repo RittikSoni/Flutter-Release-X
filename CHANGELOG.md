@@ -1,3 +1,7 @@
+## v0.2.2
+
+- improve docs.
+
 ## v0.2.1
 
 - add better documentation.
