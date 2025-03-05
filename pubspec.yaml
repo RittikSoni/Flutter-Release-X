@@ -4,7 +4,7 @@ version: 0.2.0
 repository: https://github.com/RittikSoni/Flutter-Release-X
 license: MIT
 homepage: https://github.com/RittikSoni/Flutter-Release-X
-documentation: https://github.com/RittikSoni/Flutter-Release-X#readme
+documentation: https://frx.elpisverse.com
 issue_tracker: https://github.com/RittikSoni/Flutter-Release-X/issues
 
 platforms:
@@ -12,9 +12,9 @@ platforms:
   windows:
   macos:
 
-# screenshots:
-#   - description: 'Flutter Release X Logo'
-#     path: assets/logo.png
+screenshots:
+  - description: "Flutter Release X Logo"
+    path: assets/frx_gif_banner.gif
 
 environment:
   sdk: ^3.6.0

@@ -7,6 +7,8 @@
 [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/RittikSoni)
 [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white)](https://www.youtube.com/@king_rittik?sub_confirmation=1)
 
+![Flutter Release X](assets/frx_gif_banner.gif "FRX")
+
 [![Watch the tutorial on YouTube](assets/flutter_release_x_tutorial.jpg)](https://youtu.be/8WuSyGD3Smg?si=_DOKxBANN-rXvggN)
 
 **Flutter Release X** is a powerful command-line tool that transforms your Flutter app release process. Designed for efficiency and ease of use, it allows you to:
@@ -16,6 +18,14 @@
 - **Instant Distribution**: Automatically generate QR codes and download links for your builds, enabling quick and easy distribution to your team or users with no additional effort.
 
 With **Flutter Release X**, streamline your release process, enhance collaboration, and reduce time-to-market—all while focusing on what truly matters: building amazing apps.
+
+## 📖 Documentation
+
+📚 **[Read the Full FRX Docs](https://frx.elpisverse.com)**
+
+Learn everything about FRX, from **setup to quick examples to advanced configurations**.
+
+---
 
 ## Table of Contents
 
@@ -52,23 +62,29 @@ With **Flutter Release X**, streamline your release process, enhance collaborati
 
 ## Features Overview
 
-| Feature                      | Status         | Description                                                         |
-| ---------------------------- | -------------- | ------------------------------------------------------------------- |
-| ✨ **Advanced Pipeline**     | ✅ New         | Automate your CI/CD pipeline steps into one streamlined command.    |
-| **APK Builds**               | ✅ Integrated  | Seamless APK build process fully integrated.                        |
-| **GitHub Upload**            | ✅ Integrated  | Direct upload to GitHub repository for easy sharing.                |
-| **Google Drive Upload**      | ✅ Integrated  | Upload builds to Google Drive for secure cloud storage.             |
-| **Upload Link Generation**   | ✅ Integrated  | Automatically generate and share download links for your builds.    |
-| **QR Code Generation**       | ✅ Integrated  | Generate QR codes for quick access to your build download link.     |
-| **Slack Integration**        | ✅ Integrated  | Share builds and updates directly in Slack channels.                |
-| **iOS Builds**               | 🚀 Coming Soon | iOS build support coming soon for streamlined app deployment.       |
-| **Windows Builds**           | 🚀 Coming Soon | Windows build support coming soon for cross-platform compatibility. |
-| **macOS Builds**             | 🚀 Coming Soon | macOS build support coming soon to cater to Apple ecosystem.        |
-| **Linux Builds**             | 🚀 Coming Soon | Linux build support coming soon for open-source deployment.         |
-| **AWS S3 Upload**            | 🚀 Coming Soon | Integration with AWS S3 for scalable cloud storage uploads.         |
-| **GitLab Upload**            | 🚀 Coming Soon | Direct upload to GitLab repositories for version control.           |
-| **Google Play Store Upload** | 🚀 Coming Soon | Streamlined upload process to Google Play Store for Android apps.   |
-| **Apple App Store Upload**   | 🚀 Coming Soon | Easy upload to the Apple App Store for iOS app distribution.        |
+The table below outlines the current status of various features. Features marked with **"Available via Advanced Pipeline"** are not part of the basic Flutter Release X setup but can be enabled through our Advanced Pipeline feature for enhanced automation.
+
+| Feature                      | Status         | Description                                                              | Achievable via Advanced Pipeline   |
+| ---------------------------- | -------------- | ------------------------------------------------------------------------ | ---------------------------------- |
+| ✨ **Advanced Pipeline**     | ✅ New         | Streamline and automate your entire CI/CD workflow in one command.       | —                                  |
+| **APK Builds**               | ✅ Integrated  | Fully integrated APK build process.                                      | —                                  |
+| **GitHub Upload**            | ✅ Integrated  | Directly upload your builds to a GitHub repository for seamless sharing. | —                                  |
+| **Google Drive Upload**      | ✅ Integrated  | Securely store your builds in Google Drive.                              | —                                  |
+| **Upload Link Generation**   | ✅ Integrated  | Automatically generate and share download links for your builds.         | —                                  |
+| **QR Code Generation**       | ✅ Integrated  | Instantly generate QR codes for quick access to your build downloads.    | —                                  |
+| **Slack Integration**        | ✅ Integrated  | Keep your team updated by sharing builds directly on Slack.              | —                                  |
+| **iOS Builds**               | 🚀 Coming Soon | iOS build support is not available by default.                           | ✅ Available via Advanced Pipeline |
+| **Windows Builds**           | 🚀 Coming Soon | Windows build support is not available by default.                       | ✅ Available via Advanced Pipeline |
+| **macOS Builds**             | 🚀 Coming Soon | macOS build support is not available by default.                         | ✅ Available via Advanced Pipeline |
+| **Linux Builds**             | 🚀 Coming Soon | Linux build support is not available by default.                         | ✅ Available via Advanced Pipeline |
+| **AWS S3 Upload**            | 🚀 Coming Soon | Scalable cloud storage uploads through AWS S3.                           | ✅ Available via Advanced Pipeline |
+| **GitLab Upload**            | 🚀 Coming Soon | Direct upload to GitLab repositories for seamless version control.       | ✅ Available via Advanced Pipeline |
+| **Google Play Store Upload** | 🚀 Coming Soon | Streamline your Android app distribution via the Google Play Store.      | ✅ Available via Advanced Pipeline |
+| **Apple App Store Upload**   | 🚀 Coming Soon | Simplify iOS app distribution with the Apple App Store upload feature.   | ✅ Available via Advanced Pipeline |
+
+> **Note:** Features marked as "Available via Advanced Pipeline" require configuration through the Advanced Pipeline option in Flutter Release X. For further details, please refer to the [Official frx documentation](https://frx.elpisverse.com).
+
+> **Tip:** Checkout Cookbook for quick implementation [Cookbook](https://frx.elpisverse.com/docs/Cookbook/advance-cookbook)
 
 Stay tuned for exciting updates and more cloud upload functionalities like AWS S3, Google Play Store, and Apple App Store integrations. 🚀
 
@@ -461,7 +477,10 @@ This project is licensed under the MIT License - see the [MIT LICENSE](LICENSE) 
 🐞 **Found a bug?** Don’t worry, I’ll squash it in no time!
 
 Feel free to reach out to me:
+
 📧 **Email:** [contact.kingrittik@gmail.com](mailto:contact.kingrittik@gmail.com)  
+📖 **Documentation:** [frx docs](https://frx.elpisverse.com)  
+💬 **Discord:** [Join Discord Community](https://discord.gg/Tmn6BKwSnr)  
 🌐 **GitHub:** [Flutter Release X Repository](https://github.com/RittikSoni/Flutter-Release-X)  
 📺 **YouTube:** [Learn Flutter & More with Rittik](https://www.youtube.com/@king_rittik)  
 📸 **Instagram:** [@kingrittikofficial](https://www.instagram.com/kingrittikofficial)  
@@ -489,6 +508,11 @@ Together, let’s make Flutter development faster, easier, and more fun! 🎉
 
 ## Support the package (optional)
 
-If you find this package useful, you can support it for free by giving it a thumbs up at the top of this page. Here's another option to support the package:
+If Flutter Release X has made your development process smoother, please consider supporting our work. Your support is entirely optional but truly appreciated!
 
-<p align='center'><a href="https://www.buymeacoffee.com/kingrittik" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a></p>
+- **Give a Thumbs Up:** Click the star/thumbs-up at the top of this page to show your appreciation.
+- **Become a Sponsor:** [Sponsor this project on GitHub](https://github.com/sponsors/RittikSoni)
+- **Buy Me A Coffee:**  
+  <a href="https://www.buymeacoffee.com/kingrittik" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px; width: 100px;"></a>
+
+Thank you for helping us keep Flutter Release X thriving!
