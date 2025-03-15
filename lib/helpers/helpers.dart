@@ -13,9 +13,19 @@ import 'package:image/image.dart' as img;
 import 'package:yaml/yaml.dart';
 
 class Helpers {
+  // ───────────────────────────────────── LOADERS  ─────────────────────────────────────
+  static const List<String> earthFrames = [
+    '🌍',
+    '🌎',
+    '🌏'
+  ]; // Earth rotation frames
+  static const List<String> spinnerFrames = ['|', '/', '-', '\\'];
+
+//  ───────────────────────────────────── TIMER  ─────────────────────────────────────
   /// Store the timer for stopping later
   static Timer? _loadingTimer;
 
+//  ─────────────────────────────────────  SLACK  ─────────────────────────────────────
   static notifySlack() async {
     final slackService = SlackService();
     final uploadState = UploadState();
@@ -60,6 +70,8 @@ class Helpers {
       }
     }
   }
+
+  //  ───────────────────────────────────── QR  ─────────────────────────────────────
 
   /// Get the QR error correction level
   ///
@@ -163,6 +175,8 @@ class Helpers {
       print(row);
     }
   }
+
+//  ───────────────────────────────────── CORE  ─────────────────────────────────────
 
   static String getFlutterPath() {
     final config = Config().config;
@@ -335,23 +349,31 @@ class Helpers {
     }
   }
 
-  /// Show Loading spinner
-  static void showLoading(String message) {
-    final spinnerChars = ['|', '/', '-', '\\'];
+//  ───────────────────────────────────── UTILS  ─────────────────────────────────────
+
+  /// Show Loading Spinner (Defaults to Earth 🌍)
+  static void showLoading(String message, {bool useEarth = true}) {
+    final frames = useEarth ? earthFrames : spinnerFrames;
     int i = 0;
 
-    // Create the timer and store it
-    _loadingTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
-      stdout.write('\r$message ${spinnerChars[i % spinnerChars.length]}');
+    // Ensure no previous loader is running
+    stopLoading();
+
+    _loadingTimer = Timer.periodic(Duration(milliseconds: 200), (timer) {
+      stdout.write('\r$message ${frames[i % frames.length]}');
       i++;
     });
   }
 
-  /// Stop the Loading spinner
+  /// Stop the Loading Spinner
   static void stopLoading() {
     if (_loadingTimer != null) {
-      _loadingTimer!.cancel(); // Cancel the spinner timer
-      stdout.write('\r'); // Clear the line after stopping
+      // Cancel the spinner timer
+      _loadingTimer!.cancel();
+      _loadingTimer = null;
+
+      // Clear the line after stopping
+      stdout.write('\r \r');
     }
   }
 
