@@ -222,48 +222,73 @@ class Helpers {
     return env;
   }
 
-  /// Execute Pipeline stages commands.
+  /// Execute Pipeline stages commands with improved robustness.
   static Future<ProcessResult> _executeCommand(
     String command,
     Map<String, String> env,
     String? exitCondition,
   ) async {
-    final args = command.split(' ');
-    final executable = args.first;
-    final commandArgs = args.sublist(1);
+    if (command.trim().isEmpty) {
+      print('⚠️ Error: Command is empty. Skipping execution.');
+      return ProcessResult(0, 1, '', 'Command is empty');
+    }
 
-    // Log the command being executed
-    print('🔧 Executing Command: $executable ${commandArgs.join(' ')}');
+    final shellType = Platform.isWindows ? 'powershell' : 'bash';
+    final shellFlag = Platform.isWindows ? '-Command' : '-c';
+
+    print('🔧 Executing Command: $command');
     print('🌍 Environment Variables: ${env.isNotEmpty ? env : "None"}');
 
-    // Execute the command
-    final result = await Process.run(
-      executable,
-      commandArgs,
+    // Start the process
+    final process = await Process.start(
+      shellType,
+      [shellFlag, command],
       environment: env,
       runInShell: true,
     );
 
-    // Log the result
-    print('📜 Output00: ${result.stdout}');
+    // Store output in memory
+    StringBuffer stdoutBuffer = StringBuffer();
+    StringBuffer stderrBuffer = StringBuffer();
 
-    if (result.stderr.isNotEmpty) {
-      print('⚠️ Error: ${result.stderr}');
-    }
+    // Listen to stdout
+    stdout.write('📜 Output:');
+    final stdoutSubscription =
+        process.stdout.transform(SystemEncoding().decoder).listen((data) {
+      stdout.write(data);
+      stdoutBuffer.write(data);
+    });
 
-    // Handle custom exit condition if provided
+    // Listen to stderr
+    final stderrSubscription =
+        process.stderr.transform(SystemEncoding().decoder).listen((data) {
+      stderr.write('⚠️ Error: $data');
+      stderrBuffer.write(data);
+    });
+
+    // Wait for completion
+    final exitCode = await process.exitCode;
+
+    // Cancel subscriptions
+    await stdoutSubscription.cancel();
+    await stderrSubscription.cancel();
+
+    // Get collected output
+    final stdoutData = stdoutBuffer.toString();
+    final stderrData = stderrBuffer.toString();
+
+    // Custom exit condition handling
     if (exitCondition != null) {
       final customCondition = RegExp(exitCondition);
-      if (customCondition.hasMatch(result.stdout) ||
-          customCondition.hasMatch(result.stderr)) {
+      if (customCondition.hasMatch(stdoutData) ||
+          customCondition.hasMatch(stderrData)) {
         print("❌ Custom exit condition matched. Stopping the pipeline.");
-        return ProcessResult(result.pid, 1, result.stdout, result.stderr);
-      } else {
-        print("✅ Custom exit condition not matched. Continuing the pipeline.");
+        return ProcessResult(
+            process.pid, 1, stdoutData, 'Custom exit condition matched');
       }
     }
 
-    return result;
+    return ProcessResult(process.pid, exitCode, stdoutData, stderrData);
   }
 
   /// Executes Pipeline Step
@@ -296,9 +321,10 @@ class Helpers {
 
     for (final stage in stages!) {
       final String stageName = stage.name;
-      print('🚀 Starting stage: $stageName');
+      print('\n🚀 Starting stage: $stageName');
 
       final success = await _executeStep(stage, {});
+
       if (!success) {
         print('❌ Pipeline failed at step: $stageName');
         return;
@@ -319,7 +345,7 @@ class Helpers {
         await notifySlack();
       }
 
-      print('✅ Stage completed: $stageName');
+      print('✅ Stage completed: $stageName \n');
     }
 
     print('🎉 Pipeline executed successfully!');
