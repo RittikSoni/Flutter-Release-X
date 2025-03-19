@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_release_x/configs/config.dart';
+import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:flutter_release_x/services/github_upload_service.dart';
 import 'package:flutter_release_x/services/google_drive_upload_service.dart';
@@ -49,22 +50,26 @@ class UploadService {
   }
 
   static Future<void> uploadToAWS(String apkPath) async {
-    print('☁️ AWS upload coming soon—stay tuned! 🚀');
+    print(
+        '☁️ AWS upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
     // TODO: Implement AWS API upload logic
   }
 
   static Future<void> uploadToGitlab(String apkPath) async {
-    print('📱 Gitlab upload coming soon—stay tuned! 🚀');
+    print(
+        '📱 Gitlab upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
     // TODO: Implement Gitlab API upload logic
   }
 
   static Future<void> uploadToPlayStore(String apkPath) async {
-    print('📱 Google Play Store upload coming soon—stay tuned! 🚀');
+    print(
+        '📱 Google Play Store upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
     // TODO: Implement Google Playstore API upload logic
   }
 
   static Future<void> uploadToAppStore(String apkPath) async {
-    print('🍎 App Store upload coming soon—stay tuned! 🚀');
+    print(
+        '🍎 App Store upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
     // TODO: Implement App Store API upload logic
   }
 }

@@ -39,4 +39,7 @@ class Kstrings {
 
   static final String defaultFlutterBinPath =
       Platform.isWindows ? 'flutter.bat' : 'flutter';
+
+  static const String commingSoonTip =
+      'Tip: You can achieve this using Advance pipeline feature (https://frx.elpisverse.com/docs/configuration#2-advanced-pipeline-full-customization-).';
 }
