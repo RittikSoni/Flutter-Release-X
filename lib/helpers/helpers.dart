@@ -28,7 +28,11 @@ class Helpers {
   static Timer? _loadingTimer;
 
 //  ─────────────────────────────────────  SLACK  ─────────────────────────────────────
-  static notifySlack() async {
+  static notifySlack({
+    String? customSlackMsg,
+    bool? shareLink,
+    bool? shareQr,
+  }) async {
     final slackService = SlackService();
     final uploadState = UploadState();
 
@@ -37,15 +41,14 @@ class Helpers {
     final bool isSlackEnabled = slackConfig.enabled;
     final String? slackBotToken = slackConfig.botUserOauthToken;
     final String? channelId = slackConfig.defaultChannelId;
-    final String? customMessage = slackConfig.customMessage;
+    final String? customMessage = customSlackMsg ?? slackConfig.customMessage;
     final List<String>? mentionUsers = slackConfig.mentionUsers;
-    final bool isShareDownloadLink = slackConfig.shareLink;
-    final bool isShareQR = slackConfig.shareQR;
+    final bool isShareDownloadLink = shareLink ?? slackConfig.shareLink;
+    final bool isShareQR = shareQr ?? slackConfig.shareQR;
     final File qrFile = File('./release-qr-code.png');
 
     if (isSlackEnabled && slackBotToken != null && channelId != null) {
       try {
-        print('🔔 Sharing on Slack...');
         Helpers.showLoading('🔔 Sharing on Slack...');
 
         await slackService.sendLinkAndQr(

@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:flutter_release_x/commands/build_command.dart';
+import 'package:flutter_release_x/commands/notify_command/notify_command.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 
 class CLI {
@@ -10,7 +11,8 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
 
   void run(List<String> arguments) {
     final runner = CommandRunner(Kstrings.packageName, description)
-      ..addCommand(BuildCommand());
+      ..addCommand(BuildCommand())
+      ..addCommand(NotifyCommand());
 
     try {
       runner.run(arguments);
