@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:async';
 import 'dart:io';
 
@@ -223,11 +225,11 @@ class Helpers {
   }
 
   /// Execute Pipeline stages commands with improved robustness.
-  static Future<ProcessResult> _executeCommand(
-    String command,
-    Map<String, String> env,
+  static Future<ProcessResult> executeCommand(
+    String command, {
+    Map<String, String>? env,
     String? exitCondition,
-  ) async {
+  }) async {
     if (command.trim().isEmpty) {
       print('⚠️ Error: Command is empty. Skipping execution.');
       return ProcessResult(0, 1, '', 'Command is empty');
@@ -237,7 +239,6 @@ class Helpers {
     final shellFlag = Platform.isWindows ? '-Command' : '-c';
 
     print('🔧 Executing Command: $command');
-    print('🌍 Environment Variables: ${env.isNotEmpty ? env : "None"}');
 
     // Start the process
     final process = await Process.start(
@@ -292,17 +293,15 @@ class Helpers {
   }
 
   /// Executes Pipeline Step
-  static Future<bool> _executeStep(
-    PipelineStepModel step,
-    Map<String, String> env,
-  ) async {
+  static Future<bool> _executeStep(PipelineStepModel step,
+      {Map<String, String>? env}) async {
     print('🔧 Executing step: ${step.name}');
 
     /// Executed command result.
     ///
     /// `ProcessResult`
-    final result =
-        await _executeCommand(step.command, env, step.customExitCondition);
+    final result = await executeCommand(step.command,
+        exitCondition: step.customExitCondition);
 
     if (result.exitCode == 0) {
       return true;
@@ -323,7 +322,9 @@ class Helpers {
       final String stageName = stage.name;
       print('\n🚀 Starting stage: $stageName');
 
-      final success = await _executeStep(stage, {});
+      final success = await _executeStep(
+        stage,
+      );
 
       if (!success) {
         print('❌ Pipeline failed at step: $stageName');
@@ -349,30 +350,6 @@ class Helpers {
     }
 
     print('🎉 Pipeline executed successfully!');
-  }
-
-  /// Build the APK using Flutter CLI
-  static Future<bool> buildApk(String apkPath) async {
-    final String flutterPath = getFlutterPath();
-
-    showLoading("🚀 Starting the build process...");
-    final result =
-        await Process.run(flutterPath, ['build', 'apk', '--release']);
-    stopLoading();
-
-    if (result.exitCode == 0) {
-      showHighlight(
-        firstMessage: '🎁 APK built successfully',
-        highLightmessage: apkPath,
-      );
-      return true;
-    } else {
-      showHighlight(
-        firstMessage: 'Failed to build APK:',
-        highLightmessage: result.stderr,
-      );
-      return false;
-    }
   }
 
 //  ───────────────────────────────────── UTILS  ─────────────────────────────────────
