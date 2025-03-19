@@ -1,3 +1,8 @@
+## v0.3.1
+
+- add discord community
+- improve docs
+
 ## v0.3.0
 
 - Added `notify` command to send notifications (Slack supported).

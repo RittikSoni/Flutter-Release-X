@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/github/license/RittikSoni/Flutter-Release-X)](LICENSE)
 [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/RittikSoni)
 [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white)](https://www.youtube.com/@king_rittik?sub_confirmation=1)
+[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?logo=discord&logoColor=white)](https://discord.gg/Tmn6BKwSnr)
 
 [![Flutter Release X](assets/frx_gif_banner.gif)](https://frx.elpisverse.com)
 

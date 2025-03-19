@@ -1,5 +1,3 @@
-// ignore_for_file: unused_element
-
 import 'dart:async';
 import 'dart:io';
 
@@ -296,8 +294,9 @@ class Helpers {
   }
 
   /// Executes Pipeline Step
-  static Future<bool> _executeStep(PipelineStepModel step,
-      {Map<String, String>? env}) async {
+  static Future<bool> _executeStep(
+    PipelineStepModel step,
+  ) async {
     print('🔧 Executing step: ${step.name}');
 
     /// Executed command result.
