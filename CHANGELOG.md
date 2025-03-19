@@ -1,3 +1,9 @@
+## v0.3.0
+
+- Added `notify` command to send notifications (Slack supported).
+- Added `--target` to build for all platforms in one go or just specified ones.
+- Improved CLI documentation and examples.
+
 ## v0.2.2
 
 - improve docs.

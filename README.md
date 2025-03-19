@@ -57,9 +57,11 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 
 ## What's New
 
-| Feature               | Description                                                                                                                    |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Advanced Pipeline** | Automate and streamline your CI/CD pipeline with the new advanced pipeline feature, integrating multiple steps in one command. |
+| Feature                  | Description                                                                                                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Advanced Pipeline**    | Automate and streamline your CI/CD pipeline with the new advanced pipeline feature, integrating multiple steps in one command.                                          |
+| **Multi-Platform Build** | Build for all supported platforms (`ios, android, web, macos, windows, linux`) using `--target all` for faster releases or just specify it like `frx build -t ios,web`. |
+| **Notification System**  | Send real-time notifications to popular platforms like Slack using `frx notify`.                                                                                        |
 
 ## Features Overview
 
@@ -107,11 +109,13 @@ dart pub add flutter_release_x
 
 Flutter Release X provides easy commands to build, upload, and manage your releases. Here are the main commands:
 
-| Command                         | Description                                                                                      |
-| ------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `frx build`                     | Builds the release APK, uploads to Cloud, and generates a QR code & link.                        |
-| `frx build -s`                  | Displays the current configuration settings. This helps verify if your setup is correct.         |
-| `frx build -c <path_to_config>` | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
+| Command                                           | Description                                                                                      |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `frx build`                                       | Builds the release APK, uploads to Cloud, and generates a QR code & link.                        |
+| `frx build -s`                                    | Displays the current configuration settings. This helps verify if your setup is correct.         |
+| `frx build -c <path_to_config>`                   | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
+| `frx build --target all`                          | Builds release builds for all supported platforms (iOS, Android, Web, macOS, Windows, Linux).    |
+| `frx notify --platform slack --message 'message'` | Sends a notification to Slack with a custom message.                                             |
 
 ### Example
 
@@ -119,6 +123,30 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 
   ```bash
   frx build
+  ```
+
+- To build release builds for all platforms, upload to Cloud, and generate a QR code & downloadable link:
+
+  ```bash
+  frx build --target all
+  ```
+
+- To build only for Android and iOS:
+
+  ```bash
+  frx build -t android,ios
+  ```
+
+- To notify on Popular platform like Slack with a custom message:
+
+  ```bash
+  frx notify --platform slack --message ":rocket: New Release Available!"
+  ```
+
+  or
+
+  ```bash
+  frx notify -p slack -m ":rocket: New Release Available!"
   ```
 
 - To verify your configuration, run:
