@@ -77,10 +77,10 @@ The table below outlines the current status of various features. Features marked
 | **Upload Link Generation**   | ✅ Integrated  | Automatically generate and share download links for your builds.         | —                                  |
 | **QR Code Generation**       | ✅ Integrated  | Instantly generate QR codes for quick access to your build downloads.    | —                                  |
 | **Slack Integration**        | ✅ Integrated  | Keep your team updated by sharing builds directly on Slack.              | —                                  |
-| **iOS Builds**               | 🚀 Coming Soon | iOS build support is not available by default.                           | ✅ Available via Advanced Pipeline |
-| **Windows Builds**           | 🚀 Coming Soon | Windows build support is not available by default.                       | ✅ Available via Advanced Pipeline |
-| **macOS Builds**             | 🚀 Coming Soon | macOS build support is not available by default.                         | ✅ Available via Advanced Pipeline |
-| **Linux Builds**             | 🚀 Coming Soon | Linux build support is not available by default.                         | ✅ Available via Advanced Pipeline |
+| **iOS Builds**               | ✅ Integrated  | iOS build support is not available by default.                           | ✅ Available via Advanced Pipeline |
+| **Windows Builds**           | ✅ Integrated  | Windows build support is not available by default.                       | ✅ Available via Advanced Pipeline |
+| **macOS Builds**             | ✅ Integrated  | macOS build support is not available by default.                         | ✅ Available via Advanced Pipeline |
+| **Linux Builds**             | ✅ Integrated  | Linux build support is not available by default.                         | ✅ Available via Advanced Pipeline |
 | **AWS S3 Upload**            | 🚀 Coming Soon | Scalable cloud storage uploads through AWS S3.                           | ✅ Available via Advanced Pipeline |
 | **GitLab Upload**            | 🚀 Coming Soon | Direct upload to GitLab repositories for seamless version control.       | ✅ Available via Advanced Pipeline |
 | **Google Play Store Upload** | 🚀 Coming Soon | Streamline your Android app distribution via the Google Play Store.      | ✅ Available via Advanced Pipeline |
