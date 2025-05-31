@@ -37,9 +37,13 @@ class Kstrings {
   /// Replace this with the real project config path
   static const String demoConfigPath = 'config.yaml';
 
+  static const String documentaion = 'https://frx.elpisverse.com';
+
   static final String defaultFlutterBinPath =
       Platform.isWindows ? 'flutter.bat' : 'flutter';
 
   static const String commingSoonTip =
       'Tip: You can achieve this using Advance pipeline feature (https://frx.elpisverse.com/docs/configuration#2-advanced-pipeline-full-customization-).';
+
+  static const String version = '0.3.1';
 }
