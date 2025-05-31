@@ -26,7 +26,7 @@ class Helpers {
   static Timer? _loadingTimer;
 
 //  ─────────────────────────────────────  SLACK  ─────────────────────────────────────
-  static notifySlack({
+  static Future<void> notifySlack({
     String? customSlackMsg,
     bool? shareLink,
     bool? shareQr,
@@ -60,7 +60,6 @@ class Helpers {
           isShareQR: isShareQR,
           isShareDownloadLink: isShareDownloadLink,
         );
-        print('Message sent successfully to Slack.');
       } catch (e, s) {
         showHighlight(
           firstMessage: 'Slack error:',
@@ -79,7 +78,7 @@ class Helpers {
   /// Get the QR error correction level
   ///
   /// Default value is 'low'.
-  static int getQrCorrectionLevel(qrCorrectionLevel) {
+  static int getQrCorrectionLevel(String qrCorrectionLevel) {
     switch (qrCorrectionLevel) {
       case 'low':
         return QrErrorCorrectLevel.L;

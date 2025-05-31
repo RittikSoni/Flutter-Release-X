@@ -76,6 +76,25 @@ class GoogleDriveUploader {
     }
   }
 
+  /// Create FRX folder
+  /// takes [name] folder name
+  Future<String> _getOrCreateFolder(String name) async {
+    // 1) Try to find an existing folder named `name`
+    final q =
+        "mimeType='application/vnd.google-apps.folder' and name='$name' and trashed=false";
+    final list = await _driveApi.files.list(q: q, $fields: 'files(id, name)');
+    if (list.files != null && list.files!.isNotEmpty) {
+      return list.files!.first.id!;
+    }
+
+    // 2) Otherwise, create it
+    final folder = drive.File()
+      ..name = name
+      ..mimeType = 'application/vnd.google-apps.folder';
+    final created = await _driveApi.files.create(folder);
+    return created.id!;
+  }
+
 // Step 4: Upload the file to Google Drive
   Future<void> uploadToGoogleDrive(String filePath) async {
     if (_driveApi == null) {
@@ -84,12 +103,16 @@ class GoogleDriveUploader {
       return;
     }
 
+    // === ensure FRX folder exists (or get its ID) ===
+    final folderId = await _getOrCreateFolder('FRX');
+
     final file = File(filePath);
     final media = drive.Media(file.openRead(), file.lengthSync());
 
     final driveFile = drive.File()
       ..name = path.basename(filePath)
-      ..mimeType = 'application/vnd.android.package-archive';
+      ..mimeType = 'application/vnd.android.package-archive'
+      ..parents = [folderId];
 
     try {
       // Upload the file
