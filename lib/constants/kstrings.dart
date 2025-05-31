@@ -45,5 +45,5 @@ class Kstrings {
   static const String commingSoonTip =
       'Tip: You can achieve this using Advance pipeline feature (https://frx.elpisverse.com/docs/configuration#2-advanced-pipeline-full-customization-).';
 
-  static const String version = '0.3.1';
+  static const String version = '0.3.2';
 }

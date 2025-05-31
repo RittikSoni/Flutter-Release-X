@@ -1,3 +1,9 @@
+## v0.3.2
+
+- add version command
+- optimize google drive upload
+- update dependencies
+
 ## v0.3.1
 
 - add discord community
