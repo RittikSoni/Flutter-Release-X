@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest a new idea for Flutter.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for using Flutter Release X!
+
+        If you are looking for support, please check out our documentation
+        or consider asking a question on the Discord community:
+
+        - Docs: https://frx.elpisverse.com/
+        - Discord: https://discord.gg/Tmn6BKwSnr
+        - YouTube: https://www.youtube.com/@king_rittik?sub_confirmation=1
+        - Reviewed our [Contributing Guide](https://github.com/RittikSoni/Flutter-Release-X/blob/main/CONTRIBUTING.md).
+
+  - type: textarea
+    attributes:
+      label: Use case
+      description: |
+        Please tell us the problem you are running into that led to you wanting
+        a new feature.
+
+        Is your feature request related to a problem? Please give a clear and
+        concise description of what the problem is.
+
+        Describe the alternative solutions you've considered. Is there a package
+        on pub.dev/flutter that already solves this?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposal
+      description: |
+        Briefly but precisely describe what you would like Flutter Release X to be able to do.
+
+        Consider attaching something showing what you are imagining:
+         * images
+         * videos
+         * code samples
+
+        Does this have to be provided by Flutter Release X directly, or can it be provided
+        by a package on pub.dev/flutter? If so, maybe consider implementing and
+        publishing such a package rather than filing an issue.
+    validations:
+      required: true

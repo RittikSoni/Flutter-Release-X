@@ -1,0 +1,105 @@
+name: "Report a bug"
+description: |
+  You found a bug in Flutter Release X, causing your application to crash or
+  throw an exception, or something looks wrong.
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for using **Flutter Release X**!
+
+        Before filing, please ensure you have:
+        - Searched existing issues.
+        - Reviewed our [Contributing Guide](https://github.com/RittikSoni/Flutter-Release-X/blob/main/CONTRIBUTING.md) and [Code of Conduct](https://github.com/RittikSoni/Flutter-Release-X/blob/main/CODE_OF_CONDUCT.md).
+
+        For Documentation:
+        Docs: https://frx.elpisverse.com
+
+        For support/community:
+        - Discord: https://discord.gg/Tmn6BKwSnr
+        - YouTube: https://www.youtube.com/@king_rittik?sub_confirmation=1
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the bug"
+      description: "What happened? Be as specific as possible."
+      placeholder: "A clear and concise description of what the bug is."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce"
+      description: "List the exact steps to reproduce the issue."
+      placeholder: |
+        1. Run `frx --version`
+        2. Run `flutter doctor -v`
+        3. Tap “Start”
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: codesample
+    attributes:
+      label: "Code sample"
+      description: |
+        Please share the `config.yaml` code.
+
+        Without this, we will unlikely be able to progress on the issue, and because of that we regretfully will have to close it.
+
+        Note: Please do not upload screenshots of text. Instead, use code blocks & make sure you don't disclose your credentials.
+      value: |
+        <details open><summary>Code sample</summary>
+
+        ```yaml
+        [Paste your code here]
+        ```
+
+        </details>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Screenshots or Video
+      description: |
+        Upload any screenshots or video of the bug if applicable.
+      value: |
+        <details open>
+        <summary>Screenshots / Video demonstration</summary>
+
+        [Upload media here]
+
+        </details>
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected behavior"
+      description: "What did you expect to happen?"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs"
+      description: |
+        Paste command output or logs here. If too large, upload to [Pastebin](https://pastebin.com) or attach a `.txt` file.
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment"
+      description: |
+        - Flutter Release X version: `frx --version`
+        - Flutter SDK: `flutter doctor -v`
+      value: |
+        <details open><summary>Environment output</summary>
+
+        ```console
+        [Paste your output here]
+        ```
+
+        </details>
+    validations:
+      required: true
