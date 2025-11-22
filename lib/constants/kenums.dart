@@ -1,4 +1,4 @@
-enum KenumUploadOptions {
+enum FlutterReleaseXKenumUploadOptions {
   github,
   googleDrive,
   aws,

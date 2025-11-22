@@ -10,16 +10,18 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 
-class GoogleDriveUploader {
+class FlutterReleaseXGoogleDriveUploader {
   final String clientId;
   final String clientSecret;
   late auth.AutoRefreshingAuthClient _client;
   late drive.DriveApi _driveApi;
 
-  GoogleDriveUploader({required this.clientId, required this.clientSecret});
+  FlutterReleaseXGoogleDriveUploader(
+      {required this.clientId, required this.clientSecret});
 
   // Path to store the credentials file
-  final String credentialsFilePath = Kstrings.googleDriveCredentialsSavePath;
+  final String credentialsFilePath =
+      FlutterReleaseXKstrings.googleDriveCredentialsSavePath;
 
   // Step 1: Authenticate via OAuth2
   Future<bool> authenticate() async {
@@ -55,7 +57,7 @@ class GoogleDriveUploader {
         credentials,
         [drive.DriveApi.driveFileScope],
         (url) {
-          Helpers.showHighlight(
+          FlutterReleaseXHelpers.showHighlight(
             firstMessage: 'Please visit the following URL to authenticate:',
             highLightmessage: url,
           );
@@ -139,7 +141,8 @@ class GoogleDriveUploader {
 
       // Print the uploaded file's link
       if (updatedFile.webContentLink != null) {
-        IndividualUploadService.updateUrlLinkState(updatedFile.webContentLink!);
+        FlutterReleaseXIndividualUploadService.updateUrlLinkState(
+            updatedFile.webContentLink!);
       } else {
         print('Upload link not available.');
       }

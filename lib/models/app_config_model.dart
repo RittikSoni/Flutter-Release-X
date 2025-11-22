@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter_release_x/constants/kstrings.dart';
 
-class AppConfigModel {
+class FlutterReleaseXAppConfigModel {
   final String? flutterPath;
   final UploadOptionsModel uploadOptions;
   final QrCodeModel qrCode;
   final List<PipelineStepModel>? pipelineSteps;
 
   // Constructor with default values
-  AppConfigModel({
+  FlutterReleaseXAppConfigModel({
     this.flutterPath,
     UploadOptionsModel? uploadOptions,
     QrCodeModel? qrCode,
@@ -19,10 +19,10 @@ class AppConfigModel {
         qrCode = qrCode ?? QrCodeModel(); // Default for qrCode
 
   // Factory constructor to create an instance from a YAML file
-  factory AppConfigModel.fromYaml(yamlPath) {
+  factory FlutterReleaseXAppConfigModel.fromYaml(dynamic yamlPath) {
     final yamlMap = Map<String, dynamic>.from(yamlPath);
 
-    return AppConfigModel(
+    return FlutterReleaseXAppConfigModel(
       flutterPath: yamlMap['flutter_path'],
       uploadOptions: UploadOptionsModel.fromYaml(yamlMap['upload_options']),
       qrCode: QrCodeModel.fromYaml(yamlMap['qr_code']),
@@ -205,7 +205,8 @@ class QrCodeModel {
     this.showInCommand = true, // Default for showInCommand
     this.size = 256, // Default for size
     this.errorCorrectionLevel = 'low', // Default for errorCorrectionLevel
-    this.savePath = Kstrings.qrCodeSavePath, // Default for savePath
+    this.savePath =
+        FlutterReleaseXKstrings.qrCodeSavePath, // Default for savePath
   });
 
   factory QrCodeModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
@@ -215,7 +216,7 @@ class QrCodeModel {
       showInCommand: yamlMap['show_in_command'] ?? true,
       size: yamlMap['size'] ?? 256,
       errorCorrectionLevel: yamlMap['error_correction_level'] ?? 'low',
-      savePath: yamlMap['save_path'] ?? Kstrings.qrCodeSavePath,
+      savePath: yamlMap['save_path'] ?? FlutterReleaseXKstrings.qrCodeSavePath,
     );
   }
 

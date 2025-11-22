@@ -1,12 +1,13 @@
 // ignore_for_file: unnecessary_getters_setters
 
-class UploadState {
-  static final UploadState _instance = UploadState._internal();
+class FlutterReleaseXUploadState {
+  static final FlutterReleaseXUploadState _instance =
+      FlutterReleaseXUploadState._internal();
   String? _uploadLink;
 
-  UploadState._internal();
+  FlutterReleaseXUploadState._internal();
 
-  factory UploadState() => _instance;
+  factory FlutterReleaseXUploadState() => _instance;
 
   String? get uploadLink => _uploadLink;
   set uploadLink(String? link) {

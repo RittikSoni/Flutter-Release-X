@@ -68,23 +68,24 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 
 The table below outlines the current status of various features. Features marked with **"Available via Advanced Pipeline"** are not part of the basic Flutter Release X setup but can be enabled through our Advanced Pipeline feature for enhanced automation.
 
-| Feature                      | Status         | Description                                                              | Achievable via Advanced Pipeline   |
-| ---------------------------- | -------------- | ------------------------------------------------------------------------ | ---------------------------------- |
-| ✨ **Advanced Pipeline**     | ✅ New         | Streamline and automate your entire CI/CD workflow in one command.       | —                                  |
-| **APK Builds**               | ✅ Integrated  | Fully integrated APK build process.                                      | —                                  |
-| **GitHub Upload**            | ✅ Integrated  | Directly upload your builds to a GitHub repository for seamless sharing. | —                                  |
-| **Google Drive Upload**      | ✅ Integrated  | Securely store your builds in Google Drive.                              | —                                  |
-| **Upload Link Generation**   | ✅ Integrated  | Automatically generate and share download links for your builds.         | —                                  |
-| **QR Code Generation**       | ✅ Integrated  | Instantly generate QR codes for quick access to your build downloads.    | —                                  |
-| **Slack Integration**        | ✅ Integrated  | Keep your team updated by sharing builds directly on Slack.              | —                                  |
-| **iOS Builds**               | ✅ Integrated  | iOS build support is not available by default.                           | ✅ Available via Advanced Pipeline |
-| **Windows Builds**           | ✅ Integrated  | Windows build support is not available by default.                       | ✅ Available via Advanced Pipeline |
-| **macOS Builds**             | ✅ Integrated  | macOS build support is not available by default.                         | ✅ Available via Advanced Pipeline |
-| **Linux Builds**             | ✅ Integrated  | Linux build support is not available by default.                         | ✅ Available via Advanced Pipeline |
-| **AWS S3 Upload**            | 🚀 Coming Soon | Scalable cloud storage uploads through AWS S3.                           | ✅ Available via Advanced Pipeline |
-| **GitLab Upload**            | 🚀 Coming Soon | Direct upload to GitLab repositories for seamless version control.       | ✅ Available via Advanced Pipeline |
-| **Google Play Store Upload** | 🚀 Coming Soon | Streamline your Android app distribution via the Google Play Store.      | ✅ Available via Advanced Pipeline |
-| **Apple App Store Upload**   | 🚀 Coming Soon | Simplify iOS app distribution with the Apple App Store upload feature.   | ✅ Available via Advanced Pipeline |
+| Feature                      | Status         | Description                                                                                                                                                                      | Achievable via Advanced Pipeline   |
+| ---------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| ✨ **Advanced Pipeline**     | ✅ New         | Streamline and automate your entire CI/CD workflow in one command.                                                                                                               | —                                  |
+| **APK Builds**               | ✅ Integrated  | Fully integrated APK build process.                                                                                                                                              | —                                  |
+| **GitHub Upload**            | ✅ Integrated  | Directly upload your builds to a GitHub repository for seamless sharing.                                                                                                         | —                                  |
+| **Google Drive Upload**      | ✅ Integrated  | Securely store your builds in Google Drive.                                                                                                                                      | —                                  |
+| **Upload Link Generation**   | ✅ Integrated  | Automatically generate and share download links for your builds.                                                                                                                 | —                                  |
+| **QR Code Generation**       | ✅ Integrated  | Instantly generate QR codes for quick access to your build downloads.                                                                                                            | —                                  |
+| **Slack Integration**        | ✅ Integrated  | Keep your team updated by sharing builds directly on Slack.                                                                                                                      | —                                  |
+| **iOS Builds**               | ✅ Integrated  | iOS build support is not available by default.                                                                                                                                   | ✅ Available via Advanced Pipeline |
+| **Windows Builds**           | ✅ Integrated  | Windows build support is not available by default.                                                                                                                               | ✅ Available via Advanced Pipeline |
+| **macOS Builds**             | ✅ Integrated  | macOS build support is not available by default.                                                                                                                                 | ✅ Available via Advanced Pipeline |
+| **Linux Builds**             | ✅ Integrated  | Linux build support is not available by default.                                                                                                                                 | ✅ Available via Advanced Pipeline |
+| **AWS S3 Upload**            | 🚀 Coming Soon | Scalable cloud storage uploads through AWS S3.                                                                                                                                   | ✅ Available via Advanced Pipeline |
+| **GitLab Upload**            | 🚀 Coming Soon | Direct upload to GitLab repositories for seamless version control.                                                                                                               | ✅ Available via Advanced Pipeline |
+| **Google Play Store Upload** | 🚀 Coming Soon | Streamline your Android app distribution via the Google Play Store.                                                                                                              | ✅ Available via Advanced Pipeline |
+| **Apple App Store Upload**   | 🚀 Coming Soon | Simplify iOS app distribution with the Apple App Store upload feature.                                                                                                           | ✅ Available via Advanced Pipeline |
+| **Diawi Upload**             | 🚀 Coming Soon | Upload IPA/APK to Diawi for fast ad-hoc distribution - generates short install links and QR codes, with optional password protection and link expiry for secure tester installs. | ✅ Available via Advanced Pipeline |
 
 > **Note:** Features marked as "Available via Advanced Pipeline" require configuration through the Advanced Pipeline option in Flutter Release X. For further details, please refer to the [Official frx documentation](https://frx.elpisverse.com).
 

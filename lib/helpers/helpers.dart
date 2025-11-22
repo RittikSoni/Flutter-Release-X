@@ -12,7 +12,7 @@ import 'package:qr/qr.dart';
 import 'package:image/image.dart' as img;
 import 'package:yaml/yaml.dart';
 
-class Helpers {
+class FlutterReleaseXHelpers {
   // ───────────────────────────────────── LOADERS  ─────────────────────────────────────
   static const List<String> earthFrames = [
     '🌍',
@@ -31,11 +31,11 @@ class Helpers {
     bool? shareLink,
     bool? shareQr,
   }) async {
-    final slackService = SlackService();
-    final uploadState = UploadState();
+    final slackService = FlutterReleaseXSlackService();
+    final uploadState = FlutterReleaseXUploadState();
 
     final String? downloadLink = uploadState.uploadLink;
-    final slackConfig = Config().config.uploadOptions.slack;
+    final slackConfig = FlutterReleaseXConfig().config.uploadOptions.slack;
     final bool isSlackEnabled = slackConfig.enabled;
     final String? slackBotToken = slackConfig.botUserOauthToken;
     final String? channelId = slackConfig.defaultChannelId;
@@ -47,7 +47,7 @@ class Helpers {
 
     if (isSlackEnabled && slackBotToken != null && channelId != null) {
       try {
-        Helpers.showLoading('🔔 Sharing on Slack...');
+        FlutterReleaseXHelpers.showLoading('🔔 Sharing on Slack...');
 
         await slackService.sendLinkAndQr(
           slackBotToken: slackBotToken,
@@ -56,7 +56,7 @@ class Helpers {
           channelId: channelId,
           message: customMessage ?? '🎉 Your app is ready for download!',
           mentions: mentionUsers,
-          downloadLink: downloadLink ?? Kstrings.packageLink,
+          downloadLink: downloadLink ?? FlutterReleaseXKstrings.packageLink,
           isShareQR: isShareQR,
           isShareDownloadLink: isShareDownloadLink,
         );
@@ -68,7 +68,7 @@ class Helpers {
         );
         exit(0);
       } finally {
-        Helpers.stopLoading();
+        FlutterReleaseXHelpers.stopLoading();
       }
     }
   }
@@ -102,7 +102,7 @@ class Helpers {
     String? url,
     bool? generateLink = true,
   }) async {
-    final qrConfig = Config().config.qrCode;
+    final qrConfig = FlutterReleaseXConfig().config.qrCode;
     final isQrEnable = qrConfig.enabled;
     final isQrShowInConsole = qrConfig.showInCommand;
     final qrImgSize = qrConfig.size;
@@ -111,7 +111,7 @@ class Helpers {
     final qrCorrectionLevel = qrConfig.errorCorrectionLevel;
 
     // Directly accessing UploadState and updating it
-    final uploadState = UploadState();
+    final uploadState = FlutterReleaseXUploadState();
 
     final String? uploadLink = uploadState.uploadLink;
 
@@ -158,7 +158,7 @@ class Helpers {
       }
     }
     if (generateLink == true && (uploadLink != null || url != null)) {
-      Helpers.showHighlight(
+      FlutterReleaseXHelpers.showHighlight(
         firstMessage: '📥 Download the APK here:',
         highLightmessage: url ?? uploadLink,
       );
@@ -181,14 +181,14 @@ class Helpers {
 //  ───────────────────────────────────── CORE  ─────────────────────────────────────
 
   static String getFlutterPath() {
-    final config = Config().config;
+    final config = FlutterReleaseXConfig().config;
     final flutterPath = config.flutterPath;
 
     if (flutterPath == null) {
       print(
         '⚠️ Custom Flutter Path configuration not found. We recommend specifying it in the your config yaml file for better functionality.',
       );
-      return Kstrings.defaultFlutterBinPath;
+      return FlutterReleaseXKstrings.defaultFlutterBinPath;
     }
 
     return flutterPath;
@@ -315,7 +315,7 @@ class Helpers {
 
   /// Execute Pipeline
   static Future<void> executePipeline() async {
-    final config = Config().config;
+    final config = FlutterReleaseXConfig().config;
 
     final List<PipelineStepModel>? stages = config.pipelineSteps;
 
@@ -335,7 +335,7 @@ class Helpers {
       /// Upload artifact, if `outputPath != null && uploadOutput = true`.
       if (stage.uploadOutput && stage.outputPath != null) {
         // Upload artifact to Cloud.
-        await promptUploadOption(stage.outputPath!);
+        await flutterReleaseXpromptUploadOption(stage.outputPath!);
 
         /// Generate QR code and link.
         await generateQrCodeAndLink();
@@ -393,8 +393,8 @@ class Helpers {
   }
 
   static void showUserConfig() {
-    final config = Config().config;
-    final configPath = Config().configPath.trim();
+    final config = FlutterReleaseXConfig().config;
+    final configPath = FlutterReleaseXConfig().configPath.trim();
     final flutterPath =
         config.flutterPath?.trim() ?? "No Custom Flutter Path Found";
 
@@ -463,8 +463,9 @@ class Helpers {
   /// Check Upload options availability
   ///
   /// Whether the upload option is configured or not.
-  static bool isUploadOptionAvailable(KenumUploadOptions option) {
-    final config = Config().config;
+  static bool isUploadOptionAvailable(
+      FlutterReleaseXKenumUploadOptions option) {
+    final config = FlutterReleaseXConfig().config;
 
     // GITHUB
     final gitHub = config.uploadOptions.github;
@@ -484,12 +485,12 @@ class Helpers {
             googleDrive.clientSecret!.trim().isNotEmpty;
 
     switch (option) {
-      case KenumUploadOptions.github:
+      case FlutterReleaseXKenumUploadOptions.github:
         if (isGitHubEnabled && isGitHubRepoProvided && isGitHubRepoToken) {
           return true;
         }
         return false;
-      case KenumUploadOptions.googleDrive:
+      case FlutterReleaseXKenumUploadOptions.googleDrive:
         if (isGoogleDriveEnabled &&
             isGoogleDriveClientIdProvided &&
             isGoogleDriveClientSecretProvided) {

@@ -4,52 +4,55 @@ import 'package:flutter_release_x/commands/prompt_storage_options.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 
-class Kplatforms {
+class FlutterReleaseXKplatforms {
   static String getBuildPath(String platform) {
     switch (platform) {
       case 'ios':
-        return Kstrings.iosReleasePath;
+        return FlutterReleaseXKstrings.iosReleasePath;
       case 'android':
-        return Kstrings.releaseApkPath;
+        return FlutterReleaseXKstrings.releaseApkPath;
       case 'web':
-        return Kstrings.webReleasePath;
+        return FlutterReleaseXKstrings.webReleasePath;
       case 'macos':
-        return Kstrings.macosReleasePath;
+        return FlutterReleaseXKstrings.macosReleasePath;
       case 'windows':
-        return Kstrings.windowsReleasePath;
+        return FlutterReleaseXKstrings.windowsReleasePath;
       case 'linux':
-        return Kstrings.linuxReleasePath;
+        return FlutterReleaseXKstrings.linuxReleasePath;
       default:
         return '';
     }
   }
 
   static Future<bool> buildPlatform(String platform) async {
-    final String flutterPath = Helpers.getFlutterPath();
+    final String flutterPath = FlutterReleaseXHelpers.getFlutterPath();
 
     ProcessResult res;
 
     switch (platform) {
       case 'ios':
-        res = await Helpers.executeCommand('$flutterPath build ios --release');
+        res = await FlutterReleaseXHelpers.executeCommand(
+            '$flutterPath build ios --release');
         break;
       case 'android':
-        res = await Helpers.executeCommand('$flutterPath build apk --release');
+        res = await FlutterReleaseXHelpers.executeCommand(
+            '$flutterPath build apk --release');
         break;
       case 'web':
-        res = await Helpers.executeCommand('$flutterPath build web --release');
+        res = await FlutterReleaseXHelpers.executeCommand(
+            '$flutterPath build web --release');
         break;
       case 'macos':
-        res =
-            await Helpers.executeCommand('$flutterPath build macos --release');
+        res = await FlutterReleaseXHelpers.executeCommand(
+            '$flutterPath build macos --release');
         break;
       case 'windows':
-        res = await Helpers.executeCommand(
+        res = await FlutterReleaseXHelpers.executeCommand(
             '$flutterPath build windows --release');
         break;
       case 'linux':
-        res =
-            await Helpers.executeCommand('$flutterPath build linux --release');
+        res = await FlutterReleaseXHelpers.executeCommand(
+            '$flutterPath build linux --release');
         break;
       default:
         print('❌ Unsupported platform: $platform');
@@ -67,7 +70,8 @@ class Kplatforms {
   }
 
   static Future<void> buildAndProcessPlatforms(Set<String> platforms) async {
-    final isFlutterAvailable = await Helpers.checkFlutterAvailability();
+    final isFlutterAvailable =
+        await FlutterReleaseXHelpers.checkFlutterAvailability();
 
     if (!isFlutterAvailable) {
       print('🐦 Please install Flutter to proceed.');
@@ -76,21 +80,22 @@ class Kplatforms {
 
     for (var platform in platforms) {
       print('🚀 Building for $platform...');
-      final buildSuccess = await Kplatforms.buildPlatform(platform);
+      final buildSuccess =
+          await FlutterReleaseXKplatforms.buildPlatform(platform);
 
       if (buildSuccess) {
-        final buildPath = Kplatforms.getBuildPath(platform);
+        final buildPath = FlutterReleaseXKplatforms.getBuildPath(platform);
 
         // Upload, generate qr, & notify slack only if platform is not web or linux
         if (platform != 'linux' && platform != 'web') {
           // Upload build to GitHub or other storage
-          await promptUploadOption(buildPath);
+          await flutterReleaseXpromptUploadOption(buildPath);
 
           // Generate QR code and link
-          await Helpers.generateQrCodeAndLink();
+          await FlutterReleaseXHelpers.generateQrCodeAndLink();
 
           // Notify Slack
-          await Helpers.notifySlack();
+          await FlutterReleaseXHelpers.notifySlack();
         }
         print('✅ $platform build completed and ready to share!');
       } else {

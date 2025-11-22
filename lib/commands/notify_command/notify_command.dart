@@ -3,7 +3,7 @@ import 'package:flutter_release_x/configs/config.dart';
 
 import 'package:flutter_release_x/helpers/helpers.dart';
 
-class NotifyCommand extends Command {
+class FlutterReleaseXNotifyCommand extends Command {
   @override
   String get description =>
       'Send notifications to popular platforms like Slack and more.';
@@ -11,7 +11,7 @@ class NotifyCommand extends Command {
   @override
   String get name => 'notify';
 
-  NotifyCommand() {
+  FlutterReleaseXNotifyCommand() {
     argParser.addOption(
       'platform',
       abbr: 'p',
@@ -29,14 +29,14 @@ class NotifyCommand extends Command {
   @override
   Future<void> run() async {
     // Load config dynamically or use persisted one
-    Config().loadConfig('config.yaml');
+    FlutterReleaseXConfig().loadConfig('config.yaml');
 
     final platform = argResults?['platform'] as String?;
     final message = argResults?['message'] as String?;
 
     switch (platform) {
       case 'slack':
-        await Helpers.notifySlack(
+        await FlutterReleaseXHelpers.notifySlack(
           customSlackMsg: message,
           shareLink: false,
           shareQr: false,

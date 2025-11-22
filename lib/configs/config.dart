@@ -4,28 +4,29 @@ import 'package:flutter_release_x/models/app_config_model.dart';
 import 'package:yaml/yaml.dart';
 
 // Model classes for each configuration section
-class Config {
-  static final Config _instance = Config._internal();
+class FlutterReleaseXConfig {
+  static final FlutterReleaseXConfig _instance =
+      FlutterReleaseXConfig._internal();
 
   late String _configPath;
-  late AppConfigModel _appConfig;
+  late FlutterReleaseXAppConfigModel _appConfig;
 
   // Singleton constructor
-  Config._internal();
+  FlutterReleaseXConfig._internal();
 
   // Factory constructor to provide a global access point to the configuration
-  factory Config() {
+  factory FlutterReleaseXConfig() {
     return _instance;
   }
 
   // Load configuration with optional path
   void loadConfig([String? path]) {
     try {
-      if (path != null && path != Kstrings.demoConfigPath) {
+      if (path != null && path != FlutterReleaseXKstrings.demoConfigPath) {
         persistConfigPath(path);
       }
 
-      if (path == Kstrings.demoConfigPath) {
+      if (path == FlutterReleaseXKstrings.demoConfigPath) {
         _configPath = _getPersistedConfigPath() ?? 'config.yaml';
       } else {
         _configPath = path ?? _getPersistedConfigPath() ?? 'config.yaml';
@@ -36,7 +37,7 @@ class Config {
       if (configFile.existsSync()) {
         final yamlString = configFile.readAsStringSync();
         final yamlData = loadYaml(yamlString);
-        _appConfig = AppConfigModel.fromYaml(yamlData);
+        _appConfig = FlutterReleaseXAppConfigModel.fromYaml(yamlData);
       } else {
         print('⚠️ Config file not found.');
         return;
@@ -61,5 +62,5 @@ class Config {
 
   // Accessors for config data (now returning model objects)
   String get configPath => _configPath;
-  AppConfigModel get config => _appConfig;
+  FlutterReleaseXAppConfigModel get config => _appConfig;
 }

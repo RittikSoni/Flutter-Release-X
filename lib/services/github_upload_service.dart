@@ -5,9 +5,9 @@ import 'package:flutter_release_x/services/individual_upload_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
-class GitHubUploaderService {
+class FlutterReleaseXGitHubUploaderService {
   static Future<void> uploadToGitHub(String apkPath) async {
-    final config = Config().config;
+    final config = FlutterReleaseXConfig().config;
 
     final gitHubConfig = config.uploadOptions.github;
     final gitHubToken = config.uploadOptions.github.token;
@@ -148,7 +148,7 @@ class GitHubUploaderService {
       final downloadUrl = uploadData['browser_download_url'];
       print('✅ APK uploaded successfully to GitHub.');
 
-      IndividualUploadService.updateUrlLinkState(downloadUrl);
+      FlutterReleaseXIndividualUploadService.updateUrlLinkState(downloadUrl);
     } else {
       print(
           '❌ Failed to upload APK: ${response.statusCode} ${response.reasonPhrase}');

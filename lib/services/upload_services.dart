@@ -6,15 +6,15 @@ import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:flutter_release_x/services/github_upload_service.dart';
 import 'package:flutter_release_x/services/google_drive_upload_service.dart';
 
-class UploadService {
+class FlutterReleaseXUploadService {
   static Future<void> uploadToGitHub(String artifactPath) async {
-    Helpers.showLoading('☁️ Uploading APK to GitHub...');
-    await GitHubUploaderService.uploadToGitHub(artifactPath);
-    Helpers.stopLoading();
+    FlutterReleaseXHelpers.showLoading('☁️ Uploading APK to GitHub...');
+    await FlutterReleaseXGitHubUploaderService.uploadToGitHub(artifactPath);
+    FlutterReleaseXHelpers.stopLoading();
   }
 
   static Future<void> uploadToGoogleDrive(String artifactPath) async {
-    final config = Config().config;
+    final config = FlutterReleaseXConfig().config;
 
     final googleDriveConfig = config.uploadOptions.googleDrive;
     final clientId = googleDriveConfig.clientId;
@@ -32,17 +32,17 @@ class UploadService {
       return;
     }
 
-    final uploader = GoogleDriveUploader(
+    final uploader = FlutterReleaseXGoogleDriveUploader(
       clientId: clientId,
       clientSecret: clientSecret,
     );
 
     final bool isAuthenticated = await uploader.authenticate();
     if (isAuthenticated) {
-      Helpers.showLoading('☁️ Uploading APK to Google Drive...');
+      FlutterReleaseXHelpers.showLoading('☁️ Uploading APK to Google Drive...');
 
       await uploader.uploadToGoogleDrive(artifactPath);
-      Helpers.stopLoading();
+      FlutterReleaseXHelpers.stopLoading();
     } else {
       print('Authentication failed. Please try again.');
       exit(0);
@@ -51,25 +51,25 @@ class UploadService {
 
   static Future<void> uploadToAWS(String apkPath) async {
     print(
-        '☁️ AWS upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
+        '☁️ AWS upload coming soon—stay tuned! 💡 ${FlutterReleaseXKstrings.commingSoonTip}');
     // TODO: Implement AWS API upload logic
   }
 
   static Future<void> uploadToGitlab(String apkPath) async {
     print(
-        '📱 Gitlab upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
+        '📱 Gitlab upload coming soon—stay tuned! 💡 ${FlutterReleaseXKstrings.commingSoonTip}');
     // TODO: Implement Gitlab API upload logic
   }
 
   static Future<void> uploadToPlayStore(String apkPath) async {
     print(
-        '📱 Google Play Store upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
+        '📱 Google Play Store upload coming soon—stay tuned! 💡 ${FlutterReleaseXKstrings.commingSoonTip}');
     // TODO: Implement Google Playstore API upload logic
   }
 
   static Future<void> uploadToAppStore(String apkPath) async {
     print(
-        '🍎 App Store upload coming soon—stay tuned! 💡 ${Kstrings.commingSoonTip}');
+        '🍎 App Store upload coming soon—stay tuned! 💡 ${FlutterReleaseXKstrings.commingSoonTip}');
     // TODO: Implement App Store API upload logic
   }
 }

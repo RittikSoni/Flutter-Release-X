@@ -10,14 +10,15 @@ class CLI {
 A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly. 
 - Generate release builds, upload to the cloud, and share QR codes & download links for quick distribution.
 - Need a custom pipeline? Try the new Advanced Pipeline feature in FRX.
-📖 Docs: ${Kstrings.documentaion}
+📖 Docs: ${FlutterReleaseXKstrings.documentaion}
 ''';
 
   void run(List<String> arguments) {
-    final runner = CommandRunner(Kstrings.packageName, description)
-      ..addCommand(BuildCommand())
-      ..addCommand(NotifyCommand())
-      ..addCommand(VersionCommand());
+    final runner =
+        CommandRunner(FlutterReleaseXKstrings.packageName, description)
+          ..addCommand(FlutterReleaseXBuildCommand())
+          ..addCommand(FlutterReleaseXNotifyCommand())
+          ..addCommand(FlutterReleaseXVersionCommand());
 
     runner.argParser.addFlag(
       'version',
@@ -31,14 +32,15 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
 
       // -v/--version, show version and exit
       if (topLevel['version'] == true) {
-        print('🔧 FRX Version: ${Kstrings.version}');
+        print('🔧 FRX Version: ${FlutterReleaseXKstrings.version}');
         return;
       }
 
       runner.run(arguments);
     } on UsageException catch (e) {
       print('${e.message}\n');
-      print('Usage: ${Kstrings.packageName} <command> [options]');
+      print(
+          'Usage: ${FlutterReleaseXKstrings.packageName} <command> [options]');
     } catch (e, stackTrace) {
       print('Unexpected error: $e');
       print(stackTrace);

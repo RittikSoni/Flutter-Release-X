@@ -1,6 +1,6 @@
 import 'dart:io';
 
-class Kstrings {
+class FlutterReleaseXKstrings {
   static const String releaseApkPath =
       './build/app/outputs/flutter-apk/app-release.apk';
 

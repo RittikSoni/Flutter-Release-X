@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 
-class SlackService {
+class FlutterReleaseXSlackService {
   static final dio = Dio();
 
   static Future<void> _uploadQrCode({
@@ -64,7 +64,7 @@ class SlackService {
         }
       }
     } catch (e) {
-      Helpers.showHighlight(
+      FlutterReleaseXHelpers.showHighlight(
         firstMessage: 'Error while uploading QR to slack:',
         highLightmessage: e.toString(),
       );
@@ -138,15 +138,15 @@ class SlackService {
       );
 
       if (messageResponse.data['ok']) {
-        Helpers.highlight('Message sent successfully to Slack.');
+        FlutterReleaseXHelpers.highlight('Message sent successfully to Slack.');
       } else {
-        Helpers.showHighlight(
+        FlutterReleaseXHelpers.showHighlight(
           firstMessage: 'Error sending message:',
           highLightmessage: messageResponse.data['error'].toString(),
         );
       }
     } catch (e) {
-      Helpers.showHighlight(
+      FlutterReleaseXHelpers.showHighlight(
         firstMessage: 'Error while uploading QR to slack:',
         highLightmessage: e.toString(),
       );

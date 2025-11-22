@@ -5,7 +5,7 @@ import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kplatforms.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 
-class BuildCommand extends Command {
+class FlutterReleaseXBuildCommand extends Command {
   @override
   String get description =>
       'Build release builds, upload to the cloud, generate a QR code, and share on Slack seamlessly. If an Advanced Pipeline is defined, it overrides the default flow.';
@@ -13,7 +13,7 @@ class BuildCommand extends Command {
   @override
   String get name => 'build';
 
-  BuildCommand() {
+  FlutterReleaseXBuildCommand() {
     argParser.addOption(
       'config',
       abbr: 'c',
@@ -43,10 +43,10 @@ class BuildCommand extends Command {
     final target = argResults?['target'] as String;
 
     // Load config dynamically or use persisted one
-    Config().loadConfig(configPath);
+    FlutterReleaseXConfig().loadConfig(configPath);
 
     if (showConfig) {
-      Helpers.showUserConfig();
+      FlutterReleaseXHelpers.showUserConfig();
       return;
     }
 
@@ -73,11 +73,11 @@ class BuildCommand extends Command {
     }
 
     /// If Advance Pipeline is disabled, use Default Flow
-    if (Config().config.pipelineSteps == null) {
-      await Kplatforms.buildAndProcessPlatforms(platforms);
+    if (FlutterReleaseXConfig().config.pipelineSteps == null) {
+      await FlutterReleaseXKplatforms.buildAndProcessPlatforms(platforms);
     } else {
       /// Advance Pipeline is enabled, go with user's custom flow
-      await Helpers.executePipeline();
+      await FlutterReleaseXHelpers.executePipeline();
       exit(0);
     }
   }
