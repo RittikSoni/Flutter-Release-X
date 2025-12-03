@@ -2,8 +2,10 @@
 
 - [ ] `dart analyze`
 - [ ] `dart format .`
-- [ ] check for up-to-date dependencies
-- [ ] update kstrings, pubspec version
-- [ ] update changelog, readme
+- [ ] update dependencies.
+- [ ] update pubspec version.
+- [ ] update kstrings version.
+- [ ] update changelog.
+- [ ] update readme.
 - [ ] `dart pub publish --dry-run`
 - [ ] `dart pub publish`
