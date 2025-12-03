@@ -86,7 +86,7 @@ class FlutterReleaseXKplatforms {
       if (buildSuccess) {
         final buildPath = FlutterReleaseXKplatforms.getBuildPath(platform);
 
-        // Upload, generate qr, & notify slack only if platform is not web or linux
+        // Upload, generate qr, & notify slack/teams only if platform is not web or linux
         if (platform != 'linux' && platform != 'web') {
           // Upload build to GitHub or other storage
           await flutterReleaseXpromptUploadOption(buildPath);
@@ -94,8 +94,11 @@ class FlutterReleaseXKplatforms {
           // Generate QR code and link
           await FlutterReleaseXHelpers.generateQrCodeAndLink();
 
-          // Notify Slack
+          // Notify Slack if enabled
           await FlutterReleaseXHelpers.notifySlack();
+
+          // Notify Teams if enabled
+          await FlutterReleaseXHelpers.notifyTeams();
         }
         print('✅ $platform build completed and ready to share!');
       } else {

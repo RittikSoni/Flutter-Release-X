@@ -7,6 +7,7 @@ import 'package:flutter_release_x/constants/kenums.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/models/app_config_model.dart';
 import 'package:flutter_release_x/services/slack_service.dart';
+import 'package:flutter_release_x/services/teams_service.dart';
 import 'package:flutter_release_x/state_management/upload_state.dart';
 import 'package:qr/qr.dart';
 import 'package:image/image.dart' as img;
@@ -63,6 +64,51 @@ class FlutterReleaseXHelpers {
       } catch (e, s) {
         showHighlight(
           firstMessage: 'Slack error:',
+          highLightmessage: e.toString(),
+          lastMessage: s.toString(),
+        );
+        exit(0);
+      } finally {
+        FlutterReleaseXHelpers.stopLoading();
+      }
+    }
+  }
+
+//  ─────────────────────────────────────  TEAMS  ─────────────────────────────────────
+  static Future<void> notifyTeams({
+    String? customTeamsMsg,
+    bool? shareLink,
+    bool? shareQr,
+  }) async {
+    final teamsService = FlutterReleaseXTeamsService();
+    final uploadState = FlutterReleaseXUploadState();
+
+    final String? downloadLink = uploadState.uploadLink;
+    final teamsConfig = FlutterReleaseXConfig().config.uploadOptions.teams;
+    final bool isTeamsEnabled = teamsConfig.enabled;
+    final String? webhookUrl = teamsConfig.webhookUrl;
+    final String? customMessage = customTeamsMsg ?? teamsConfig.customMessage;
+    final List<String>? mentionUsers = teamsConfig.mentionUsers;
+    final bool isShareDownloadLink = shareLink ?? teamsConfig.shareLink;
+    final bool isShareQR = shareQr ?? teamsConfig.shareQR;
+    final File qrFile = File('./release-qr-code.png');
+
+    if (isTeamsEnabled && webhookUrl != null && webhookUrl.isNotEmpty) {
+      try {
+        FlutterReleaseXHelpers.showLoading('🔔 Sharing on Microsoft Teams...');
+
+        await teamsService.sendLinkAndQr(
+          webhookUrl: webhookUrl,
+          qrFile: qrFile,
+          message: customMessage ?? '🎉 Your app is ready for download!',
+          mentions: mentionUsers,
+          downloadLink: downloadLink ?? FlutterReleaseXKstrings.packageLink,
+          isShareQR: isShareQR,
+          isShareDownloadLink: isShareDownloadLink,
+        );
+      } catch (e, s) {
+        showHighlight(
+          firstMessage: 'Teams error:',
           highLightmessage: e.toString(),
           lastMessage: s.toString(),
         );
@@ -345,6 +391,8 @@ class FlutterReleaseXHelpers {
       if (stage.notifySlack) {
         /// Notify Slack.
         await notifySlack();
+        /// Notify Teams (if enabled in config).
+        await notifyTeams();
       }
 
       print('✅ Stage completed: $stageName \n');

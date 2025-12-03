@@ -53,6 +53,7 @@ class UploadOptionsModel {
   final GoogleDriveModel googleDrive;
   final DiawiModel diawi;
   final SlackModel slack;
+  final TeamsModel teams;
   final AWSModel aws;
   final GitlabModel gitlab;
   final PlayStoreModel playStore;
@@ -63,6 +64,7 @@ class UploadOptionsModel {
     GoogleDriveModel? googleDrive,
     DiawiModel? diawi,
     SlackModel? slack,
+    TeamsModel? teams,
     AWSModel? aws,
     GitlabModel? gitlab,
     PlayStoreModel? playStore,
@@ -72,6 +74,7 @@ class UploadOptionsModel {
             googleDrive ?? GoogleDriveModel(), // Default for googleDrive
         diawi = diawi ?? DiawiModel(), // Default for diawi
         slack = slack ?? SlackModel(),
+        teams = teams ?? TeamsModel(),
         aws = aws ?? AWSModel(), // Default for aws
         gitlab = gitlab ?? GitlabModel(), // Default for gitlab
         playStore = playStore ?? PlayStoreModel(), // Default for playStore
@@ -85,6 +88,7 @@ class UploadOptionsModel {
           map['google_drive'] ?? <dynamic, dynamic>{}),
       diawi: DiawiModel.fromYaml(map['diawi'] ?? <dynamic, dynamic>{}),
       slack: SlackModel.fromYaml(map['slack'] ?? <dynamic, dynamic>{}),
+      teams: TeamsModel.fromYaml(map['teams'] ?? <dynamic, dynamic>{}),
       aws: AWSModel.fromYaml(map['aws'] ?? <dynamic, dynamic>{}),
       gitlab: GitlabModel.fromYaml(map['gitlab'] ?? <dynamic, dynamic>{}),
       playStore:
@@ -100,6 +104,7 @@ class UploadOptionsModel {
       'google_drive': googleDrive.toMap(),
       'diawi': diawi.toMap(),
       'slack': slack.toMap(),
+      'teams': teams.toMap(),
       'aws': aws.toMap(),
       'gitlab': gitlab.toMap(),
       'play_store': playStore.toMap(),
@@ -182,6 +187,51 @@ class SlackModel {
       'share_link': shareLink,
       'bot_user_oauth_token': botUserOauthToken,
       'default_channel_id': defaultChannelId,
+      'custom_message': customMessage,
+      'mention_users': mentionUsers,
+    };
+  }
+}
+
+class TeamsModel {
+  final bool enabled;
+  final bool shareQR;
+  final bool shareLink;
+  final String? webhookUrl;
+  final String? customMessage;
+  final List<String>? mentionUsers;
+
+  TeamsModel({
+    this.enabled = false,
+    this.shareQR = true,
+    this.shareLink = true,
+    this.webhookUrl,
+    this.customMessage,
+    this.mentionUsers,
+  });
+
+  // Factory constructor to create an instance from YAML
+  factory TeamsModel.fromYaml(Map<dynamic, dynamic>? yamlMap) {
+    final map = yamlMap ?? <dynamic, dynamic>{};
+    return TeamsModel(
+      enabled: map['enabled'] ?? false,
+      shareQR: map['share_QR'] ?? true,
+      shareLink: map['share_link'] ?? true,
+      webhookUrl: map['webhook_url'],
+      customMessage: map['custom_message'],
+      mentionUsers: map['mention_users'] != null
+          ? List<String>.from(map['mention_users'])
+          : null,
+    );
+  }
+
+  // Method to convert the object to a Map
+  Map<String, dynamic> toMap() {
+    return {
+      'enabled': enabled,
+      'share_QR': shareQR,
+      'share_link': shareLink,
+      'webhook_url': webhookUrl,
       'custom_message': customMessage,
       'mention_users': mentionUsers,
     };

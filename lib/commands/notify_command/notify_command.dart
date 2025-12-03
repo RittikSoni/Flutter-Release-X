@@ -6,7 +6,7 @@ import 'package:flutter_release_x/helpers/helpers.dart';
 class FlutterReleaseXNotifyCommand extends Command {
   @override
   String get description =>
-      'Send notifications to popular platforms like Slack and more.';
+      'Send notifications to popular platforms like Slack, Microsoft Teams, and more.';
 
   @override
   String get name => 'notify';
@@ -15,8 +15,8 @@ class FlutterReleaseXNotifyCommand extends Command {
     argParser.addOption(
       'platform',
       abbr: 'p',
-      help: 'Specify the platform to notify (e.g., slack).',
-      allowed: ['slack'],
+      help: 'Specify the platform to notify (e.g., slack, teams).',
+      allowed: ['slack', 'teams'],
       defaultsTo: 'slack',
     );
     argParser.addOption(
@@ -38,6 +38,13 @@ class FlutterReleaseXNotifyCommand extends Command {
       case 'slack':
         await FlutterReleaseXHelpers.notifySlack(
           customSlackMsg: message,
+          shareLink: false,
+          shareQr: false,
+        );
+        break;
+      case 'teams':
+        await FlutterReleaseXHelpers.notifyTeams(
+          customTeamsMsg: message,
           shareLink: false,
           shareQr: false,
         );
