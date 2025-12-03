@@ -105,7 +105,7 @@ class FlutterReleaseXPlayStoreUploadService {
             await api.edits.commit(packageName, editId);
 
             final releaseUrl =
-                'https://play.google.com/console/u/0/developers/${serviceAccountJson['project_id']}/app/${packageName}/tracks/${track}';
+                'https://play.google.com/console/u/0/developers/${serviceAccountJson['project_id']}/app/$packageName/tracks/$track';
             FlutterReleaseXIndividualUploadService.updateUrlLinkState(
                 releaseUrl);
             return releaseUrl;
@@ -139,7 +139,7 @@ class FlutterReleaseXPlayStoreUploadService {
             await api.edits.commit(packageName, editId);
 
             final releaseUrl =
-                'https://play.google.com/console/u/0/developers/${serviceAccountJson['project_id']}/app/${packageName}/tracks/${track}';
+                'https://play.google.com/console/u/0/developers/${serviceAccountJson['project_id']}/app/$packageName/tracks/$track';
             FlutterReleaseXIndividualUploadService.updateUrlLinkState(
                 releaseUrl);
             return releaseUrl;
