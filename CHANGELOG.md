@@ -1,3 +1,10 @@
+## v0.4.0
+
+- Added new upload options: **GitLab, Diawi, AWS, Google Play Store, and Apple App Store**.
+- Introduced **Microsoft Teams** support for faster and easier team notifications.
+- Improved QR code generation and sharing.
+- Various performance and stability optimizations.
+
 ## v0.3.2
 
 - add version command
