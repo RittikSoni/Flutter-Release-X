@@ -39,6 +39,7 @@ class FlutterReleaseXKstrings {
   static const String packageName = 'Flutter Release X';
   static const String googleDriveCredentialsSavePath = 'gdcredentials.json';
   static const String qrCodeSavePath = './release-qr-code.png';
+  static const String frxLogoPath = 'assets/frx_logo.jpg';
   static const String gitRepoLink =
       'https://github.com/RittikSoni/Flutter-Release-X';
   static const String packageLink =

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'package:flutter_release_x/commands/prompt_storage_options.dart';
 import 'package:flutter_release_x/configs/config.dart';
@@ -121,6 +122,300 @@ class FlutterReleaseXHelpers {
 
   //  ───────────────────────────────────── QR  ─────────────────────────────────────
 
+  /// Add footer with FRX logo and title below the QR code image
+  static Future<img.Image> _addFooterToQrCode(
+      img.Image qrImage, int qrSize) async {
+    try {
+      // Try to find the logo file - check multiple possible locations
+      String? logoPath;
+
+      // List of possible paths to check
+      final possiblePaths = <String>[
+        // Development mode - relative to current working directory (most common)
+        FlutterReleaseXKstrings.frxLogoPath, // assets/frx_logo.jpg
+        path.join('lib',
+            FlutterReleaseXKstrings.frxLogoPath), // lib/assets/frx_logo.jpg
+      ];
+
+      // Try to get script directory (may fail for compiled executables)
+      try {
+        final scriptDir = path.dirname(Platform.script.toFilePath());
+        final packageRoot = path.dirname(scriptDir);
+
+        // Add paths relative to script location
+        possiblePaths.addAll([
+          path.join(packageRoot, FlutterReleaseXKstrings.frxLogoPath),
+          path.join(scriptDir, FlutterReleaseXKstrings.frxLogoPath),
+          path.join(packageRoot, '..', FlutterReleaseXKstrings.frxLogoPath),
+          path.join(
+              packageRoot, '..', '..', FlutterReleaseXKstrings.frxLogoPath),
+        ]);
+      } catch (_) {
+        // If script path detection fails, continue with basic paths
+      }
+
+      // Check each possible path
+      for (final possiblePath in possiblePaths) {
+        final logoFile = File(possiblePath);
+        if (logoFile.existsSync()) {
+          logoPath = possiblePath;
+          break;
+        }
+      }
+
+      // Calculate footer height (15% of QR code size)
+      final footerHeight = (qrSize * 0.15).round();
+      final footerPadding =
+          (footerHeight * 0.2).round(); // 20% padding on sides
+
+      // Create the combined image: QR code + footer
+      final finalImage = img.Image(
+        width: qrSize,
+        height: qrSize + footerHeight,
+      );
+
+      // Fill with white background
+      img.fill(finalImage, color: img.ColorRgb8(255, 255, 255));
+
+      // Copy QR code to the top of the final image
+      img.compositeImage(
+        finalImage,
+        qrImage,
+        dstX: 0,
+        dstY: 0,
+      );
+
+      // If logo found, add it to footer
+      if (logoPath != null) {
+        try {
+          // Load the logo image
+          final logoBytes = await File(logoPath).readAsBytes();
+          img.Image? logoImage = img.decodeImage(logoBytes);
+
+          if (logoImage != null) {
+            // Calculate logo size for footer (60% of footer height)
+            final logoHeight = (footerHeight * 0.6).round();
+            final logoAspectRatio = logoImage.width / logoImage.height;
+            final logoWidth = (logoHeight * logoAspectRatio).round();
+
+            // Resize logo
+            final resizedLogo = img.copyResize(
+              logoImage,
+              width: logoWidth,
+              height: logoHeight,
+            );
+
+            // Position logo in footer (left side with padding)
+            final logoX = footerPadding;
+            final logoY = qrSize + ((footerHeight - logoHeight) / 2).round();
+
+            img.compositeImage(
+              finalImage,
+              resizedLogo,
+              dstX: logoX,
+              dstY: logoY,
+            );
+
+            // Add text "Flutter Release X" next to logo
+            // Position text to the right of logo, vertically centered
+            final textSpacing = (footerPadding / 2).round();
+            final textX = logoX + logoWidth + textSpacing;
+            final textHeight = (footerHeight * 0.6).round();
+            final textY = qrSize + ((footerHeight - textHeight) / 2).round();
+
+            // Draw text using bitmap font
+            _drawSimpleText(
+              finalImage,
+              'Flutter Release X',
+              textX,
+              textY,
+              textHeight,
+            );
+          }
+        } catch (e) {
+          // If logo loading fails, continue without logo
+        }
+      } else {
+        // No logo found, just add text centered
+        final textHeight = (footerHeight * 0.6).round();
+        // Approximate text width: "Flutter Release X" is about 18 characters * char width
+        final charWidth = (textHeight * 0.5).round().clamp(4, 8);
+        final estimatedTextWidth = 18 * (charWidth + 1);
+        final textX = ((qrSize - estimatedTextWidth) / 2).round();
+        final textY = qrSize + ((footerHeight - textHeight) / 2).round();
+        _drawSimpleText(
+          finalImage,
+          'Flutter Release X',
+          textX,
+          textY,
+          textHeight,
+        );
+      }
+
+      return finalImage;
+    } catch (e) {
+      // If any error occurs, return the QR code without footer
+      return qrImage;
+    }
+  }
+
+  /// Draw text using a simple bitmap font
+  static void _drawSimpleText(
+      img.Image image, String text, int x, int y, int fontSize) {
+    // Calculate character dimensions based on font size
+    final charWidth = (fontSize * 0.5).round().clamp(4, 8);
+    final charHeight = (fontSize * 0.8).round().clamp(6, 12);
+    final textColor = img.ColorRgb8(0, 0, 0); // Black text
+
+    int currentX = x;
+
+    for (int i = 0; i < text.length; i++) {
+      final char = text[i].toUpperCase();
+
+      if (char == ' ') {
+        currentX += charWidth;
+        continue;
+      }
+
+      // Draw the character using bitmap font data
+      _drawBitmapChar(
+          image, char, currentX, y, charWidth, charHeight, textColor);
+      currentX += charWidth + 1;
+    }
+  }
+
+  /// Draw a single character using bitmap font data (5x7 grid)
+  static void _drawBitmapChar(img.Image image, String char, int x, int y,
+      int width, int height, img.Color textColor) {
+    // Get bitmap pattern for the character
+    final pattern = _getCharPattern(char);
+    if (pattern == null) return;
+
+    // Scale the 5x7 pattern to the desired size
+    final scaleX = width / 5.0;
+    final scaleY = height / 7.0;
+
+    // Draw the pattern
+    for (int py = 0; py < 7; py++) {
+      for (int px = 0; px < 5; px++) {
+        if (pattern[py][px] == 1) {
+          // Draw a filled rectangle for this pixel
+          final startX = (x + px * scaleX).round();
+          final startY = (y + py * scaleY).round();
+          final endX = (x + (px + 1) * scaleX).round();
+          final endY = (y + (py + 1) * scaleY).round();
+
+          for (int dy = startY; dy < endY && dy < image.height; dy++) {
+            for (int dx = startX; dx < endX && dx < image.width; dx++) {
+              if (dx >= 0 && dy >= 0) {
+                image.setPixel(dx, dy, textColor);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /// Get bitmap pattern for a character (5x7 grid, 1 = pixel on, 0 = pixel off)
+  static List<List<int>>? _getCharPattern(String char) {
+    // Simple 5x7 bitmap font patterns for basic characters
+    final patterns = <String, List<List<int>>>{
+      'F': [
+        [1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+      ],
+      'L': [
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1],
+      ],
+      'U': [
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [0, 1, 1, 1, 0],
+      ],
+      'T': [
+        [1, 1, 1, 1, 1],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+      ],
+      'E': [
+        [1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 0],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1],
+      ],
+      'R': [
+        [1, 1, 1, 1, 0],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 0],
+        [1, 0, 1, 0, 0],
+        [1, 0, 0, 1, 0],
+        [1, 0, 0, 0, 1],
+      ],
+      'A': [
+        [0, 1, 1, 1, 0],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+      ],
+      'S': [
+        [0, 1, 1, 1, 0],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [0, 1, 1, 1, 0],
+      ],
+      'X': [
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+        [0, 1, 0, 1, 0],
+        [0, 0, 1, 0, 0],
+        [0, 1, 0, 1, 0],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1],
+      ],
+      ' ': [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+      ],
+    };
+
+    return patterns[char];
+  }
+
   /// Get the QR error correction level
   ///
   /// Default value is 'low'.
@@ -195,8 +490,13 @@ class FlutterReleaseXHelpers {
           width: qrImgSize,
           height: qrImgSize,
         );
+
+        // Add footer with FRX logo and title below the QR code
+        final imageWithFooter =
+            await _addFooterToQrCode(scaledImage, qrImgSize);
+
         final file = File(qrImgSavePath);
-        file.writeAsBytesSync(img.encodePng(scaledImage));
+        file.writeAsBytesSync(img.encodePng(imageWithFooter));
         showHighlight(
           firstMessage: 'QR code saved to',
           highLightmessage: qrImgSavePath,
@@ -391,6 +691,7 @@ class FlutterReleaseXHelpers {
       if (stage.notifySlack) {
         /// Notify Slack.
         await notifySlack();
+
         /// Notify Teams (if enabled in config).
         await notifyTeams();
       }
@@ -559,10 +860,11 @@ class FlutterReleaseXHelpers {
     // PLAY STORE
     final playStore = config.uploadOptions.playStore;
     final isPlayStoreEnabled = playStore.enabled;
-    final isPlayStoreServiceAccountProvided = playStore.serviceAccountJsonPath != null &&
-        playStore.serviceAccountJsonPath!.trim().isNotEmpty;
-    final isPlayStorePackageNameProvided =
-        playStore.packageName != null && playStore.packageName!.trim().isNotEmpty;
+    final isPlayStoreServiceAccountProvided =
+        playStore.serviceAccountJsonPath != null &&
+            playStore.serviceAccountJsonPath!.trim().isNotEmpty;
+    final isPlayStorePackageNameProvided = playStore.packageName != null &&
+        playStore.packageName!.trim().isNotEmpty;
 
     // APP STORE
     final appStore = config.uploadOptions.appStore;
