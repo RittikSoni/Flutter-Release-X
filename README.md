@@ -13,11 +13,12 @@
 
 [![Watch the tutorial on YouTube](assets/flutter_release_x_tutorial.jpg)](https://youtu.be/8WuSyGD3Smg?si=_DOKxBANN-rXvggN)
 
-**Flutter Release X** is a powerful command-line tool that transforms your Flutter app release process. Designed for efficiency and ease of use, it allows you to:
+**Flutter Release X** is a powerful command-line tool that transforms your Flutter app release process, quick and easy. Designed for efficiency and ease of use, it allows you to:
 
 - **Simplify Your Workflow**: Replace complex CI/CD pipelines with a single command to effortlessly generate and distribute release builds.
-- **Seamless Cloud Integration**: Easily configure cloud platforms like GitHub, Google Drive, AWS, and more by simply providing your API keys and tokens. Once configured, enjoy hassle-free, automatic uploads.
+- **Seamless Cloud Integration**: Easily configure cloud platforms like GitHub, Google Drive, AWS S3, GitLab, Google Play Store, Apple App Store, and Diawi by simply providing your API keys and tokens. Once configured, enjoy hassle-free, automatic uploads.
 - **Instant Distribution**: Automatically generate QR codes and download links for your builds, enabling quick and easy distribution to your team or users with no additional effort.
+- **Multi-Platform Support**: Build and distribute for Android, iOS, Web, macOS, Windows, and Linux from a single command.
 
 With **Flutter Release X**, streamline your release process, enhance collaboration, and reduce time-to-market—all while focusing on what truly matters: building amazing apps.
 
@@ -41,6 +42,11 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
   - [Upload Options](#upload-options)
     - [GitHub](#github)
     - [Google Drive](#google-drive)
+    - [Diawi](#diawi)
+    - [AWS S3](#aws-s3)
+    - [GitLab](#gitlab)
+    - [Google Play Store](#google-play-store)
+    - [Apple App Store](#apple-app-store)
     - [Slack](#slack)
   - [QR Code Generation Settings](#qr-code-generation-settings)
   - [Advance Pipeline](#advance-pipeline)
@@ -48,7 +54,14 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 - [🌐 Cloud Integration](#cloud-integration)
   - [GitHub Setup](#github-configuration)
   - [Google Drive Setup](#google-drive-configuration)
-- [🔔 Slack Setup Guide](#slack-configuration-setup-guide)
+  - [Diawi Setup](#diawi-configuration)
+  - [AWS S3 Setup](#aws-s3-configuration)
+  - [GitLab Setup](#gitlab-configuration)
+  - [Google Play Store Setup](#google-play-store-configuration)
+  - [Apple App Store Setup](#apple-app-store-configuration)
+- [🔔 Notification Setup Guides](#notification-setup-guides)
+  - [Slack Setup Guide](#slack-configuration-setup-guide)
+  - [Microsoft Teams Setup Guide](#microsoft-teams-configuration-setup-guide)
 - [📱 QR Code Configuration](#qr-code-configuration)
 - [🔐 .gitignore Configuration](#recommended-gitignore-configuration)
 - [⚖️ License](#license)
@@ -68,30 +81,28 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 
 The table below outlines the current status of various features. Features marked with **"Available via Advanced Pipeline"** are not part of the basic Flutter Release X setup but can be enabled through our Advanced Pipeline feature for enhanced automation.
 
-| Feature                      | Status         | Description                                                                                                                                                                      | Achievable via Advanced Pipeline   |
-| ---------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| ✨ **Advanced Pipeline**     | ✅ New         | Streamline and automate your entire CI/CD workflow in one command.                                                                                                               | —                                  |
-| **APK Builds**               | ✅ Integrated  | Fully integrated APK build process.                                                                                                                                              | —                                  |
-| **GitHub Upload**            | ✅ Integrated  | Directly upload your builds to a GitHub repository for seamless sharing.                                                                                                         | —                                  |
-| **Google Drive Upload**      | ✅ Integrated  | Securely store your builds in Google Drive.                                                                                                                                      | —                                  |
-| **Upload Link Generation**   | ✅ Integrated  | Automatically generate and share download links for your builds.                                                                                                                 | —                                  |
-| **QR Code Generation**       | ✅ Integrated  | Instantly generate QR codes for quick access to your build downloads.                                                                                                            | —                                  |
-| **Slack Integration**        | ✅ Integrated  | Keep your team updated by sharing builds directly on Slack.                                                                                                                      | —                                  |
-| **iOS Builds**               | ✅ Integrated  | iOS build support is not available by default.                                                                                                                                   | ✅ Available via Advanced Pipeline |
-| **Windows Builds**           | ✅ Integrated  | Windows build support is not available by default.                                                                                                                               | ✅ Available via Advanced Pipeline |
-| **macOS Builds**             | ✅ Integrated  | macOS build support is not available by default.                                                                                                                                 | ✅ Available via Advanced Pipeline |
-| **Linux Builds**             | ✅ Integrated  | Linux build support is not available by default.                                                                                                                                 | ✅ Available via Advanced Pipeline |
-| **AWS S3 Upload**            | 🚀 Coming Soon | Scalable cloud storage uploads through AWS S3.                                                                                                                                   | ✅ Available via Advanced Pipeline |
-| **GitLab Upload**            | 🚀 Coming Soon | Direct upload to GitLab repositories for seamless version control.                                                                                                               | ✅ Available via Advanced Pipeline |
-| **Google Play Store Upload** | 🚀 Coming Soon | Streamline your Android app distribution via the Google Play Store.                                                                                                              | ✅ Available via Advanced Pipeline |
-| **Apple App Store Upload**   | 🚀 Coming Soon | Simplify iOS app distribution with the Apple App Store upload feature.                                                                                                           | ✅ Available via Advanced Pipeline |
-| **Diawi Upload**             | 🚀 Coming Soon | Upload IPA/APK to Diawi for fast ad-hoc distribution - generates short install links and QR codes, with optional password protection and link expiry for secure tester installs. | ✅ Available via Advanced Pipeline |
+| Feature                      | Status        | Description                                                                                                                                                                      | Achievable via Advanced Pipeline   |
+| ---------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| ✨ **Advanced Pipeline**     | ✅ New        | Streamline and automate your entire CI/CD workflow in one command.                                                                                                               | —                                  |
+| **APK Builds**               | ✅ Integrated | Fully integrated APK build process.                                                                                                                                              | —                                  |
+| **GitHub Upload**            | ✅ Integrated | Directly upload your builds to a GitHub repository for seamless sharing.                                                                                                         | —                                  |
+| **Google Drive Upload**      | ✅ Integrated | Securely store your builds in Google Drive.                                                                                                                                      | —                                  |
+| **Upload Link Generation**   | ✅ Integrated | Automatically generate and share download links for your builds.                                                                                                                 | —                                  |
+| **QR Code Generation**       | ✅ Integrated | Instantly generate QR codes for quick access to your build downloads.                                                                                                            | —                                  |
+| **Slack Integration**        | ✅ Integrated | Keep your team updated by sharing builds directly on Slack.                                                                                                                      | —                                  |
+| **iOS Builds**               | ✅ Integrated | iOS build support is not available by default.                                                                                                                                   | ✅ Available via Advanced Pipeline |
+| **Windows Builds**           | ✅ Integrated | Windows build support is not available by default.                                                                                                                               | ✅ Available via Advanced Pipeline |
+| **macOS Builds**             | ✅ Integrated | macOS build support is not available by default.                                                                                                                                 | ✅ Available via Advanced Pipeline |
+| **Linux Builds**             | ✅ Integrated | Linux build support is not available by default.                                                                                                                                 | ✅ Available via Advanced Pipeline |
+| **AWS S3 Upload**            | ✅ Integrated | Scalable cloud storage uploads through AWS S3 with support for custom regions and key prefixes.                                                                                  | —                                  |
+| **GitLab Upload**            | ✅ Integrated | Direct upload to GitLab repositories for seamless version control and release management.                                                                                        | —                                  |
+| **Google Play Store Upload** | ✅ Integrated | Streamline your Android app distribution via the Google Play Store with support for multiple tracks (internal, alpha, beta, production).                                         | —                                  |
+| **Apple App Store Upload**   | ✅ Integrated | Simplify iOS app distribution with the Apple App Store Connect API integration.                                                                                                  | —                                  |
+| **Diawi Upload**             | ✅ Integrated | Upload IPA/APK to Diawi for fast ad-hoc distribution - generates short install links and QR codes, with optional password protection and link expiry for secure tester installs. | —                                  |
 
 > **Note:** Features marked as "Available via Advanced Pipeline" require configuration through the Advanced Pipeline option in Flutter Release X. For further details, please refer to the [Official frx documentation](https://frx.elpisverse.com).
 
 > **Tip:** Checkout Cookbook for quick implementation [Cookbook](https://frx.elpisverse.com/docs/Cookbook/advance-cookbook)
-
-Stay tuned for exciting updates and more cloud upload functionalities like AWS S3, Google Play Store, and Apple App Store integrations. 🚀
 
 ## Installation
 
@@ -118,6 +129,7 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 | `frx build -c <path_to_config>`                   | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
 | `frx build --target all`                          | Builds release builds for all supported platforms (iOS, Android, Web, macOS, Windows, Linux).    |
 | `frx notify --platform slack --message 'message'` | Sends a notification to Slack with a custom message.                                             |
+| `frx notify --platform teams --message 'message'` | Sends a notification to Microsoft Teams with a custom message.                                   |
 
 ### Example
 
@@ -139,7 +151,7 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
   frx build -t android,ios
   ```
 
-- To notify on Popular platform like Slack with a custom message:
+- To notify on popular platforms like Slack or Microsoft Teams with a custom message:
 
   ```bash
   frx notify --platform slack --message ":rocket: New Release Available!"
@@ -149,6 +161,18 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 
   ```bash
   frx notify -p slack -m ":rocket: New Release Available!"
+  ```
+
+- To notify Microsoft Teams:
+
+  ```bash
+  frx notify --platform teams --message ":rocket: New Release Available!"
+  ```
+
+  or
+
+  ```bash
+  frx notify -p teams -m ":rocket: New Release Available!"
   ```
 
 - To verify your configuration, run:
@@ -189,6 +213,46 @@ upload_options:
     client_id: YOUR_CLIENT_ID # Required: Google API Client ID
     client_secret: YOUR_CLIENT_SECRET # Required: Google API Client Secret
 
+  diawi:
+    enabled: true
+    token: YOUR_DIAWI_TOKEN # Required: Diawi API Token (get from https://www.diawi.com/profile/api)
+    wall_of_apps: false # Optional: Display on Diawi wall of apps (default: false)
+    find_by_udid: false # Optional: Allow finding by UDID (default: false)
+    callback_url: "" # Optional: URL to notify when upload completes
+    installation_notifications: false # Optional: Enable installation notifications (default: false)
+    password: "" # Optional: Password protection for the download link
+    comment: "" # Optional: Comment/description for the upload
+
+  aws:
+    enabled: false
+    access_key_id: YOUR_AWS_ACCESS_KEY_ID # Required: AWS Access Key ID
+    secret_access_key: YOUR_AWS_SECRET_ACCESS_KEY # Required: AWS Secret Access Key
+    region: us-east-1 # Optional: AWS region (default: us-east-1)
+    bucket_name: your-bucket-name # Required: S3 bucket name
+    key_prefix: flutter-release-x # Optional: Prefix for uploaded files (default: empty)
+
+  gitlab:
+    enabled: false
+    token: YOUR_GITLAB_TOKEN # Required: GitLab Personal Access Token
+    project_id: "12345678" # Required: GitLab Project ID (found in project settings)
+    tag: v0.0.1 # Optional: Release tag (default: v0.0.1)
+    ref: main # Optional: Branch or commit SHA from which to create the tag (default: main)
+    host: https://gitlab.com # Optional: GitLab host URL (default: https://gitlab.com, use for self-hosted instances)
+
+  play_store:
+    enabled: false
+    service_account_json_path: ./path/to/service-account.json # Required: Path to Google Play Service Account JSON file
+    package_name: com.example.app # Required: Android app package name
+    track: internal # Optional: Release track - internal, alpha, beta, or production (default: internal)
+    release_name: "Release v1.0.0" # Optional: Custom release name
+
+  app_store:
+    enabled: false
+    api_key_path: ./path/to/AuthKey_XXXXXXXXXX.p8 # Required: Path to App Store Connect API Key (.p8 file)
+    api_issuer: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx # Required: App Store Connect API Key Issuer ID (UUID format)
+    app_id: "1234567890" # Required: App Store Connect App ID
+    bundle_id: com.example.app # Optional: iOS app bundle identifier
+
   slack:
     enabled: true
     bot_user_oauth_token: YOUR_BOT_TOKEN # Required: Slack Bot OAuth Token, e.g., xoxb-XXXXXXXXX-XXXXXXXXX-XXXXXXXXXXXXX
@@ -197,6 +261,14 @@ upload_options:
     share_link: true # Optional: Share build download link in Slack (default: true)
     custom_message: "🚀 Check out the latest build! Download your app now!" # Custom message to accompany the link
     mention_users: ["U0XXXXXXX", "U08XXXXXXXX"] # List of Slack user/member IDs to mention. Note: not username or display name.
+
+  teams:
+    enabled: false
+    webhook_url: YOUR_WEBHOOK_URL # Required: Microsoft Teams Incoming Webhook URL
+    share_QR: true # Optional: Share QR code in Teams (default: true)
+    share_link: true # Optional: Share build download link in Teams (default: true)
+    custom_message: "🚀 Check out the latest build! Download your app now!" # Custom message to accompany the link
+    mention_users: ["John Doe", "Jane Smith"] # List of Teams user names to mention
 
 # QR Code generation settings
 qr_code:
@@ -279,6 +351,67 @@ pipeline_steps:
 | `client_id`     | Google API Client ID       | Yes      | `YOUR_CLIENT_ID`     |
 | `client_secret` | Google API Client Secret   | Yes      | `YOUR_CLIENT_SECRET` |
 
+### Diawi
+
+| Key                          | Description                               | Required | Example                                                           |
+| ---------------------------- | ----------------------------------------- | -------- | ----------------------------------------------------------------- |
+| `enabled`                    | Enable Diawi upload                       | Yes      | `true`                                                            |
+| `token`                      | Diawi API Token                           | Yes      | Get from [Diawi Profile](https://dashboard.diawi.com/profile/api) |
+| `wall_of_apps`               | Display on Diawi wall of apps             | No       | `false` (default)                                                 |
+| `find_by_udid`               | Allow finding by UDID                     | No       | `false` (default)                                                 |
+| `callback_url`               | URL to notify when upload completes       | No       | `""`                                                              |
+| `installation_notifications` | Enable installation notifications         | No       | `false` (default)                                                 |
+| `password`                   | Password protection for the download link | No       | `""`                                                              |
+| `comment`                    | Comment/description for the upload        | No       | `""`                                                              |
+
+### AWS S3
+
+| Key                 | Description                                 | Required | Example                      |
+| ------------------- | ------------------------------------------- | -------- | ---------------------------- |
+| `enabled`           | Enable AWS S3 upload                        | Yes      | `true`                       |
+| `access_key_id`     | AWS Access Key ID                           | Yes      | `YOUR_AWS_ACCESS_KEY_ID`     |
+| `secret_access_key` | AWS Secret Access Key                       | Yes      | `YOUR_AWS_SECRET_ACCESS_KEY` |
+| `region`            | AWS region                                  | No       | `us-east-1` (default)        |
+| `bucket_name`       | S3 bucket name                              | Yes      | `your-bucket-name`           |
+| `key_prefix`        | Prefix for uploaded files (organizes files) | No       | `flutter-release-x`          |
+
+> **Note:** The S3 bucket must have public read permissions for direct URL access, or you'll need to use presigned URLs. Check your bucket's public access settings in the AWS Console.
+
+### GitLab
+
+| Key          | Description                                       | Required | Example                          |
+| ------------ | ------------------------------------------------- | -------- | -------------------------------- |
+| `enabled`    | Enable GitLab upload                              | Yes      | `true`                           |
+| `token`      | GitLab Personal Access Token                      | Yes      | Get from GitLab profile settings |
+| `project_id` | GitLab Project ID (found in project settings)     | Yes      | `"12345678"`                     |
+| `tag`        | Release tag (e.g., version number)                | No       | `v0.0.1` (default)               |
+| `ref`        | Branch or commit SHA from which to create the tag | No       | `main` (default)                 |
+| `host`       | GitLab host URL (for self-hosted instances)       | No       | `https://gitlab.com` (default)   |
+
+### Google Play Store
+
+| Key                         | Description                                   | Required | Example                                                 |
+| --------------------------- | --------------------------------------------- | -------- | ------------------------------------------------------- |
+| `enabled`                   | Enable Google Play Store upload               | Yes      | `true`                                                  |
+| `service_account_json_path` | Path to Google Play Service Account JSON file | Yes      | `./path/to/service-account.json`                        |
+| `package_name`              | Android app package name                      | Yes      | `com.example.app`                                       |
+| `track`                     | Release track                                 | No       | `internal` (Options: internal, alpha, beta, production) |
+| `release_name`              | Custom release name                           | No       | `"Release v1.0.0"`                                      |
+
+> **Note:** Requires a Google Play Service Account with appropriate permissions. The service account must have access to your app in the Play Console.
+
+### Apple App Store
+
+| Key            | Description                                  | Required | Example                                |
+| -------------- | -------------------------------------------- | -------- | -------------------------------------- |
+| `enabled`      | Enable App Store upload                      | Yes      | `true`                                 |
+| `api_key_path` | Path to App Store Connect API Key (.p8 file) | Yes      | `./path/to/AuthKey_XXXXXXXXXX.p8`      |
+| `api_issuer`   | App Store Connect API Key Issuer ID (UUID)   | Yes      | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` |
+| `app_id`       | App Store Connect App ID                     | Yes      | `"1234567890"`                         |
+| `bundle_id`    | iOS app bundle identifier                    | No       | `com.example.app`                      |
+
+> **Note:** Full IPA upload via API requires proper JWT signing. For production uploads, consider using Transporter, Fastlane, or Xcode Organizer for more reliable uploads.
+
 ### Slack
 
 | Key                    | Description                                   | Required | Example                                                   |
@@ -290,6 +423,17 @@ pipeline_steps:
 | `share_link`           | Whether to share build download link on Slack | No       | `true` (default)                                          |
 | `custom_message`       | Custom message to share with the build link   | No       | `"🚀 Check out the latest build! Download your app now!"` |
 | `mention_users`        | List of Slack user/member IDs to mention      | No       | `["U0XXXXXXX", "U08XXXXXXXX"]`                            |
+
+### Microsoft Teams
+
+| Key              | Description                                    | Required | Example                                                                                                  |
+| ---------------- | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `enabled`        | Enable Microsoft Teams notifications           | Yes      | `true`                                                                                                   |
+| `webhook_url`    | Microsoft Teams Incoming Webhook URL           | Yes      | Get from Teams channel connectors                                                                        |
+| `share_QR`       | Whether to share QR code in Teams              | No       | `true` (default)                                                                                         |
+| `share_link`     | Whether to share build download link in Teams  | No       | `true` (default)                                                                                         |
+| `custom_message` | Custom message to share with the build link    | No       | `"🚀 Check out the latest build! Download your app now!"`                                                |
+| `mention_users`  | List of Teams user names to include in message | No       | `["John Doe", "Jane Smith"]` (Note: Webhooks don't support @mentions, names will be shown as plain text) |
 
 ---
 
@@ -411,6 +555,142 @@ To upload files to Google Drive, follow these steps to set up your credentials:
 
    By following these steps, your application will be able to authenticate with Google Drive using the client ID and secret to upload files.
 
+### Diawi Configuration
+
+Diawi is a service for distributing iOS and Android apps via direct download links. To configure Diawi:
+
+1. **Create a Diawi Account**:
+
+   - Go to [Diawi](https://www.diawi.com/) and create an account.
+
+2. **Get Your API Token**:
+
+   - Log in to your Diawi account.
+   - Go to [Profile > API](https://dashboard.diawi.com/profile/api).
+   - Copy your API token.
+
+3. **Set Up Your Project**:
+   ```yaml
+   diawi:
+     enabled: true
+     token: YOUR_DIAWI_TOKEN
+     wall_of_apps: false
+     find_by_udid: false
+   ```
+
+### AWS S3 Configuration
+
+To upload files to AWS S3, you'll need AWS credentials with S3 upload permissions:
+
+1. **Create AWS Credentials**:
+
+   - Go to the [AWS IAM Console](https://console.aws.amazon.com/iam/).
+   - Create a new user or use an existing one.
+   - Attach a policy with S3 upload permissions (e.g., `AmazonS3FullAccess` or a custom policy).
+   - Create an Access Key ID and Secret Access Key.
+
+2. **Create an S3 Bucket**:
+
+   - Go to the [S3 Console](https://console.aws.amazon.com/s3/).
+   - Create a new bucket or use an existing one.
+   - Note: For public access, configure bucket permissions appropriately.
+
+3. **Set Up Your Project**:
+   ```yaml
+   aws:
+     enabled: true
+     access_key_id: YOUR_AWS_ACCESS_KEY_ID
+     secret_access_key: YOUR_AWS_SECRET_ACCESS_KEY
+     region: us-east-1
+     bucket_name: your-bucket-name
+     key_prefix: flutter-release-x
+   ```
+
+> **Important:** Ensure your S3 bucket has the appropriate permissions. For public downloads, enable public read access. For private files, consider using presigned URLs.
+
+### GitLab Configuration
+
+To upload releases to GitLab:
+
+1. **Generate a Personal Access Token**:
+
+   - Go to [GitLab Profile > Personal Access Tokens](https://gitlab.com/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc).
+   - Create a token with `api` scope.
+   - Copy the token.
+
+2. **Find Your Project ID**:
+
+   - Go to your GitLab project.
+   - The Project ID is shown on the project's main page under the project name, or in Settings > General.
+
+3. **Set Up Your Project**:
+   ```yaml
+   gitlab:
+     enabled: true
+     token: YOUR_GITLAB_TOKEN
+     project_id: "12345678"
+     tag: v0.0.1
+     ref: main
+     host: https://gitlab.com
+   ```
+
+> **Note:** For self-hosted GitLab instances, update the `host` field with your GitLab URL.
+
+### Google Play Store Configuration
+
+To upload apps to Google Play Store:
+
+1. **Create a Service Account**:
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com/).
+   - Create a new project or select an existing one.
+   - Enable the Google Play Android Developer API.
+   - Create a Service Account and download the JSON key file.
+
+2. **Grant Access in Play Console**:
+
+   - Go to [Google Play Console](https://play.google.com/console/).
+   - Navigate to Setup > API access.
+   - Link your service account and grant appropriate permissions.
+
+3. **Set Up Your Project**:
+   ```yaml
+   play_store:
+     enabled: true
+     service_account_json_path: ./path/to/service-account.json
+     package_name: com.example.app
+     track: internal
+     release_name: "Release v1.0.0"
+   ```
+
+### Apple App Store Configuration
+
+To upload apps to App Store Connect:
+
+1. **Generate an API Key**:
+
+   - Go to [App Store Connect](https://appstoreconnect.apple.com/).
+   - Navigate to Users and Access > Keys.
+   - Create a new API key with App Manager or Admin role.
+   - Download the `.p8` key file and note the Key ID and Issuer ID.
+
+2. **Find Your App ID**:
+
+   - In App Store Connect, go to My Apps.
+   - Select your app and find the App ID in the App Information section.
+
+3. **Set Up Your Project**:
+   ```yaml
+   app_store:
+     enabled: true
+     api_key_path: ./path/to/AuthKey_XXXXXXXXXX.p8
+     api_issuer: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+     app_id: "1234567890"
+     bundle_id: com.example.app
+   ```
+
+> **Note:** Full IPA upload via App Store Connect API requires proper JWT signing with ES256. For production use, consider using Transporter, Fastlane, or Xcode Organizer for more reliable uploads.
+
 ## Slack Configuration Setup Guide
 
 To configure Slack, follow these simple steps:
@@ -475,6 +755,43 @@ If you want to mention specific users in the Slack message, you will need their 
 ---
 
 Now, you can use the `YOUR_BOT_TOKEN`, `CHANNEL_ID`, and `member_ids` in your configuration to automate Slack file uploads and download link sending.
+
+### Microsoft Teams Configuration Setup Guide
+
+To configure Microsoft Teams notifications, follow these simple steps:
+
+#### 1. **Create an Incoming Webhook**
+
+- Go to your Microsoft Teams channel where you want to receive notifications.
+- Click on the **three dots (⋯)** next to the channel name.
+- Select **Connectors** from the menu.
+- Search for **Incoming Webhook** and click **Configure**.
+- Give your webhook a name (e.g., "Build Notifier") and optionally upload an image.
+- Click **Create**.
+- **Copy the webhook URL** that is generated (you won't be able to see it again).
+
+> **Note:** Checkout [official microsoft teams](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=newteams%2Cdotnet#create-an-incoming-webhook) docs for detailed walkthrough.
+
+#### 2. **Set Up Your Project**
+
+```yaml
+teams:
+  enabled: true
+  webhook_url: YOUR_WEBHOOK_URL
+  share_QR: true
+  share_link: true
+  custom_message: "🚀 Check out the latest build! Download your app now!"
+  mention_users: ["John Doe", "Jane Smith"]
+```
+
+#### 3. **Get User Names for Mentions** (Optional)
+
+- In Microsoft Teams, you can include user names in the message.
+- **Important:** Teams webhooks don't support actual @mentions. User names will be included as plain text in the message.
+- Add user display names to the `mention_users` list in your configuration.
+- They will appear as "Mentioning: John Doe, Jane Smith" in the message.
+
+> **Note:** Microsoft Teams webhooks use Adaptive Cards for rich message formatting. The QR code will be embedded as a base64 image in the card. For actual @mentions, you would need to use the Microsoft Graph API or Bot Framework, which is beyond the scope of simple webhook integration.
 
 ## QR Code Configuration
 
