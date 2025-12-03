@@ -484,6 +484,48 @@ class FlutterReleaseXHelpers {
         googleDrive.clientSecret != null &&
             googleDrive.clientSecret!.trim().isNotEmpty;
 
+    // DIAWI
+    final diawi = config.uploadOptions.diawi;
+    final isDiawiEnabled = diawi.enabled;
+    final isDiawiTokenProvided =
+        diawi.token != null && diawi.token!.trim().isNotEmpty;
+
+    // AWS
+    final aws = config.uploadOptions.aws;
+    final isAWSEnabled = aws.enabled;
+    final isAWSAccessKeyProvided =
+        aws.accessKeyId != null && aws.accessKeyId!.trim().isNotEmpty;
+    final isAWSSecretKeyProvided =
+        aws.secretAccessKey != null && aws.secretAccessKey!.trim().isNotEmpty;
+    final isAWSBucketProvided =
+        aws.bucketName != null && aws.bucketName!.trim().isNotEmpty;
+
+    // GITLAB
+    final gitlab = config.uploadOptions.gitlab;
+    final isGitlabEnabled = gitlab.enabled;
+    final isGitlabTokenProvided =
+        gitlab.token != null && gitlab.token!.trim().isNotEmpty;
+    final isGitlabProjectIdProvided =
+        gitlab.projectId != null && gitlab.projectId!.trim().isNotEmpty;
+
+    // PLAY STORE
+    final playStore = config.uploadOptions.playStore;
+    final isPlayStoreEnabled = playStore.enabled;
+    final isPlayStoreServiceAccountProvided = playStore.serviceAccountJsonPath != null &&
+        playStore.serviceAccountJsonPath!.trim().isNotEmpty;
+    final isPlayStorePackageNameProvided =
+        playStore.packageName != null && playStore.packageName!.trim().isNotEmpty;
+
+    // APP STORE
+    final appStore = config.uploadOptions.appStore;
+    final isAppStoreEnabled = appStore.enabled;
+    final isAppStoreApiKeyProvided =
+        appStore.apiKeyPath != null && appStore.apiKeyPath!.trim().isNotEmpty;
+    final isAppStoreApiIssuerProvided =
+        appStore.apiIssuer != null && appStore.apiIssuer!.trim().isNotEmpty;
+    final isAppStoreAppIdProvided =
+        appStore.appId != null && appStore.appId!.trim().isNotEmpty;
+
     switch (option) {
       case FlutterReleaseXKenumUploadOptions.github:
         if (isGitHubEnabled && isGitHubRepoProvided && isGitHubRepoToken) {
@@ -497,7 +539,40 @@ class FlutterReleaseXHelpers {
           return true;
         }
         return false;
-      default:
+      case FlutterReleaseXKenumUploadOptions.diawi:
+        if (isDiawiEnabled && isDiawiTokenProvided) {
+          return true;
+        }
+        return false;
+      case FlutterReleaseXKenumUploadOptions.aws:
+        if (isAWSEnabled &&
+            isAWSAccessKeyProvided &&
+            isAWSSecretKeyProvided &&
+            isAWSBucketProvided) {
+          return true;
+        }
+        return false;
+      case FlutterReleaseXKenumUploadOptions.gitlab:
+        if (isGitlabEnabled &&
+            isGitlabTokenProvided &&
+            isGitlabProjectIdProvided) {
+          return true;
+        }
+        return false;
+      case FlutterReleaseXKenumUploadOptions.playStore:
+        if (isPlayStoreEnabled &&
+            isPlayStoreServiceAccountProvided &&
+            isPlayStorePackageNameProvided) {
+          return true;
+        }
+        return false;
+      case FlutterReleaseXKenumUploadOptions.appStore:
+        if (isAppStoreEnabled &&
+            isAppStoreApiKeyProvided &&
+            isAppStoreApiIssuerProvided &&
+            isAppStoreAppIdProvided) {
+          return true;
+        }
         return false;
     }
   }

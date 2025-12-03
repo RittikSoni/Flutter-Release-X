@@ -9,7 +9,17 @@ class FlutterReleaseXKstrings {
       './build/app/outputs/bundle/release/app-release.aab';
 
   // ✅ iOS release path (.ipa file for distribution)
-  static const String iosReleasePath = './build/ios/ipa/Runner.ipa';
+  static String iosReleasePath = _getIosReleasePath();
+  static String _getIosReleasePath() {
+    // like in some scenario it can be app title name like "My App.ipa"
+    // build/ios/ipa/*.ipa any first file in ipa directory
+    final ipaFiles = Directory('./build/ios/ipa').listSync();
+    if (ipaFiles.isNotEmpty) {
+      // first file whose extension is .ipa
+      return ipaFiles.firstWhere((file) => file.path.endsWith('.ipa')).path;
+    }
+    return './build/ios/ipa/Runner.ipa';
+  }
 
   // ✅ Web release path (compressed .zip for hosting)
   static const String webReleasePath = './build/web/';

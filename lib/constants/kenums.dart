@@ -4,5 +4,6 @@ enum FlutterReleaseXKenumUploadOptions {
   aws,
   gitlab,
   playStore,
-  appStore
+  appStore,
+  diawi
 }

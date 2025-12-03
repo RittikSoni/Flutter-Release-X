@@ -32,7 +32,7 @@ class FlutterReleaseXKplatforms {
     switch (platform) {
       case 'ios':
         res = await FlutterReleaseXHelpers.executeCommand(
-            '$flutterPath build ios --release');
+            '$flutterPath build ipa --release');
         break;
       case 'android':
         res = await FlutterReleaseXHelpers.executeCommand(
