@@ -53,7 +53,8 @@ class FlutterReleaseXAppStoreUploadService {
 
       final fileExtension = path.extension(filePath).toLowerCase();
       if (fileExtension != '.ipa') {
-        print('❌ Unsupported file type. Only .ipa files are supported for App Store.');
+        print(
+            '❌ Unsupported file type. Only .ipa files are supported for App Store.');
         return null;
       }
 
@@ -125,10 +126,10 @@ class FlutterReleaseXAppStoreUploadService {
       'aud': 'appstoreconnect-v1',
     };
 
-    final headerEncoded = base64Url.encode(utf8.encode(jsonEncode(header)))
-        .replaceAll('=', '');
-    final payloadEncoded = base64Url.encode(utf8.encode(jsonEncode(payload)))
-        .replaceAll('=', '');
+    final headerEncoded =
+        base64Url.encode(utf8.encode(jsonEncode(header))).replaceAll('=', '');
+    final payloadEncoded =
+        base64Url.encode(utf8.encode(jsonEncode(payload))).replaceAll('=', '');
 
     final signatureInput = '$headerEncoded.$payloadEncoded';
     // Note: ES256 signing requires elliptic curve cryptography
@@ -141,8 +142,8 @@ class FlutterReleaseXAppStoreUploadService {
   static Future<Map<String, dynamic>?> _getAppInfo(
       String appId, String token) async {
     try {
-      final url = Uri.parse(
-          'https://api.appstoreconnect.apple.com/v1/apps/$appId');
+      final url =
+          Uri.parse('https://api.appstoreconnect.apple.com/v1/apps/$appId');
       final response = await http.get(
         url,
         headers: {
@@ -190,8 +191,10 @@ class FlutterReleaseXAppStoreUploadService {
 
       // Create new version if none exists
       // Note: This is a simplified approach - actual implementation needs proper version management
-      print('⚠️ App Store Connect API integration requires proper JWT signing with ES256');
-      print('💡 For now, please use the App Store Connect web interface or Transporter tool');
+      print(
+          '⚠️ App Store Connect API integration requires proper JWT signing with ES256');
+      print(
+          '💡 For now, please use the App Store Connect web interface or Transporter tool');
       return {'id': 'placeholder'};
     } catch (e) {
       print('❌ Error creating/getting version: $e');

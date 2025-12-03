@@ -4,7 +4,6 @@ import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:http/http.dart' as http;
 
 class FlutterReleaseXTeamsService {
-
   static Future<void> _uploadQrCodeToTeams({
     required String webhookUrl,
     required File qrFile,
@@ -70,7 +69,8 @@ class FlutterReleaseXTeamsService {
       if (response.statusCode == 200) {
         print('✅ QR Code shared on Microsoft Teams successfully!');
       } else {
-        print('⚠️ Teams webhook response: ${response.statusCode} ${response.body}');
+        print(
+            '⚠️ Teams webhook response: ${response.statusCode} ${response.body}');
       }
     } catch (e) {
       FlutterReleaseXHelpers.showHighlight(
@@ -153,7 +153,8 @@ class FlutterReleaseXTeamsService {
       } else {
         FlutterReleaseXHelpers.showHighlight(
           firstMessage: '⚠️ Teams webhook response:',
-          highLightmessage: '${messageResponse.statusCode} ${messageResponse.body}',
+          highLightmessage:
+              '${messageResponse.statusCode} ${messageResponse.body}',
         );
       }
 
@@ -174,4 +175,3 @@ class FlutterReleaseXTeamsService {
     }
   }
 }
-

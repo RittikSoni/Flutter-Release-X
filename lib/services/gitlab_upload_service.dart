@@ -79,8 +79,7 @@ class FlutterReleaseXGitlabUploadService {
   static Future<Map<String, dynamic>?> _findReleaseByTag(
       String apiBaseUrl, String projectId, String tag, String token) async {
     try {
-      final url = Uri.parse(
-          '$apiBaseUrl/projects/$projectId/releases/$tag');
+      final url = Uri.parse('$apiBaseUrl/projects/$projectId/releases/$tag');
       final response = await http.get(
         url,
         headers: {
@@ -109,8 +108,7 @@ class FlutterReleaseXGitlabUploadService {
   static Future<void> _deleteRelease(
       String apiBaseUrl, String projectId, String tag, String token) async {
     try {
-      final url = Uri.parse(
-          '$apiBaseUrl/projects/$projectId/releases/$tag');
+      final url = Uri.parse('$apiBaseUrl/projects/$projectId/releases/$tag');
       final response = await http.delete(
         url,
         headers: {
@@ -147,7 +145,8 @@ class FlutterReleaseXGitlabUploadService {
         },
         body: jsonEncode({
           'tag_name': tag,
-          'ref': ref, // Required: branch or commit SHA from which to create the tag
+          'ref':
+              ref, // Required: branch or commit SHA from which to create the tag
           'name': 'Release $tag',
           'description':
               '🚀 Release built using Flutter Release X. For more details, visit: https://pub.dev/packages/flutter_release_x',
@@ -213,12 +212,8 @@ class FlutterReleaseXGitlabUploadService {
     }
   }
 
-  static Future<String?> _uploadAsPackage(
-      String apiBaseUrl,
-      String projectId,
-      String filePath,
-      String fileName,
-      String token) async {
+  static Future<String?> _uploadAsPackage(String apiBaseUrl, String projectId,
+      String filePath, String fileName, String token) async {
     try {
       final file = File(filePath);
       final packageName = 'flutter-release-x';

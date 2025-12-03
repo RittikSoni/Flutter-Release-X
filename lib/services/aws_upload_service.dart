@@ -56,13 +56,12 @@ class FlutterReleaseXAWSUploadService {
       final amzDate = _formatDateTime(now);
 
       final host = '$bucketName.s3.$region.amazonaws.com';
-      
+
       // For canonical URI, use the key as-is (AWS expects unencoded in signature)
       // For the actual URL, we'll let Uri.parse handle encoding
       final canonicalUri = '/$key';
       final canonicalQueryString = '';
-      final canonicalHeaders =
-          'host:$host\nx-amz-date:$amzDate\n';
+      final canonicalHeaders = 'host:$host\nx-amz-date:$amzDate\n';
       final signedHeaders = 'host;x-amz-date';
       final payloadHash = sha256.convert(fileBytes).toString();
 
@@ -74,8 +73,7 @@ class FlutterReleaseXAWSUploadService {
           '$payloadHash';
 
       final algorithm = 'AWS4-HMAC-SHA256';
-      final credentialScope =
-          '$dateStamp/$region/s3/aws4_request';
+      final credentialScope = '$dateStamp/$region/s3/aws4_request';
       final stringToSign = '$algorithm\n'
           '$amzDate\n'
           '$credentialScope\n'
@@ -111,16 +109,18 @@ class FlutterReleaseXAWSUploadService {
         print('✅ Successfully uploaded to AWS S3!');
         print('📦 Bucket: $bucketName');
         print('🔑 Key: $key');
-        
+
         final downloadUrl = uploadUrl.toString();
         print('🔗 URL: $downloadUrl');
-        
+
         // Note: The URL will only work if:
         // 1. The bucket has public read access, OR
         // 2. You use presigned URLs (not implemented yet)
-        print('💡 Note: If you get "NoSuchKey" or "AccessDenied" errors when accessing the URL,');
-        print('   make sure your S3 bucket has public read permissions or use presigned URLs.');
-        
+        print(
+            '💡 Note: If you get "NoSuchKey" or "AccessDenied" errors when accessing the URL,');
+        print(
+            '   make sure your S3 bucket has public read permissions or use presigned URLs.');
+
         FlutterReleaseXIndividualUploadService.updateUrlLinkState(downloadUrl);
         return downloadUrl;
       } else {
