@@ -36,6 +36,7 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 - [🌟 Features Overview](#features-overview)
 - [💿 Installation](#installation)
 - [🛠 Usage](#usage)
+- [🔄 Update Checking](#update-checking)
 - [⚙️ Configuration](#configuration)
   - [Config file with example](#config-file)
   - [Flutter Path](#flutter-path)
@@ -130,6 +131,8 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
 | `frx build --target all`                          | Builds release builds for all supported platforms (iOS, Android, Web, macOS, Windows, Linux).    |
 | `frx notify --platform slack --message 'message'` | Sends a notification to Slack with a custom message.                                             |
 | `frx notify --platform teams --message 'message'` | Sends a notification to Microsoft Teams with a custom message.                                   |
+| `frx check-update`                                | Manually check if a new version of FRX is available.                                            |
+| `frx version`                                     | Display the current version of Flutter Release X (frx).                                          |
 
 ### Example
 
@@ -188,6 +191,55 @@ Flutter Release X provides easy commands to build, upload, and manage your relea
   ```bash
   frx build -c config/file/path
   ```
+
+- To check for updates manually:
+
+  ```bash
+  frx check-update
+  ```
+
+- To display the current version:
+
+  ```bash
+  frx version
+  ```
+
+  or
+
+  ```bash
+  frx -v
+  ```
+
+## Update Checking
+
+Flutter Release X automatically checks for updates in the background when you run any command. This helps you stay up-to-date with the latest features and improvements.
+
+### Automatic Update Checks
+
+- **Background Checking**: FRX automatically checks for updates when you run any command.
+
+### Manual Update Check
+
+You can manually check for updates at any time using:
+
+```bash
+frx check-update
+```
+
+This command:
+- Forces a fresh check (bypasses the 24-hour cache)
+- Shows the current version and latest available version
+- Provides update instructions if a newer version is available
+
+### Updating FRX
+
+When a new version is available, update FRX using:
+
+```bash
+dart pub global activate flutter_release_x
+```
+
+Or visit the [pub.dev package page](https://pub.dev/packages/flutter_release_x) for more information.
 
 ## Configuration
 
