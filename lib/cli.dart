@@ -43,7 +43,7 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
 
       // Check for updates in the background (non-blocking)
       // Skip if running check-update, version, or init commands
-      if (!arguments.contains('check-update') && 
+      if (!arguments.contains('check-update') &&
           !arguments.contains('version') &&
           !arguments.contains('init')) {
         _checkForUpdatesInBackground();

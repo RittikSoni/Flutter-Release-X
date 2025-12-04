@@ -1,3 +1,11 @@
+## v0.5.0
+
+- **New `frx init` command**: Quickly initialize a new FRX project with a starter `config.yaml` file containing all options, helpful comments, and multi-framework pipeline examples.
+- **Automatic Update Checking**: FRX now automatically checks for updates in the background when you run commands (cached for 24 hours).
+- **Manual Update Check**: Added `frx check-update` command to manually check for new versions.
+- **Enhanced Pipeline Examples**: Added comprehensive pipeline examples for multiple frameworks (Flutter, React, Python, .NET, Go, Docker, etc.) in the starter config.
+- **Improved Documentation**: Updated all documentation to reflect new features and provide better guidance for new users.
+
 ## v0.4.0
 
 - Added new upload options: **GitLab, Diawi, AWS, Google Play Store, and Apple App Store**.
