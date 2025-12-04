@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:flutter_release_x/commands/build_command.dart';
+import 'package:flutter_release_x/commands/check_update_command.dart';
 import 'package:flutter_release_x/commands/notify_command/notify_command.dart';
 import 'package:flutter_release_x/commands/version_command.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
+import 'package:flutter_release_x/services/update_check_service.dart';
 
 class CLI {
   static const String description = '''
@@ -18,7 +21,8 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
         CommandRunner(FlutterReleaseXKstrings.packageName, description)
           ..addCommand(FlutterReleaseXBuildCommand())
           ..addCommand(FlutterReleaseXNotifyCommand())
-          ..addCommand(FlutterReleaseXVersionCommand());
+          ..addCommand(FlutterReleaseXVersionCommand())
+          ..addCommand(FlutterReleaseXCheckUpdateCommand());
 
     runner.argParser.addFlag(
       'version',
@@ -36,6 +40,13 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
         return;
       }
 
+      // Check for updates in the background (non-blocking)
+      // Skip if running check-update command itself
+      if (!arguments.contains('check-update') && 
+          !arguments.contains('version')) {
+        _checkForUpdatesInBackground();
+      }
+
       runner.run(arguments);
     } on UsageException catch (e) {
       print('${e.message}\n');
@@ -45,5 +56,29 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
       print('Unexpected error: $e');
       print(stackTrace);
     }
+  }
+
+  /// Check for updates in the background and show a notice if available
+  /// This runs asynchronously and doesn't block the main command execution
+  static void _checkForUpdatesInBackground() {
+    // Run asynchronously without blocking
+    Future.delayed(const Duration(seconds: 1)).then((_) async {
+      try {
+        final isUpdateAvailable =
+            await FlutterReleaseXUpdateCheckService.isUpdateAvailable();
+        if (isUpdateAvailable) {
+          final message =
+              await FlutterReleaseXUpdateCheckService.getUpdateMessage();
+          if (message != null) {
+            // Print update notice after a small delay to not interfere with command output
+            Future.delayed(const Duration(milliseconds: 500), () {
+              print('\n$message');
+            });
+          }
+        }
+      } catch (e) {
+        // Silently fail - don't interrupt user's workflow
+      }
+    });
   }
 }
