@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:flutter_release_x/commands/build_command.dart';
 import 'package:flutter_release_x/commands/check_update_command.dart';
+import 'package:flutter_release_x/commands/init_command.dart';
 import 'package:flutter_release_x/commands/notify_command/notify_command.dart';
 import 'package:flutter_release_x/commands/version_command.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
@@ -22,7 +22,8 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
           ..addCommand(FlutterReleaseXBuildCommand())
           ..addCommand(FlutterReleaseXNotifyCommand())
           ..addCommand(FlutterReleaseXVersionCommand())
-          ..addCommand(FlutterReleaseXCheckUpdateCommand());
+          ..addCommand(FlutterReleaseXCheckUpdateCommand())
+          ..addCommand(FlutterReleaseXInitCommand());
 
     runner.argParser.addFlag(
       'version',
@@ -41,9 +42,10 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
       }
 
       // Check for updates in the background (non-blocking)
-      // Skip if running check-update command itself
+      // Skip if running check-update, version, or init commands
       if (!arguments.contains('check-update') && 
-          !arguments.contains('version')) {
+          !arguments.contains('version') &&
+          !arguments.contains('init')) {
         _checkForUpdatesInBackground();
       }
 

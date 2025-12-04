@@ -72,11 +72,13 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 
 ## What's New
 
-| Feature                  | Description                                                                                                                                                             |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Advanced Pipeline**    | Automate and streamline your CI/CD pipeline with the new advanced pipeline feature, integrating multiple steps in one command.                                          |
-| **Multi-Platform Build** | Build for all supported platforms (`ios, android, web, macos, windows, linux`) using `--target all` for faster releases or just specify it like `frx build -t ios,web`. |
-| **Notification System**  | Send real-time notifications to popular platforms like Slack using `frx notify`.                                                                                        |
+| Feature                         | Description                                                                                                                                                             |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Quick Setup with `frx init`** | Get started in seconds! Run `frx init` to automatically generate a starter config.yaml file with all options and helpful comments.                                      |
+| **Update Checking**             | Automatic background update checking keeps you informed about new versions. Use `frx check-update` to manually check for updates.                                       |
+| **Advanced Pipeline**           | Automate and streamline your CI/CD pipeline with the new advanced pipeline feature, integrating multiple steps in one command.                                          |
+| **Multi-Platform Build**        | Build for all supported platforms (`ios, android, web, macos, windows, linux`) using `--target all` for faster releases or just specify it like `frx build -t ios,web`. |
+| **Notification System**         | Send real-time notifications to popular platforms like Slack using `frx notify`.                                                                                        |
 
 ## Features Overview
 
@@ -123,18 +125,60 @@ dart pub add flutter_release_x
 
 Flutter Release X provides easy commands to build, upload, and manage your releases. Here are the main commands:
 
+### Quick Start
+
+The easiest way to get started is to initialize a new FRX project:
+
+```bash
+frx init
+```
+
+This creates a `config.yaml` file in your current directory with:
+
+- ✅ All available upload options (commented out, ready to enable)
+- ✅ QR code settings with sensible defaults
+- ✅ Helpful comments and examples
+- ✅ Links to setup documentation
+
+Then simply:
+
+1. Open `config.yaml` and configure the services you want to use
+2. Add your API keys and tokens
+3. Run `frx build` to start building and releasing!
+
+### Commands
+
 | Command                                           | Description                                                                                      |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `frx init`                                        | Initialize a new FRX project by creating a starter config.yaml file with helpful comments.       |
 | `frx build`                                       | Builds the release APK, uploads to Cloud, and generates a QR code & link.                        |
 | `frx build -s`                                    | Displays the current configuration settings. This helps verify if your setup is correct.         |
 | `frx build -c <path_to_config>`                   | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
 | `frx build --target all`                          | Builds release builds for all supported platforms (iOS, Android, Web, macOS, Windows, Linux).    |
 | `frx notify --platform slack --message 'message'` | Sends a notification to Slack with a custom message.                                             |
 | `frx notify --platform teams --message 'message'` | Sends a notification to Microsoft Teams with a custom message.                                   |
-| `frx check-update`                                | Manually check if a new version of FRX is available.                                            |
+| `frx check-update`                                | Manually check if a new version of FRX is available.                                             |
 | `frx version`                                     | Display the current version of Flutter Release X (frx).                                          |
 
-### Example
+### Examples
+
+- **Initialize a new FRX project** (recommended for first-time users):
+
+  ```bash
+  frx init
+  ```
+
+  This creates a `config.yaml` file with all options and helpful comments. You can also specify a custom filename:
+
+  ```bash
+  frx init --config my-config.yaml
+  ```
+
+  Or force overwrite an existing config:
+
+  ```bash
+  frx init --force
+  ```
 
 - To build the release APK, upload it to Cloud, and generate a QR code & Downloadable link:
 
@@ -227,6 +271,7 @@ frx check-update
 ```
 
 This command:
+
 - Forces a fresh check (bypasses the 24-hour cache)
 - Shows the current version and latest available version
 - Provides update instructions if a newer version is available
@@ -513,9 +558,27 @@ pipeline_steps:
 
 ## Steps for Setup
 
-1. **Configure config.yaml**
-   Create a config.yaml file with the settings shown above. If you have a custom file path, you can specify it with the -c flag.
-2. **Generate Cloud Credentials**
+1. **Initialize FRX** (Recommended for new users)
+
+   Run the init command to create a starter config file:
+
+   ```bash
+   frx init
+   ```
+
+   This creates a `config.yaml` file with all available options, helpful comments, and examples. Much easier than creating it manually!
+
+2. **Configure config.yaml**
+
+   Open the generated `config.yaml` file and:
+
+   - Uncomment the upload options you want to use
+   - Fill in your API keys and tokens
+   - Customize QR code settings if needed
+
+   If you have a custom file path, you can specify it with the `-c` flag when running commands.
+
+3. **Generate Cloud Credentials**
    For cloud uploads (GitHub or Google Drive), follow these steps:
 
    - GitHub Configuration
@@ -526,9 +589,9 @@ pipeline_steps:
      - Create a Google Cloud Project and enable the Google Drive API.
      - Generate OAuth 2.0 credentials for your app and add the client_id and client_secret to your config.yaml.
 
-3. **Generate Slack Credentials** (Optional)
+4. **Generate Slack Credentials** (Optional)
 
-4. **Run the Tool**
+5. **Run the Tool**
    After setting up the configuration, run:
 
    ```bash
@@ -622,6 +685,7 @@ Diawi is a service for distributing iOS and Android apps via direct download lin
    - Copy your API token.
 
 3. **Set Up Your Project**:
+
    ```yaml
    diawi:
      enabled: true
@@ -648,6 +712,7 @@ To upload files to AWS S3, you'll need AWS credentials with S3 upload permission
    - Note: For public access, configure bucket permissions appropriately.
 
 3. **Set Up Your Project**:
+
    ```yaml
    aws:
      enabled: true
@@ -676,6 +741,7 @@ To upload releases to GitLab:
    - The Project ID is shown on the project's main page under the project name, or in Settings > General.
 
 3. **Set Up Your Project**:
+
    ```yaml
    gitlab:
      enabled: true
@@ -706,6 +772,7 @@ To upload apps to Google Play Store:
    - Link your service account and grant appropriate permissions.
 
 3. **Set Up Your Project**:
+
    ```yaml
    play_store:
      enabled: true
@@ -732,6 +799,7 @@ To upload apps to App Store Connect:
    - Select your app and find the App ID in the App Information section.
 
 3. **Set Up Your Project**:
+
    ```yaml
    app_store:
      enabled: true

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_release_x/configs/config.dart';
+import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/services/individual_upload_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -149,7 +150,7 @@ class FlutterReleaseXGitlabUploadService {
               ref, // Required: branch or commit SHA from which to create the tag
           'name': 'Release $tag',
           'description':
-              '🚀 Release built using Flutter Release X. For more details, visit: https://pub.dev/packages/flutter_release_x',
+              '🚀 Release built using Flutter Release X. For more details, visit: ${FlutterReleaseXKstrings.documentaion} or ${FlutterReleaseXKstrings.documentaion2}',
         }),
       );
 

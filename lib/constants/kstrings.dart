@@ -49,6 +49,8 @@ class FlutterReleaseXKstrings {
   static const String demoConfigPath = 'config.yaml';
 
   static const String documentaion = 'https://frx.elpisverse.com';
+  static const String documentaion2 =
+      'https://pub.dev/packages/flutter_release_x';
 
   static final String defaultFlutterBinPath =
       Platform.isWindows ? 'flutter.bat' : 'flutter';
