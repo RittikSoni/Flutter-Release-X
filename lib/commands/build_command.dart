@@ -80,8 +80,7 @@ class FlutterReleaseXBuildCommand extends Command {
       }
     }
 
-    final resolvedPipelines =
-        FlutterReleaseXConfig().config.resolvedPipelines;
+    final resolvedPipelines = FlutterReleaseXConfig().config.resolvedPipelines;
 
     // If a specific pipeline was requested via --pipeline flag
     if (pipelineName != null) {
@@ -89,7 +88,8 @@ class FlutterReleaseXBuildCommand extends Command {
         print('❌ No pipelines configured in config.');
         print(
             '   Add "pipelines:" or "pipeline_steps:" to your config.yaml first.');
-        print('   Run "frx pipeline help-all" for complete configuration guide.');
+        print(
+            '   Run "frx pipeline help-all" for complete configuration guide.');
         exit(1);
       }
 
@@ -125,4 +125,3 @@ class FlutterReleaseXBuildCommand extends Command {
     }
   }
 }
-

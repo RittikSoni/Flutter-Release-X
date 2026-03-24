@@ -106,12 +106,9 @@ class _PipelineListCommand extends Command {
 
     // Show available step features
     print('💡 Available step features:');
-    print(
-        '   env, working_directory, timeout, retry, retry_delay, condition,');
-    print(
-        '   continue_on_error, allow_failure, notify_slack, notify_teams,');
-    print(
-        '   upload_output, output_path, custom_exit_condition, description');
+    print('   env, working_directory, timeout, retry, retry_delay, condition,');
+    print('   continue_on_error, allow_failure, notify_slack, notify_teams,');
+    print('   upload_output, output_path, custom_exit_condition, description');
     print('');
     print('   Run a pipeline: frx pipeline run <name>');
     print('   Validate config: frx pipeline validate');
@@ -201,8 +198,7 @@ class _PipelineValidateCommand extends Command {
 
       print('');
       if (errorCount > 0) {
-        print(
-            '❌ Fix the errors above before running the pipeline.');
+        print('❌ Fix the errors above before running the pipeline.');
       } else {
         print(
             '⚠️ Warnings found but pipeline can still run. Consider addressing them.');
@@ -261,7 +257,8 @@ class _PipelineRunCommand extends Command {
         print('   ${error.toString()}');
       }
       print('');
-      print('   Fix the errors and try again. Run "frx pipeline validate" for full details.');
+      print(
+          '   Fix the errors and try again. Run "frx pipeline validate" for full details.');
       exit(1);
     }
 

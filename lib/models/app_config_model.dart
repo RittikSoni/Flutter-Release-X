@@ -80,7 +80,8 @@ class FlutterReleaseXAppConfigModel {
         }
       } catch (e) {
         print('⚠️ Warning: Failed to parse "pipelines": $e');
-        print('   Ensure pipelines is a map of named pipelines, each with "steps".');
+        print(
+            '   Ensure pipelines is a map of named pipelines, each with "steps".');
         print('   Example:');
         print('   pipelines:');
         print('     build:');
@@ -119,7 +120,6 @@ class FlutterReleaseXAppConfigModel {
     };
   }
 }
-
 
 class UploadOptionsModel {
   final GithubModel github;
@@ -744,9 +744,9 @@ class PipelineStepModel {
     // Parse and validate retry_delay
     int retryDelay = 5;
     if (stepMap['retry_delay'] != null) {
-      retryDelay =
-          _parseIntSafe(stepMap['retry_delay'], 'retry_delay', yamlMap['name']) ??
-              5;
+      retryDelay = _parseIntSafe(
+              stepMap['retry_delay'], 'retry_delay', yamlMap['name']) ??
+          5;
       if (retryDelay <= 0) {
         print(
             '⚠️ Warning: Step "${yamlMap['name']}" has retry_delay: $retryDelay — must be > 0. Defaulting to 5.');
@@ -827,8 +827,7 @@ class PipelineModel {
     required this.steps,
   });
 
-  factory PipelineModel.fromYaml(
-      String name, Map<String, dynamic> yamlMap) {
+  factory PipelineModel.fromYaml(String name, Map<String, dynamic> yamlMap) {
     final stepsData = yamlMap['steps'];
     if (stepsData == null || stepsData is! List || stepsData.isEmpty) {
       print('❌ Pipeline "$name" must have at least one step defined.');
@@ -846,8 +845,7 @@ class PipelineModel {
       description: yamlMap['description']?.toString(),
       steps: List<PipelineStepModel>.from(
         (stepsData).map(
-          (step) =>
-              PipelineStepModel.fromYaml(Map<String, dynamic>.from(step)),
+          (step) => PipelineStepModel.fromYaml(Map<String, dynamic>.from(step)),
         ),
       ),
     );
@@ -948,12 +946,14 @@ class PipelineConfigValidator {
       errors.add(PipelineValidationError(
         pipelineName: pipelineName,
         stepName: step.name,
-        message: '"command" is empty. Provide a valid shell command to execute.',
+        message:
+            '"command" is empty. Provide a valid shell command to execute.',
       ));
     }
 
     // Check upload_output without output_path
-    if (step.uploadOutput && (step.outputPath == null || step.outputPath!.trim().isEmpty)) {
+    if (step.uploadOutput &&
+        (step.outputPath == null || step.outputPath!.trim().isEmpty)) {
       errors.add(PipelineValidationError(
         pipelineName: pipelineName,
         stepName: step.name,
@@ -1006,7 +1006,8 @@ class PipelineConfigValidator {
         errors.add(PipelineValidationError(
           pipelineName: pipelineName,
           stepName: step.name,
-          message: 'Step depends on itself. Remove self-reference from depends_on.',
+          message:
+              'Step depends on itself. Remove self-reference from depends_on.',
         ));
       }
     }
@@ -1026,8 +1027,7 @@ class PipelineConfigValidator {
       errors.add(PipelineValidationError(
         pipelineName: pipelineName,
         stepName: step.name,
-        message:
-            'retry is ${step.retry} — must be >= 0 (e.g., retry: 3).',
+        message: 'retry is ${step.retry} — must be >= 0 (e.g., retry: 3).',
       ));
     }
 
@@ -1053,7 +1053,9 @@ class PipelineConfigValidator {
     }
 
     // Warn about conflicting settings
-    if (step.allowFailure && step.stopOnFailure == true && !step.continueOnError) {
+    if (step.allowFailure &&
+        step.stopOnFailure == true &&
+        !step.continueOnError) {
       errors.add(PipelineValidationError(
         pipelineName: pipelineName,
         stepName: step.name,

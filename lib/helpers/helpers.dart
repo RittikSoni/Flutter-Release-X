@@ -854,7 +854,8 @@ class FlutterReleaseXHelpers {
         print('   ${i + 1}. ${keys[i]}$desc (${p.steps.length} steps)');
       }
       print('');
-      stdout.write('Enter the comma-separated numbers of the pipelines to run (e.g., 2,5,1) or just a single number: ');
+      stdout.write(
+          'Enter the comma-separated numbers of the pipelines to run (e.g., 2,5,1) or just a single number: ');
       final choice = stdin.readLineSync()?.trim();
 
       if (choice == null || choice.isEmpty) {
@@ -893,7 +894,8 @@ class FlutterReleaseXHelpers {
       print('');
       print(
           '═══════════════════════════════════════════════════════════════════════');
-      print('  🚀 Pipeline [${pIndex + 1}/${pipelinesToRun.length}]: ${pipeline.name}');
+      print(
+          '  🚀 Pipeline [${pIndex + 1}/${pipelinesToRun.length}]: ${pipeline.name}');
       if (pipeline.description != null) {
         print('  📝 ${pipeline.description}');
       }
@@ -984,7 +986,8 @@ class FlutterReleaseXHelpers {
 
       if (pipelineFailed) {
         globalFailed = true;
-        print('\n❌ Stopping remaining pipelines due to failure in "${pipeline.name}".');
+        print(
+            '\n❌ Stopping remaining pipelines due to failure in "${pipeline.name}".');
         break;
       }
     }
@@ -993,14 +996,16 @@ class FlutterReleaseXHelpers {
 
     if (pipelinesToRun.length > 1) {
       print('');
-      print('═══════════════════════════════════════════════════════════════════════');
+      print(
+          '═══════════════════════════════════════════════════════════════════════');
       if (globalFailed) {
         print('  ❌ Global Execution FAILED');
       } else {
         print('  🎉 All Pipelines Completed Successfully!');
       }
       print('  ⏱️ Total Time: ${_formatDuration(globalStopwatch.elapsed)}');
-      print('═══════════════════════════════════════════════════════════════════════');
+      print(
+          '═══════════════════════════════════════════════════════════════════════');
       print('');
     }
   }
