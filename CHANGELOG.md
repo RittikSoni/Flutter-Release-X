@@ -1,3 +1,18 @@
+## v0.6.0
+
+- **New Command `frx pipeline`**: Added a dedicated command for managing and running pipelines.
+  - `frx pipeline list`: List all configured pipelines with descriptions and step counts.
+  - `frx pipeline validate`: Robust validation of pipeline configurations with descriptive error and warning messages.
+  - `frx pipeline run <name>`: Run a specific named pipeline.
+  - `frx pipeline help-all`: Comprehensive feature reference for pipeline configuration.
+- **Enhanced Pipeline System**:
+  - Support for multiple named pipelines in `config.yaml`.
+  - Added new per-step configuration options: `env`, `timeout`, `retry`, `retry_delay`, `condition`, `working_directory`, `continue_on_error`, `allow_failure`, `stop_on_failure`, `upload_output`, `output_path`, `notify_slack`, `notify_teams`, `custom_exit_condition`, and `depends_on`.
+- **Improved `frx build`**: Added `--pipeline <name>` flag to execute a specific pipeline directly from the build command.
+- **Enhanced `frx init`**: Updated the starter configuration template with the new pipeline format and comprehensive examples for common workflows.
+- **Dependency Update**: Bumped `googleapis` from `^15.0.0` to `^16.0.0`.
+- **Documentation**: Updated `README.md` with a detailed pipeline step reference table and better guidance.
+
 ## v0.5.0
 
 - **New `frx init` command**: Quickly initialize a new FRX project with a starter `config.yaml` file containing all options, helpful comments, and multi-framework pipeline examples.

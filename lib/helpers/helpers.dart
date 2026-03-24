@@ -571,10 +571,14 @@ class FlutterReleaseXHelpers {
   }
 
   /// Execute Pipeline stages commands with improved robustness.
+  ///
+  /// Supports optional [workingDirectory] and per-step [env] variables.
   static Future<ProcessResult> executeCommand(
     String command, {
     Map<String, String>? env,
     String? exitCondition,
+    String? workingDirectory,
+    int? timeoutSeconds,
   }) async {
     if (command.trim().isEmpty) {
       print('⚠️ Error: Command is empty. Skipping execution.');
@@ -585,12 +589,37 @@ class FlutterReleaseXHelpers {
     final shellFlag = Platform.isWindows ? '-Command' : '-c';
 
     print('🔧 Executing Command: $command');
+    if (workingDirectory != null) {
+      print('   📂 Working Directory: $workingDirectory');
+    }
+    if (env != null && env.isNotEmpty) {
+      print('   🔑 Environment: ${env.keys.join(', ')}');
+    }
+
+    // Validate working directory
+    if (workingDirectory != null) {
+      final dir = Directory(workingDirectory);
+      if (!dir.existsSync()) {
+        print(
+            '❌ Working directory "$workingDirectory" does not exist. Aborting step.');
+        return ProcessResult(
+            0, 1, '', 'Working directory does not exist: $workingDirectory');
+      }
+    }
+
+    // Merge environment variables (system env + step env)
+    Map<String, String>? mergedEnv;
+    if (env != null && env.isNotEmpty) {
+      mergedEnv = Map<String, String>.from(Platform.environment);
+      mergedEnv.addAll(env);
+    }
 
     // Start the process
     final process = await Process.start(
       shellType,
       [shellFlag, command],
-      environment: env,
+      environment: mergedEnv,
+      workingDirectory: workingDirectory,
       runInShell: true,
     );
 
@@ -613,8 +642,29 @@ class FlutterReleaseXHelpers {
       stderrBuffer.write(data);
     });
 
-    // Wait for completion
-    final exitCode = await process.exitCode;
+    // Wait for completion with optional timeout
+    int exitCode;
+    try {
+      if (timeoutSeconds != null && timeoutSeconds > 0) {
+        exitCode = await process.exitCode
+            .timeout(Duration(seconds: timeoutSeconds), onTimeout: () {
+          print(
+              '\n⏰ Step timed out after ${timeoutSeconds}s. Killing process...');
+          process.kill(ProcessSignal.sigterm);
+          // Give it a moment to terminate gracefully
+          return Future.delayed(const Duration(seconds: 2), () {
+            process.kill(ProcessSignal.sigkill);
+            return -1;
+          });
+        });
+      } else {
+        exitCode = await process.exitCode;
+      }
+    } catch (e) {
+      print('\n⏰ Step execution error: $e');
+      process.kill(ProcessSignal.sigkill);
+      exitCode = -1;
+    }
 
     // Cancel subscriptions
     await stdoutSubscription.cancel();
@@ -626,80 +676,418 @@ class FlutterReleaseXHelpers {
 
     // Custom exit condition handling
     if (exitCondition != null) {
-      final customCondition = RegExp(exitCondition);
-      if (customCondition.hasMatch(stdoutData) ||
-          customCondition.hasMatch(stderrData)) {
-        print("❌ Custom exit condition matched. Stopping the pipeline.");
-        return ProcessResult(
-            process.pid, 1, stdoutData, 'Custom exit condition matched');
+      try {
+        final customCondition = RegExp(exitCondition);
+        if (customCondition.hasMatch(stdoutData) ||
+            customCondition.hasMatch(stderrData)) {
+          print("❌ Custom exit condition matched: \"$exitCondition\"");
+          return ProcessResult(
+              process.pid, 1, stdoutData, 'Custom exit condition matched');
+        }
+      } catch (e) {
+        // If the regex is invalid, fall back to simple string matching
+        if (stdoutData.contains(exitCondition) ||
+            stderrData.contains(exitCondition)) {
+          print("❌ Custom exit condition matched: \"$exitCondition\"");
+          return ProcessResult(
+              process.pid, 1, stdoutData, 'Custom exit condition matched');
+        }
       }
     }
 
     return ProcessResult(process.pid, exitCode, stdoutData, stderrData);
   }
 
-  /// Executes Pipeline Step
-  static Future<bool> _executeStep(
-    PipelineStepModel step,
-  ) async {
-    print('🔧 Executing step: ${step.name}');
+  /// Check if a condition command passes (returns true if condition is met).
+  static Future<bool> _evaluateCondition(String condition) async {
+    try {
+      final shellType = Platform.isWindows ? 'powershell' : 'bash';
+      final shellFlag = Platform.isWindows ? '-Command' : '-c';
 
-    /// Executed command result.
-    ///
-    /// `ProcessResult`
-    final result = await executeCommand(step.command,
-        exitCondition: step.customExitCondition);
+      final result = await Process.run(
+        shellType,
+        [shellFlag, condition],
+        runInShell: true,
+      ).timeout(const Duration(seconds: 30), onTimeout: () {
+        return ProcessResult(0, 1, '', 'Condition timed out after 30s');
+      });
 
-    if (result.exitCode == 0) {
-      return true;
-    } else {
-      print('❌ Step failed: ${step.name}');
-      print('Error: ${result.stderr}');
+      return result.exitCode == 0;
+    } catch (e) {
+      print('   ⚠️ Condition evaluation error: $e');
       return false;
     }
   }
 
-  /// Execute Pipeline
-  static Future<void> executePipeline() async {
-    final config = FlutterReleaseXConfig().config;
+  /// Executes Pipeline Step with retry, timeout, condition, and timing support.
+  ///
+  /// Returns a [_PipelineStepResult] with status and timing information.
+  static Future<_PipelineStepResult> _executeStep(
+    PipelineStepModel step,
+  ) async {
+    final stopwatch = Stopwatch()..start();
 
-    final List<PipelineStepModel>? stages = config.pipelineSteps;
+    // Check condition first
+    if (step.condition != null && step.condition!.trim().isNotEmpty) {
+      print('   🔍 Evaluating condition: ${step.condition}');
+      final conditionMet = await _evaluateCondition(step.condition!);
+      if (!conditionMet) {
+        stopwatch.stop();
+        print('   ⏭️ Condition not met — skipping step "${step.name}"');
+        return _PipelineStepResult(
+          stepName: step.name,
+          status: _StepStatus.skipped,
+          duration: stopwatch.elapsed,
+          note: 'condition not met',
+        );
+      }
+      print('   ✅ Condition met — proceeding');
+    }
 
-    for (final stage in stages!) {
-      final String stageName = stage.name;
-      print('\n🚀 Starting stage: $stageName');
+    // Retry loop
+    final maxAttempts = step.retry + 1; // 1 attempt + retries
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (attempt > 1) {
+        print(
+            '   🔄 Retry attempt $attempt/$maxAttempts (waiting ${step.retryDelay}s...)');
+        await Future.delayed(Duration(seconds: step.retryDelay));
+      }
 
-      final success = await _executeStep(
-        stage,
+      final result = await executeCommand(
+        step.command,
+        exitCondition: step.customExitCondition,
+        env: step.env,
+        workingDirectory: step.workingDirectory,
+        timeoutSeconds: step.timeout,
       );
 
-      if (!success) {
-        print('❌ Pipeline failed at step: $stageName');
+      if (result.exitCode == 0) {
+        stopwatch.stop();
+        return _PipelineStepResult(
+          stepName: step.name,
+          status: _StepStatus.passed,
+          duration: stopwatch.elapsed,
+        );
+      }
+
+      // Step failed — check if we should retry
+      if (attempt < maxAttempts) {
+        print('   ⚠️ Step failed (attempt $attempt/$maxAttempts)');
+        continue;
+      }
+
+      // All attempts exhausted
+      stopwatch.stop();
+
+      if (step.allowFailure) {
+        print('   ⚠️ Step "${step.name}" failed but allow_failure is set');
+        return _PipelineStepResult(
+          stepName: step.name,
+          status: _StepStatus.warning,
+          duration: stopwatch.elapsed,
+          note: 'allowed failure',
+        );
+      }
+
+      print('❌ Step failed: ${step.name}');
+      print('   Error: ${result.stderr}');
+      return _PipelineStepResult(
+        stepName: step.name,
+        status: _StepStatus.failed,
+        duration: stopwatch.elapsed,
+        note: attempt > 1 ? 'failed after $attempt attempts' : null,
+      );
+    }
+
+    // Should never reach here, but just in case
+    stopwatch.stop();
+    return _PipelineStepResult(
+      stepName: step.name,
+      status: _StepStatus.failed,
+      duration: stopwatch.elapsed,
+    );
+  }
+
+  /// Execute a named pipeline by key.
+  ///
+  /// If [pipelineName] is null, uses the first (or only) pipeline.
+  /// Supported formats: `pipelineName1,pipelineName2`.
+  static Future<void> executePipeline({String? pipelineName}) async {
+    final config = FlutterReleaseXConfig().config;
+    final resolvedPipelines = config.resolvedPipelines;
+
+    if (resolvedPipelines == null || resolvedPipelines.isEmpty) {
+      print('❌ No pipelines configured.');
+      print('   Add "pipelines:" or "pipeline_steps:" to your config.yaml');
+      return;
+    }
+
+    // Resolve which pipelines to run
+    final List<PipelineModel> pipelinesToRun = [];
+
+    if (pipelineName != null) {
+      final names = pipelineName
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      for (final name in names) {
+        if (!resolvedPipelines.containsKey(name)) {
+          print('❌ Pipeline "$name" not found.');
+          print('   Available pipelines: ${resolvedPipelines.keys.join(', ')}');
+          print(
+              '   Use "frx pipeline list" to see all pipelines with descriptions.');
+          return;
+        }
+        pipelinesToRun.add(resolvedPipelines[name]!);
+      }
+    } else if (resolvedPipelines.length == 1) {
+      pipelinesToRun.add(resolvedPipelines.values.first);
+    } else {
+      // Multiple pipelines, no selection — show interactive menu
+      print('\n📦 Multiple pipelines available:\n');
+      final keys = resolvedPipelines.keys.toList();
+      for (int i = 0; i < keys.length; i++) {
+        final p = resolvedPipelines[keys[i]]!;
+        final desc = p.description != null ? ' — ${p.description}' : '';
+        print('   ${i + 1}. ${keys[i]}$desc (${p.steps.length} steps)');
+      }
+      print('');
+      stdout.write('Enter the comma-separated numbers of the pipelines to run (e.g., 2,5,1) or just a single number: ');
+      final choice = stdin.readLineSync()?.trim();
+
+      if (choice == null || choice.isEmpty) {
+        print('❌ No pipeline selected. Exiting.');
         return;
       }
 
-      /// Upload artifact, if `outputPath != null && uploadOutput = true`.
-      if (stage.uploadOutput && stage.outputPath != null) {
-        // Upload artifact to Cloud.
-        await flutterReleaseXpromptUploadOption(stage.outputPath!);
+      final choices = choice
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
 
-        /// Generate QR code and link.
-        await generateQrCodeAndLink();
+      for (final c in choices) {
+        final index = int.tryParse(c);
+        if (index == null || index < 1 || index > keys.length) {
+          print('❌ Invalid choice "$c". Expected 1-${keys.length}.');
+          return;
+        }
+        pipelinesToRun.add(resolvedPipelines[keys[index - 1]]!);
       }
-
-      /// Notify slack, if `notifySlack = true`.
-      if (stage.notifySlack) {
-        /// Notify Slack.
-        await notifySlack();
-
-        /// Notify Teams (if enabled in config).
-        await notifyTeams();
-      }
-
-      print('✅ Stage completed: $stageName \n');
     }
 
-    print('🎉 Pipeline executed successfully!');
+    if (pipelinesToRun.isEmpty) {
+      print('❌ No valid pipelines selected. Exiting.');
+      return;
+    }
+
+    final globalStopwatch = Stopwatch()..start();
+    bool globalFailed = false;
+
+    for (int pIndex = 0; pIndex < pipelinesToRun.length; pIndex++) {
+      final pipeline = pipelinesToRun[pIndex];
+
+      // Print pipeline header
+      print('');
+      print(
+          '═══════════════════════════════════════════════════════════════════════');
+      print('  🚀 Pipeline [${pIndex + 1}/${pipelinesToRun.length}]: ${pipeline.name}');
+      if (pipeline.description != null) {
+        print('  📝 ${pipeline.description}');
+      }
+      print('  📊 ${pipeline.steps.length} steps');
+      print(
+          '═══════════════════════════════════════════════════════════════════════');
+      print('');
+
+      final pipelineStopwatch = Stopwatch()..start();
+      final results = <_PipelineStepResult>[];
+      bool pipelineFailed = false;
+
+      for (int i = 0; i < pipeline.steps.length; i++) {
+        final stage = pipeline.steps[i];
+        final stepNum = i + 1;
+        final totalSteps = pipeline.steps.length;
+
+        print(
+            '───────────────────────────────────────────────────────────────────');
+        print('  [$stepNum/$totalSteps] ${stage.name}');
+        if (stage.description != null) {
+          print('  📝 ${stage.description}');
+        }
+        print(
+            '───────────────────────────────────────────────────────────────────');
+
+        final result = await _executeStep(stage);
+        results.add(result);
+
+        if (result.status == _StepStatus.failed) {
+          pipelineFailed = true;
+
+          // Check if we should continue despite failure
+          final shouldContinue = stage.continueOnError || stage.allowFailure;
+          if (!shouldContinue) {
+            print('');
+            print(
+                '❌ Pipeline halted at step "${stage.name}". Use continue_on_error: true to skip failures.');
+            break;
+          }
+          print(
+              '   ⚠️ Step failed but continue_on_error is enabled — continuing pipeline');
+        }
+
+        // Upload artifact if configured
+        if ((result.status == _StepStatus.passed ||
+                result.status == _StepStatus.warning) &&
+            stage.uploadOutput &&
+            stage.outputPath != null) {
+          // Verify output file exists before upload
+          final outputFile = File(stage.outputPath!);
+          final outputDir = Directory(stage.outputPath!);
+          if (outputFile.existsSync() || outputDir.existsSync()) {
+            await flutterReleaseXpromptUploadOption(stage.outputPath!);
+            await generateQrCodeAndLink();
+          } else {
+            print(
+                '   ⚠️ output_path "${stage.outputPath}" not found after step completed. Skipping upload.');
+          }
+        }
+
+        // Notify Slack if configured
+        if (stage.notifySlack &&
+            (result.status == _StepStatus.passed ||
+                result.status == _StepStatus.warning)) {
+          await notifySlack();
+        }
+
+        // Notify Teams if configured
+        if (stage.notifyTeams &&
+            (result.status == _StepStatus.passed ||
+                result.status == _StepStatus.warning)) {
+          await notifyTeams();
+        }
+
+        print('');
+      }
+
+      pipelineStopwatch.stop();
+
+      // Print pipeline summary table
+      _printPipelineSummary(
+        pipelineName: pipeline.name,
+        results: results,
+        totalDuration: pipelineStopwatch.elapsed,
+        pipelineFailed: pipelineFailed,
+      );
+
+      if (pipelineFailed) {
+        globalFailed = true;
+        print('\n❌ Stopping remaining pipelines due to failure in "${pipeline.name}".');
+        break;
+      }
+    }
+
+    globalStopwatch.stop();
+
+    if (pipelinesToRun.length > 1) {
+      print('');
+      print('═══════════════════════════════════════════════════════════════════════');
+      if (globalFailed) {
+        print('  ❌ Global Execution FAILED');
+      } else {
+        print('  🎉 All Pipelines Completed Successfully!');
+      }
+      print('  ⏱️ Total Time: ${_formatDuration(globalStopwatch.elapsed)}');
+      print('═══════════════════════════════════════════════════════════════════════');
+      print('');
+    }
+  }
+
+  /// Format a Duration into a human-readable string.
+  static String _formatDuration(Duration d) {
+    if (d.inHours > 0) {
+      return '${d.inHours}h ${d.inMinutes.remainder(60)}m ${d.inSeconds.remainder(60)}s';
+    }
+    if (d.inMinutes > 0) {
+      return '${d.inMinutes}m ${d.inSeconds.remainder(60)}s';
+    }
+    if (d.inSeconds > 0) {
+      final ms = d.inMilliseconds.remainder(1000);
+      return '${d.inSeconds}.${(ms ~/ 100)}s';
+    }
+    return '${d.inMilliseconds}ms';
+  }
+
+  /// Print a formatted pipeline summary table.
+  static void _printPipelineSummary({
+    required String pipelineName,
+    required List<_PipelineStepResult> results,
+    required Duration totalDuration,
+    required bool pipelineFailed,
+  }) {
+    print('');
+    print(
+        '╔═══════════════════════════════════════════════════════════════════════╗');
+    print(
+        '║                        Pipeline Summary                             ║');
+    print(
+        '╠══════════════════════════╦══════════╦══════════╦═════════════════════╣');
+    print(
+        '║ Step                     ║ Status   ║ Duration ║ Notes               ║');
+    print(
+        '╠══════════════════════════╬══════════╬══════════╬═════════════════════╣');
+
+    for (final result in results) {
+      final name = result.stepName.length > 24
+          ? '${result.stepName.substring(0, 21)}...'
+          : result.stepName.padRight(24);
+
+      final statusIcon = switch (result.status) {
+        _StepStatus.passed => '✅ Pass ',
+        _StepStatus.failed => '❌ Fail ',
+        _StepStatus.warning => '⚠️ Warn ',
+        _StepStatus.skipped => '⏭️ Skip ',
+      };
+
+      final duration = result.status == _StepStatus.skipped
+          ? '—'.padRight(8)
+          : _formatDuration(result.duration).padRight(8);
+
+      final note = (result.note ?? '').length > 19
+          ? '${result.note!.substring(0, 16)}...'
+          : (result.note ?? '').padRight(19);
+
+      print('║ $name ║ $statusIcon ║ $duration ║ $note ║');
+    }
+
+    print(
+        '╠══════════════════════════╩══════════╩══════════╩═════════════════════╣');
+
+    final totalPassed =
+        results.where((r) => r.status == _StepStatus.passed).length;
+    final totalFailed =
+        results.where((r) => r.status == _StepStatus.failed).length;
+    final totalWarned =
+        results.where((r) => r.status == _StepStatus.warning).length;
+    final totalSkipped =
+        results.where((r) => r.status == _StepStatus.skipped).length;
+    final totalTime = _formatDuration(totalDuration);
+
+    final summaryLine =
+        '  ✅ $totalPassed  ❌ $totalFailed  ⚠️ $totalWarned  ⏭️ $totalSkipped  ⏱️ $totalTime';
+    print('║ ${summaryLine.padRight(67)} ║');
+
+    if (pipelineFailed) {
+      print('║ ${'  ❌ Pipeline: $pipelineName — FAILED'.padRight(67)} ║');
+    } else {
+      print('║ ${'  🎉 Pipeline: $pipelineName — PASSED'.padRight(67)} ║');
+    }
+
+    print(
+        '╚═══════════════════════════════════════════════════════════════════════╝');
+    print('');
   }
 
 //  ───────────────────────────────────── UTILS  ─────────────────────────────────────
@@ -926,4 +1314,27 @@ class FlutterReleaseXHelpers {
         return false;
     }
   }
+}
+
+/// Status of a pipeline step execution.
+enum _StepStatus {
+  passed,
+  failed,
+  warning,
+  skipped,
+}
+
+/// Result of executing a single pipeline step, including timing and status.
+class _PipelineStepResult {
+  final String stepName;
+  final _StepStatus status;
+  final Duration duration;
+  final String? note;
+
+  _PipelineStepResult({
+    required this.stepName,
+    required this.status,
+    required this.duration,
+    this.note,
+  });
 }

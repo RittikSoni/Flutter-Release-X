@@ -547,14 +547,72 @@ pipeline_steps:
 
 ## Advance Pipeline
 
-| Field                     | Description                                                                                                                                                                                  | Example Value                                                                          | Required | Default Value |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------- | ------------- |
-| **name**                  | The name of the pipeline step.                                                                                                                                                               | "Build APK"                                                                            | Yes      | N/A           |
-| **command**               | The command to run for this pipeline step.                                                                                                                                                   | `flutter build apk --release`                                                          | Yes      | N/A           |
-| **upload_output**         | Whether to upload the output from this step.                                                                                                                                                 | `true` or `false`                                                                      | No       | `false`       |
-| **output_path**           | The file path where the output is stored (if applicable).                                                                                                                                    | `./build/app/outputs/flutter-apk/app-release.apk`                                      | No       | N/A           |
-| **notify_slack**          | Whether to notify Slack after this step completes.                                                                                                                                           | `true` or `false`                                                                      | No       | `false`       |
-| **custom_exit_condition** | Custom condition for when to **stop** the pipeline step. It checks for a specific match in the `stdout` or `stderr`. If matched, the pipeline stops. If not matched, the pipeline continues. | `"error: some specific error message"` (Stop if a specific error occurs in the output) | No       | N/A           |
+FRX supports **multiple named pipelines** — organize your workflows like CI/CD tools (GitHub Actions, GitLab CI) and select which one to run.
+
+### Pipeline Commands
+
+| Command | Description |
+|---|---|
+| `frx pipeline list` | List all available pipelines with descriptions |
+| `frx pipeline validate` | Validate config and show detailed, actionable errors |
+| `frx pipeline run <name>` | Run a specific pipeline by name |
+| `frx pipeline help-all` | Show complete pipeline feature reference |
+| `frx build --pipeline <name>` | Run a pipeline via the build command |
+
+### Config Formats
+
+**New format (recommended)** — Multiple named pipelines:
+
+```yaml
+pipelines:
+  build:
+    description: "Build and release"
+    steps:
+      - name: "Build APK"
+        command: "flutter build apk --release"
+        timeout: 600
+        upload_output: true
+        output_path: "./build/app/outputs/flutter-apk/app-release.apk"
+
+  test:
+    description: "Run tests"
+    steps:
+      - name: "Unit Tests"
+        command: "flutter test"
+        retry: 2
+```
+
+**Legacy format** (still supported, treated as a single "default" pipeline):
+
+```yaml
+pipeline_steps:
+  - name: "Build APK"
+    command: "flutter build apk --release"
+```
+
+### Step Fields Reference
+
+| Field | Description | Required | Default |
+|---|---|---|---|
+| **name** | Step name (must be unique within pipeline) | Yes | N/A |
+| **command** | Shell command to execute | Yes | N/A |
+| **description** | Human-readable description shown in logs | No | N/A |
+| **working_directory** | Directory to run the command in | No | Current dir |
+| **env** | Per-step environment variables map | No | `{}` |
+| **timeout** | Timeout in seconds (kills step if exceeded) | No | No limit |
+| **retry** | Number of retry attempts on failure | No | `0` |
+| **retry_delay** | Seconds to wait between retries | No | `5` |
+| **condition** | Shell command — run step only if exits 0 | No | N/A |
+| **continue_on_error** | Continue pipeline even if step fails | No | `false` |
+| **allow_failure** | Mark as warning instead of failure | No | `false` |
+| **stop_on_failure** | Halt pipeline on failure | No | `true` |
+| **upload_output** | Upload artifact after step | No | `false` |
+| **output_path** | Path to artifact to upload | No | N/A |
+| **notify_slack** | Notify Slack after step | No | `false` |
+| **notify_teams** | Notify Microsoft Teams after step | No | `false` |
+| **custom_exit_condition** | Regex/text in output that triggers failure | No | N/A |
+| **depends_on** | List of step names that must run first | No | `[]` |
+
 
 ## Steps for Setup
 

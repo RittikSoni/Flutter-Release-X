@@ -6,7 +6,12 @@ class FlutterReleaseXAppConfigModel {
   final String? flutterPath;
   final UploadOptionsModel uploadOptions;
   final QrCodeModel qrCode;
+
+  /// Legacy flat pipeline steps list. Preserved for backward compatibility.
   final List<PipelineStepModel>? pipelineSteps;
+
+  /// New named pipelines map. Takes precedence over [pipelineSteps].
+  final Map<String, PipelineModel>? pipelines;
 
   // Constructor with default values
   FlutterReleaseXAppConfigModel({
@@ -14,26 +19,92 @@ class FlutterReleaseXAppConfigModel {
     UploadOptionsModel? uploadOptions,
     QrCodeModel? qrCode,
     this.pipelineSteps,
+    this.pipelines,
   })  : uploadOptions =
             uploadOptions ?? UploadOptionsModel(), // Default for uploadOptions
         qrCode = qrCode ?? QrCodeModel(); // Default for qrCode
+
+  /// Returns the resolved pipelines map.
+  ///
+  /// If `pipelines` is set, returns it directly.
+  /// If only legacy `pipelineSteps` is set, wraps it in a "default" pipeline.
+  /// Returns null if neither is configured.
+  Map<String, PipelineModel>? get resolvedPipelines {
+    if (pipelines != null && pipelines!.isNotEmpty) {
+      return pipelines;
+    }
+    if (pipelineSteps != null && pipelineSteps!.isNotEmpty) {
+      return {
+        'default': PipelineModel(
+          name: 'default',
+          description: 'Default pipeline (from pipeline_steps)',
+          steps: pipelineSteps!,
+        ),
+      };
+    }
+    return null;
+  }
 
   // Factory constructor to create an instance from a YAML file
   factory FlutterReleaseXAppConfigModel.fromYaml(dynamic yamlPath) {
     final yamlMap = Map<String, dynamic>.from(yamlPath);
 
+    // Parse legacy pipeline_steps
+    List<PipelineStepModel>? legacySteps;
+    if (yamlMap['pipeline_steps'] != null) {
+      try {
+        legacySteps = List<PipelineStepModel>.from(
+          (yamlMap['pipeline_steps'] as List).map(
+            (step) =>
+                PipelineStepModel.fromYaml(Map<String, dynamic>.from(step)),
+          ),
+        );
+      } catch (e) {
+        print('⚠️ Warning: Failed to parse "pipeline_steps": $e');
+        print(
+            '   Ensure pipeline_steps is a list of steps, each with "name" and "command".');
+      }
+    }
+
+    // Parse new pipelines map
+    Map<String, PipelineModel>? namedPipelines;
+    if (yamlMap['pipelines'] != null) {
+      try {
+        final pipelinesYaml =
+            Map<String, dynamic>.from(yamlMap['pipelines'] as Map);
+        namedPipelines = {};
+        for (final entry in pipelinesYaml.entries) {
+          final pipelineData = Map<String, dynamic>.from(entry.value as Map);
+          namedPipelines[entry.key] =
+              PipelineModel.fromYaml(entry.key, pipelineData);
+        }
+      } catch (e) {
+        print('⚠️ Warning: Failed to parse "pipelines": $e');
+        print('   Ensure pipelines is a map of named pipelines, each with "steps".');
+        print('   Example:');
+        print('   pipelines:');
+        print('     build:');
+        print('       description: "Build the app"');
+        print('       steps:');
+        print('         - name: "Build APK"');
+        print('           command: "flutter build apk --release"');
+      }
+    }
+
+    // Show helpful message if both formats are detected
+    if (legacySteps != null && namedPipelines != null) {
+      print(
+          '💡 Both "pipeline_steps" and "pipelines" found in config. Using "pipelines" (the new format).');
+      print(
+          '   Consider migrating your "pipeline_steps" to the "pipelines" format for better organization.');
+    }
+
     return FlutterReleaseXAppConfigModel(
       flutterPath: yamlMap['flutter_path'],
       uploadOptions: UploadOptionsModel.fromYaml(yamlMap['upload_options']),
       qrCode: QrCodeModel.fromYaml(yamlMap['qr_code']),
-      pipelineSteps: yamlMap['pipeline_steps'] != null
-          ? List<PipelineStepModel>.from(
-              (yamlMap['pipeline_steps'] as List).map(
-                (step) =>
-                    PipelineStepModel.fromYaml(Map<String, dynamic>.from(step)),
-              ),
-            )
-          : null,
+      pipelineSteps: legacySteps,
+      pipelines: namedPipelines,
     );
   }
 
@@ -44,9 +115,11 @@ class FlutterReleaseXAppConfigModel {
       'upload_options': uploadOptions.toMap(),
       'qr_code': qrCode.toMap(),
       'pipeline_steps': pipelineSteps?.map((step) => step.toMap()).toList(),
+      'pipelines': pipelines?.map((key, val) => MapEntry(key, val.toMap())),
     };
   }
 }
+
 
 class UploadOptionsModel {
   final GithubModel github;
@@ -521,6 +594,9 @@ class PipelineStepModel {
   final String command;
   final List<String> dependsOn;
 
+  /// Human-readable description shown in pipeline logs.
+  final String? description;
+
   /// Flag to enable uploading for this step.
   ///
   /// Defaults to `false`
@@ -529,10 +605,15 @@ class PipelineStepModel {
   /// Path of the save artifact.
   final String? outputPath;
 
-  /// Flag to notify Slack after this step
+  /// Flag to notify Slack after this step.
   ///
   /// Defaults to `false`
   final bool notifySlack;
+
+  /// Flag to notify Microsoft Teams after this step.
+  ///
+  /// Defaults to `false`
+  final bool notifyTeams;
 
   /// Defaults to `true`
   ///
@@ -546,38 +627,165 @@ class PipelineStepModel {
   /// pipeline_steps:
   ///     - name: "Analyze Code"
   ///       command: "flutter analyze"
-  ///       custom_exit_condition: "No issues found!" # Matches specific output to determine success
+  ///       custom_exit_condition: "No issues found!"
   ///       stop_on_failure: true
   /// ```
   final String? customExitCondition;
+
+  /// Per-step environment variables merged into the process environment.
+  final Map<String, String>? env;
+
+  /// Working directory for this step's command execution.
+  final String? workingDirectory;
+
+  /// Timeout in seconds. The step is killed if it exceeds this duration.
+  /// Must be a positive integer when specified.
+  final int? timeout;
+
+  /// Number of retry attempts on failure. Defaults to `0` (no retries).
+  /// Must be >= 0.
+  final int retry;
+
+  /// Seconds to wait between retries. Defaults to `5`.
+  /// Must be > 0.
+  final int retryDelay;
+
+  /// If `true`, pipeline continues even if this step fails.
+  /// The step is marked as failed in the summary but doesn't halt execution.
+  ///
+  /// Defaults to `false`
+  final bool continueOnError;
+
+  /// If `true`, a failed step is marked as "warning" instead of "failure"
+  /// in the pipeline summary. Implies `continue_on_error: true`.
+  ///
+  /// Defaults to `false`
+  final bool allowFailure;
+
+  /// Shell command to evaluate before running this step.
+  /// Step is only executed if this command exits with code 0.
+  /// If the condition fails, the step is skipped (not failed).
+  final String? condition;
 
   PipelineStepModel({
     required this.name,
     required this.command,
     this.dependsOn = const [],
-    this.uploadOutput = false, // Default to false if not specified
-    this.outputPath, // Optional: Path of the artifact to upload
-    this.notifySlack = false, // Default to false if not specified
+    this.description,
+    this.uploadOutput = false,
+    this.outputPath,
+    this.notifySlack = false,
+    this.notifyTeams = false,
     this.customExitCondition,
     this.stopOnFailure = true,
+    this.env,
+    this.workingDirectory,
+    this.timeout,
+    this.retry = 0,
+    this.retryDelay = 5,
+    this.continueOnError = false,
+    this.allowFailure = false,
+    this.condition,
   });
 
   factory PipelineStepModel.fromYaml(Map<String, dynamic> yamlMap) {
     final stepMap = Map<String, dynamic>.from(yamlMap);
     if (yamlMap['name'] == null || yamlMap['command'] == null) {
-      print('❌ Provide Stage name and command in pipeline');
+      print(
+          '❌ Pipeline step is missing required fields. Each step must have "name" and "command".');
+      if (yamlMap['name'] == null) {
+        print('   → Missing: "name" (a descriptive name for this step)');
+      }
+      if (yamlMap['command'] == null) {
+        print('   → Missing: "command" (the shell command to execute)');
+      }
+      print('   Step data: $yamlMap');
       exit(1);
     }
+
+    // Parse env map safely
+    Map<String, String>? envMap;
+    if (stepMap['env'] != null) {
+      try {
+        envMap = Map<String, String>.from(
+          (stepMap['env'] as Map).map(
+            (key, value) => MapEntry(key.toString(), value.toString()),
+          ),
+        );
+      } catch (e) {
+        print(
+            '⚠️ Warning: Step "${yamlMap['name']}" has invalid "env" format. Expected key-value pairs.');
+        print('   Example: env: { MY_VAR: "value" }');
+      }
+    }
+
+    // Parse and validate timeout
+    int? timeout;
+    if (stepMap['timeout'] != null) {
+      timeout = _parseIntSafe(stepMap['timeout'], 'timeout', yamlMap['name']);
+      if (timeout != null && timeout <= 0) {
+        print(
+            '⚠️ Warning: Step "${yamlMap['name']}" has timeout: $timeout — must be a positive number. Ignoring timeout.');
+        timeout = null;
+      }
+    }
+
+    // Parse and validate retry
+    int retry = 0;
+    if (stepMap['retry'] != null) {
+      retry = _parseIntSafe(stepMap['retry'], 'retry', yamlMap['name']) ?? 0;
+      if (retry < 0) {
+        print(
+            '⚠️ Warning: Step "${yamlMap['name']}" has retry: $retry — must be >= 0. Defaulting to 0.');
+        retry = 0;
+      }
+    }
+
+    // Parse and validate retry_delay
+    int retryDelay = 5;
+    if (stepMap['retry_delay'] != null) {
+      retryDelay =
+          _parseIntSafe(stepMap['retry_delay'], 'retry_delay', yamlMap['name']) ??
+              5;
+      if (retryDelay <= 0) {
+        print(
+            '⚠️ Warning: Step "${yamlMap['name']}" has retry_delay: $retryDelay — must be > 0. Defaulting to 5.');
+        retryDelay = 5;
+      }
+    }
+
     return PipelineStepModel(
       name: yamlMap['name'],
       command: yamlMap['command'],
       dependsOn: List<String>.from(stepMap['depends_on'] ?? []),
+      description: yamlMap['description'],
       uploadOutput: yamlMap['upload_output'] ?? false,
-      outputPath: yamlMap['output_path'], // Load output path
+      outputPath: yamlMap['output_path'],
       notifySlack: yamlMap['notify_slack'] ?? false,
+      notifyTeams: yamlMap['notify_teams'] ?? false,
       stopOnFailure: yamlMap['stop_on_failure'] ?? true,
       customExitCondition: yamlMap['custom_exit_condition'],
+      env: envMap,
+      workingDirectory: yamlMap['working_directory'],
+      timeout: timeout,
+      retry: retry,
+      retryDelay: retryDelay,
+      continueOnError: yamlMap['continue_on_error'] ?? false,
+      allowFailure: yamlMap['allow_failure'] ?? false,
+      condition: yamlMap['condition'],
     );
+  }
+
+  /// Safely parse an int from YAML, handling strings and invalid values.
+  static int? _parseIntSafe(dynamic value, String fieldName, String stepName) {
+    if (value is int) return value;
+    if (value is String) {
+      final parsed = int.tryParse(value);
+      if (parsed != null) return parsed;
+    }
+    print(
+        '⚠️ Warning: Step "$stepName" has invalid "$fieldName" value: $value — expected an integer.');
+    return null;
   }
 
   Map<String, dynamic> toMap() {
@@ -585,11 +793,275 @@ class PipelineStepModel {
       'name': name,
       'command': command,
       'depends_on': dependsOn,
+      'description': description,
       'upload_output': uploadOutput,
-      'output_path': outputPath, // Save output path
+      'output_path': outputPath,
       'notify_slack': notifySlack,
+      'notify_teams': notifyTeams,
       'stop_on_failure': stopOnFailure,
       'custom_exit_condition': customExitCondition,
+      'env': env,
+      'working_directory': workingDirectory,
+      'timeout': timeout,
+      'retry': retry,
+      'retry_delay': retryDelay,
+      'continue_on_error': continueOnError,
+      'allow_failure': allowFailure,
+      'condition': condition,
     };
+  }
+}
+
+/// Represents a named pipeline containing a group of steps.
+///
+/// Pipelines allow users to organize multiple workflows (e.g., "build",
+/// "test", "deploy") and select which one to run.
+class PipelineModel {
+  final String name;
+  final String? description;
+  final List<PipelineStepModel> steps;
+
+  PipelineModel({
+    required this.name,
+    this.description,
+    required this.steps,
+  });
+
+  factory PipelineModel.fromYaml(
+      String name, Map<String, dynamic> yamlMap) {
+    final stepsData = yamlMap['steps'];
+    if (stepsData == null || stepsData is! List || stepsData.isEmpty) {
+      print('❌ Pipeline "$name" must have at least one step defined.');
+      print('   Example:');
+      print('   pipelines:');
+      print('     $name:');
+      print('       steps:');
+      print('         - name: "My Step"');
+      print('           command: "echo hello"');
+      exit(1);
+    }
+
+    return PipelineModel(
+      name: name,
+      description: yamlMap['description']?.toString(),
+      steps: List<PipelineStepModel>.from(
+        (stepsData).map(
+          (step) =>
+              PipelineStepModel.fromYaml(Map<String, dynamic>.from(step)),
+        ),
+      ),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'description': description,
+      'steps': steps.map((step) => step.toMap()).toList(),
+    };
+  }
+}
+
+/// Validation result for a single issue found in pipeline configuration.
+class PipelineValidationError {
+  final String pipelineName;
+  final String? stepName;
+  final String message;
+  final bool isWarning;
+
+  PipelineValidationError({
+    required this.pipelineName,
+    this.stepName,
+    required this.message,
+    this.isWarning = false,
+  });
+
+  @override
+  String toString() {
+    final icon = isWarning ? '⚠️' : '❌';
+    final location = stepName != null
+        ? 'Pipeline "$pipelineName" → Step "$stepName"'
+        : 'Pipeline "$pipelineName"';
+    return '$icon $location: $message';
+  }
+}
+
+/// Validates pipeline configuration and returns actionable error messages.
+class PipelineConfigValidator {
+  /// Validate all pipelines and return a list of issues found.
+  /// Returns an empty list if everything is valid.
+  static List<PipelineValidationError> validate(
+      Map<String, PipelineModel> pipelines) {
+    final errors = <PipelineValidationError>[];
+
+    if (pipelines.isEmpty) {
+      errors.add(PipelineValidationError(
+        pipelineName: '(none)',
+        message: 'No pipelines defined. Add at least one pipeline with steps.',
+      ));
+      return errors;
+    }
+
+    for (final entry in pipelines.entries) {
+      final pipelineName = entry.key;
+      final pipeline = entry.value;
+
+      // Check for empty steps
+      if (pipeline.steps.isEmpty) {
+        errors.add(PipelineValidationError(
+          pipelineName: pipelineName,
+          message:
+              'Pipeline has no steps. Add at least one step with "name" and "command".',
+        ));
+        continue;
+      }
+
+      // Check for duplicate step names within a pipeline
+      final stepNames = <String>{};
+      for (final step in pipeline.steps) {
+        if (!stepNames.add(step.name)) {
+          errors.add(PipelineValidationError(
+            pipelineName: pipelineName,
+            stepName: step.name,
+            message:
+                'Duplicate step name. Each step within a pipeline must have a unique name.',
+          ));
+        }
+      }
+
+      // Validate each step
+      for (final step in pipeline.steps) {
+        _validateStep(pipelineName, step, stepNames, errors);
+      }
+    }
+
+    return errors;
+  }
+
+  static void _validateStep(
+    String pipelineName,
+    PipelineStepModel step,
+    Set<String> allStepNames,
+    List<PipelineValidationError> errors,
+  ) {
+    // Check empty command
+    if (step.command.trim().isEmpty) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message: '"command" is empty. Provide a valid shell command to execute.',
+      ));
+    }
+
+    // Check upload_output without output_path
+    if (step.uploadOutput && (step.outputPath == null || step.outputPath!.trim().isEmpty)) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message:
+            'upload_output is true but no output_path specified. Add output_path to define the artifact location.',
+      ));
+    }
+
+    // Check output_path points to a valid-looking path
+    if (step.outputPath != null && step.outputPath!.trim().isNotEmpty) {
+      final outputFile = File(step.outputPath!);
+      final outputDir = Directory(step.outputPath!);
+      if (!outputFile.existsSync() && !outputDir.existsSync()) {
+        errors.add(PipelineValidationError(
+          pipelineName: pipelineName,
+          stepName: step.name,
+          message:
+              'output_path "${step.outputPath}" does not exist yet. It will be checked again after the step runs.',
+          isWarning: true,
+        ));
+      }
+    }
+
+    // Validate working_directory exists
+    if (step.workingDirectory != null &&
+        step.workingDirectory!.trim().isNotEmpty) {
+      final dir = Directory(step.workingDirectory!);
+      if (!dir.existsSync()) {
+        errors.add(PipelineValidationError(
+          pipelineName: pipelineName,
+          stepName: step.name,
+          message:
+              'working_directory "${step.workingDirectory}" does not exist. Create the directory or fix the path.',
+        ));
+      }
+    }
+
+    // Validate depends_on references exist
+    for (final dep in step.dependsOn) {
+      if (!allStepNames.contains(dep)) {
+        errors.add(PipelineValidationError(
+          pipelineName: pipelineName,
+          stepName: step.name,
+          message:
+              'depends_on references "$dep" which is not a step in this pipeline. Available steps: ${allStepNames.join(", ")}',
+        ));
+      }
+      // Self-dependency check
+      if (dep == step.name) {
+        errors.add(PipelineValidationError(
+          pipelineName: pipelineName,
+          stepName: step.name,
+          message: 'Step depends on itself. Remove self-reference from depends_on.',
+        ));
+      }
+    }
+
+    // Validate timeout
+    if (step.timeout != null && step.timeout! <= 0) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message:
+            'timeout is ${step.timeout} — must be a positive number of seconds (e.g., timeout: 60).',
+      ));
+    }
+
+    // Validate retry
+    if (step.retry < 0) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message:
+            'retry is ${step.retry} — must be >= 0 (e.g., retry: 3).',
+      ));
+    }
+
+    // Validate retry_delay
+    if (step.retryDelay <= 0) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message:
+            'retry_delay is ${step.retryDelay} — must be > 0 seconds (e.g., retry_delay: 5).',
+      ));
+    }
+
+    // Warn if retry > 0 but no retry_delay override
+    if (step.retry > 5) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message:
+            'retry is ${step.retry} — that\'s a lot of retries. Consider reducing to avoid long pipeline runs.',
+        isWarning: true,
+      ));
+    }
+
+    // Warn about conflicting settings
+    if (step.allowFailure && step.stopOnFailure == true && !step.continueOnError) {
+      errors.add(PipelineValidationError(
+        pipelineName: pipelineName,
+        stepName: step.name,
+        message:
+            'allow_failure is true but stop_on_failure is also true and continue_on_error is false. '
+            'allow_failure implicitly enables continue_on_error. This is handled automatically, but consider setting continue_on_error: true explicitly.',
+        isWarning: true,
+      ));
+    }
   }
 }

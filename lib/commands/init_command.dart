@@ -216,190 +216,197 @@ qr_code:
 # ──────────────────────────────────────────────────────────────────────────────
 # ADVANCED PIPELINE (Optional)
 # ──────────────────────────────────────────────────────────────────────────────
-# Define custom pipeline steps for advanced automation.
-# If provided, this overrides the default build flow.
+# Define custom pipelines for advanced automation.
+# If provided, pipelines override the default build flow.
 #
-# Pipeline Step Fields:
-#   - name: (Required) Name of the pipeline step
-#   - command: (Required) Command to execute
-#   - upload_output: (Optional) Upload artifact after step (default: false)
-#   - output_path: (Optional) Path to artifact to upload
-#   - notify_slack: (Optional) Send Slack notification after step (default: false)
-#   - custom_exit_condition: (Optional) Stop pipeline if this text appears in output
-#   - stop_on_failure: (Optional) Stop pipeline on failure (default: true)
-#   - depends_on: (Optional) List of step names this step depends on
+# 📖 Run "frx pipeline help-all" for a complete feature reference.
 #
-# Example pipelines for different frameworks:
+# Pipeline Commands:
+#   frx pipeline list              List all pipelines
+#   frx pipeline validate          Validate config with detailed errors
+#   frx pipeline run <name>        Run a specific pipeline
+#   frx build --pipeline <name>    Run a pipeline via build command
 #
 # ──────────────────────────────────────────────────────────────────────────────
-# FLUTTER / DART PIPELINE
+# FORMAT: Multiple Named Pipelines (recommended)
 # ──────────────────────────────────────────────────────────────────────────────
+#
+# pipelines:
+#   build:
+#     description: "Build and release the app"
+#     steps:
+#       - name: "Install Deps"
+#         command: "flutter pub get"
+#         timeout: 120
+#         description: "Install Flutter dependencies"
+#
+#       - name: "Build APK"
+#         command: "flutter build apk --release"
+#         timeout: 600
+#         upload_output: true
+#         output_path: "./build/app/outputs/flutter-apk/app-release.apk"
+#         notify_slack: true
+#
+#   test:
+#     description: "Run tests and linting"
+#     steps:
+#       - name: "Unit Tests"
+#         command: "flutter test"
+#         retry: 2
+#         retry_delay: 3
+#         timeout: 300
+#
+#       - name: "Lint"
+#         command: "flutter analyze"
+#         custom_exit_condition: "issues found"
+#         allow_failure: true
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# FORMAT: Legacy (still supported, treated as a single "default" pipeline)
+# ──────────────────────────────────────────────────────────────────────────────
+#
 # pipeline_steps:
-#   - name: "Install Dependencies"
-#     command: "flutter pub get"
-#     stop_on_failure: true
-#
-#   - name: "Run Tests"
-#     command: "flutter test"
-#     custom_exit_condition: "Test failed"
-#     upload_output: false
-#
-#   - name: "Analyze Code"
-#     command: "flutter analyze"
-#     custom_exit_condition: "issues found"
-#
 #   - name: "Build APK"
 #     command: "flutter build apk --release"
 #     upload_output: true
 #     output_path: "./build/app/outputs/flutter-apk/app-release.apk"
-#     notify_slack: true
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP FIELDS REFERENCE
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# Required:
+#   name                    Step name (must be unique within pipeline)
+#   command                 Shell command to execute
+#
+# Execution Control (all optional):
+#   working_directory       Directory to run command in (default: current dir)
+#   env                     Environment variables map, e.g. { MY_VAR: "value" }
+#   timeout                 Timeout in seconds (kills step if exceeded)
+#   retry                   Number of retry attempts on failure (default: 0)
+#   retry_delay             Seconds between retries (default: 5)
+#   condition               Shell command — run step only if this exits 0
+#   stop_on_failure         Halt pipeline on failure (default: true)
+#   continue_on_error       Continue pipeline despite failure (default: false)
+#   allow_failure           Mark as warning instead of failure (default: false)
+#   custom_exit_condition   Regex/text in output that triggers failure
+#   depends_on              List of step names that must run first
+#
+# Output & Notifications (all optional):
+#   upload_output           Upload artifact after step (default: false)
+#   output_path             Path to artifact to upload
+#   notify_slack            Notify Slack after step (default: false)
+#   notify_teams            Notify Microsoft Teams after step (default: false)
+#   description             Human-readable description shown in logs
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# FULL-FEATURED EXAMPLE
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# pipelines:
+#   ci:
+#     description: "Full CI/CD pipeline"
+#     steps:
+#       - name: "Install Deps"
+#         command: "flutter pub get"
+#         timeout: 120
+#         description: "Install Flutter dependencies"
+#
+#       - name: "Lint"
+#         command: "flutter analyze"
+#         custom_exit_condition: "issues found"
+#         allow_failure: true
+#         description: "Run static analysis (warnings only)"
+#
+#       - name: "Unit Tests"
+#         command: "flutter test"
+#         retry: 2
+#         retry_delay: 3
+#         timeout: 300
+#         description: "Run unit tests with retry"
+#
+#       - name: "Build APK"
+#         command: "flutter build apk --release"
+#         timeout: 600
+#         upload_output: true
+#         output_path: "./build/app/outputs/flutter-apk/app-release.apk"
+#         notify_slack: true
+#         notify_teams: true
+#         env:
+#           BUILD_NUMBER: "42"
+#           FLAVOR: "production"
+#
+#       - name: "Deploy Staging"
+#         command: "./scripts/deploy.sh"
+#         condition: "test -f ./scripts/deploy.sh"
+#         working_directory: "./deploy"
+#         env:
+#           DEPLOY_ENV: staging
+#         continue_on_error: true
+#         description: "Deploy to staging (optional)"
 #
 # ──────────────────────────────────────────────────────────────────────────────
 # REACT / NEXT.JS / VITE PIPELINE
 # ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Install Dependencies"
-#     command: "npm install"
-#     # or: "yarn install" or "pnpm install"
-#
-#   - name: "Run Tests"
-#     command: "npm test"
-#     custom_exit_condition: "Tests failed"
-#
-#   - name: "Lint Code"
-#     command: "npm run lint"
-#
-#   - name: "Build Production"
-#     command: "npm run build"
-#     upload_output: true
-#     output_path: "./dist"
-#     notify_slack: true
+# pipelines:
+#   web_build:
+#     description: "Build and deploy web app"
+#     steps:
+#       - name: "Install Dependencies"
+#         command: "npm ci"
+#         timeout: 120
+#       - name: "Run Tests"
+#         command: "npm test"
+#         retry: 1
+#         custom_exit_condition: "Tests failed"
+#       - name: "Build Production"
+#         command: "npm run build"
+#         upload_output: true
+#         output_path: "./dist"
+#         notify_slack: true
 #
 # ──────────────────────────────────────────────────────────────────────────────
 # PYTHON / DJANGO / FASTAPI PIPELINE
 # ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Install Dependencies"
-#     command: "pip install -r requirements.txt"
-#     # or: "poetry install" or "pipenv install"
-#
-#   - name: "Run Tests"
-#     command: "pytest"
-#     # or: "python -m pytest" or "python manage.py test"
-#     custom_exit_condition: "FAILED"
-#
-#   - name: "Lint Code"
-#     command: "flake8 ."
-#     # or: "pylint ." or "black --check ."
-#
-#   - name: "Build Package"
-#     command: "python setup.py sdist bdist_wheel"
-#     upload_output: true
-#     output_path: "./dist"
-#     notify_slack: true
-#
-# ──────────────────────────────────────────────────────────────────────────────
-# .NET / C# PIPELINE
-# ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Restore Packages"
-#     command: "dotnet restore"
-#
-#   - name: "Run Tests"
-#     command: "dotnet test"
-#     custom_exit_condition: "Test Run Failed"
-#
-#   - name: "Build Solution"
-#     command: "dotnet build --configuration Release"
-#
-#   - name: "Publish Application"
-#     command: "dotnet publish -c Release -o ./publish"
-#     upload_output: true
-#     output_path: "./publish"
-#     notify_slack: true
-#
-# ──────────────────────────────────────────────────────────────────────────────
-# NODE.JS / EXPRESS PIPELINE
-# ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Install Dependencies"
-#     command: "npm ci"
-#
-#   - name: "Run Tests"
-#     command: "npm test"
-#
-#   - name: "Build Application"
-#     command: "npm run build"
-#     upload_output: true
-#     output_path: "./build"
-#
-# ──────────────────────────────────────────────────────────────────────────────
-# VUE.JS / ANGULAR PIPELINE
-# ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Install Dependencies"
-#     command: "npm install"
-#
-#   - name: "Run Tests"
-#     command: "npm run test:unit"
-#
-#   - name: "Build Production"
-#     command: "npm run build"
-#     upload_output: true
-#     output_path: "./dist"
-#     notify_slack: true
-#
-# ──────────────────────────────────────────────────────────────────────────────
-# GO / GOLANG PIPELINE
-# ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Download Dependencies"
-#     command: "go mod download"
-#
-#   - name: "Run Tests"
-#     command: "go test ./..."
-#     custom_exit_condition: "FAIL"
-#
-#   - name: "Build Binary"
-#     command: "go build -o app ./cmd/main.go"
-#     upload_output: true
-#     output_path: "./app"
-#     notify_slack: true
+# pipelines:
+#   python_ci:
+#     description: "Python CI pipeline"
+#     steps:
+#       - name: "Install Dependencies"
+#         command: "pip install -r requirements.txt"
+#       - name: "Run Tests"
+#         command: "pytest"
+#         custom_exit_condition: "FAILED"
+#         retry: 1
+#       - name: "Lint Code"
+#         command: "flake8 ."
+#         allow_failure: true
+#       - name: "Build Package"
+#         command: "python setup.py sdist bdist_wheel"
+#         upload_output: true
+#         output_path: "./dist"
+#         notify_slack: true
 #
 # ──────────────────────────────────────────────────────────────────────────────
 # DOCKER / CONTAINER PIPELINE
 # ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Build Docker Image"
-#     command: "docker build -t myapp:latest ."
-#
-#   - name: "Run Container Tests"
-#     command: "docker run --rm myapp:latest npm test"
-#
-#   - name: "Save Docker Image"
-#     command: "docker save myapp:latest -o myapp.tar"
-#     upload_output: true
-#     output_path: "./myapp.tar"
-#
-# ──────────────────────────────────────────────────────────────────────────────
-# MIXED / CUSTOM PIPELINE
-# ──────────────────────────────────────────────────────────────────────────────
-# pipeline_steps:
-#   - name: "Check Environment"
-#     command: "node --version && python --version"
-#
-#   - name: "Run Script"
-#     command: "./scripts/build.sh"
-#     custom_exit_condition: "build failed"
-#
-#   - name: "Package Artifacts"
-#     command: "tar -czf release.tar.gz ./dist"
-#     upload_output: true
-#     output_path: "./release.tar.gz"
-#     notify_slack: true
+# pipelines:
+#   docker_build:
+#     description: "Build and push Docker image"
+#     steps:
+#       - name: "Build Docker Image"
+#         command: "docker build -t myapp:latest ."
+#         timeout: 600
+#       - name: "Run Container Tests"
+#         command: "docker run --rm myapp:latest npm test"
+#         retry: 1
+#       - name: "Save Docker Image"
+#         command: "docker save myapp:latest -o myapp.tar"
+#         upload_output: true
+#         output_path: "./myapp.tar"
 #
 # Uncomment and customize as needed:
-# pipeline_steps: []
+# pipelines: {}
 ''';
   }
 }

@@ -1,6 +1,6 @@
 name: flutter_release_x
 description: A CLI tool to easily build, release, and share Flutter apps. Supports cloud uploads, QR codes, and download links for fast distribution.
-version: 0.5.0
+version: 0.6.0
 repository: https://github.com/RittikSoni/Flutter-Release-X
 license: MIT
 homepage: https://github.com/RittikSoni/Flutter-Release-X
@@ -25,7 +25,7 @@ environment:
 dependencies:
   args: ^2.7.0
   dio: ^5.9.0
-  googleapis: ^15.0.0
+  googleapis: ^16.0.0
   googleapis_auth: ^2.0.0
   http: ^1.6.0
   http_parser: ^4.1.2

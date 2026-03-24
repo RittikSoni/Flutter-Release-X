@@ -4,6 +4,7 @@ import 'package:flutter_release_x/commands/build_command.dart';
 import 'package:flutter_release_x/commands/check_update_command.dart';
 import 'package:flutter_release_x/commands/init_command.dart';
 import 'package:flutter_release_x/commands/notify_command/notify_command.dart';
+import 'package:flutter_release_x/commands/pipeline_command.dart';
 import 'package:flutter_release_x/commands/version_command.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/services/update_check_service.dart';
@@ -23,7 +24,8 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
           ..addCommand(FlutterReleaseXNotifyCommand())
           ..addCommand(FlutterReleaseXVersionCommand())
           ..addCommand(FlutterReleaseXCheckUpdateCommand())
-          ..addCommand(FlutterReleaseXInitCommand());
+          ..addCommand(FlutterReleaseXInitCommand())
+          ..addCommand(FlutterReleaseXPipelineCommand());
 
     runner.argParser.addFlag(
       'version',
