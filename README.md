@@ -13,14 +13,18 @@
 
 [![Watch the tutorial on YouTube](assets/flutter_release_x_tutorial.jpg)](https://youtu.be/8WuSyGD3Smg?si=_DOKxBANN-rXvggN)
 
-**Flutter Release X** is a powerful command-line tool that transforms your Flutter app release process, quick and easy. Designed for efficiency and ease of use, it allows you to:
+> **Ship Flutter apps faster. One CLI to build, release, automate, and protect your workflow.**
 
-- **Simplify Your Workflow**: Replace complex CI/CD pipelines with a single command to effortlessly generate and distribute release builds.
-- **Seamless Cloud Integration**: Easily configure cloud platforms like GitHub, Google Drive, AWS S3, GitLab, Google Play Store, Apple App Store, and Diawi by simply providing your API keys and tokens. Once configured, enjoy hassle-free, automatic uploads.
-- **Instant Distribution**: Automatically generate QR codes and download links for your builds, enabling quick and easy distribution to your team or users with no additional effort.
-- **Multi-Platform Support**: Build and distribute for Android, iOS, Web, macOS, Windows, and Linux from a single command.
+**Flutter Release X (FRX)** is the all-in-one release automation CLI for Flutter & beyond. From building and uploading your app to git hooks that guard every commit — FRX handles your entire workflow so you can focus on shipping.
 
-With **Flutter Release X**, streamline your release process, enhance collaboration, and reduce time-to-market—all while focusing on what truly matters: building amazing apps.
+- 🚀 **Build & Release** — Generate APK / IPA / AAB and upload to GitHub, Play Store, App Store, Google Drive, AWS S3, GitLab, or Diawi in one command.
+- 📦 **Smart Pipelines** — Define multi-step CI/CD pipelines in YAML. Retries, timeouts, conditions, parallel notifications — all built in.
+- 🪝 **Git Hooks** — Automatically run `flutter analyze`, tests, or any pipeline on `pre-commit`, `pre-push`, and more. Opt-in per hook, zero config bloat.
+- 📲 **Instant Distribution** — Auto-generate QR codes and shareable download links for your builds.
+- 🔔 **Team Notifications** — Ping Slack or Microsoft Teams the moment a build is ready.
+- 🌍 **Multi-Platform** — Supports Android, iOS, Web, macOS, Windows, and Linux.
+- 🌐 **Multi-Programming Language Support** — Supports Flutter, Dart, Python, Node.js, and more.
+- 🔐 **Secure** — No telemetry, no data collection, no tracking. Your code stays with you.
 
 ## 📖 Documentation
 
@@ -51,6 +55,7 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
     - [Slack](#slack)
   - [QR Code Generation Settings](#qr-code-generation-settings)
   - [Advance Pipeline](#advance-pipeline)
+  - [🪝 Git Hooks](#git-hooks)
 - [✅ Steps for Setup](#steps-for-setup)
 - [🌐 Cloud Integration](#cloud-integration)
   - [GitHub Setup](#github-configuration)
@@ -72,13 +77,14 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 
 ## What's New
 
-| Feature                         | Description                                                                                                                                                             |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Quick Setup with `frx init`** | Get started in seconds! Run `frx init` to automatically generate a starter config.yaml file with all options and helpful comments.                                      |
-| **Update Checking**             | Automatic background update checking keeps you informed about new versions. Use `frx check-update` to manually check for updates.                                       |
-| **Advanced Pipeline**           | Automate and streamline your CI/CD pipeline with the new advanced pipeline feature, integrating multiple steps in one command.                                          |
-| **Multi-Platform Build**        | Build for all supported platforms (`ios, android, web, macos, windows, linux`) using `--target all` for faster releases or just specify it like `frx build -t ios,web`. |
-| **Notification System**         | Send real-time notifications to popular platforms like Slack using `frx notify`.                                                                                        |
+| Feature | Description |
+| --- | --- |
+| **🪝 Git Hooks** | Husky-like git hooks powered by FRX. Run analyze, tests, or entire pipelines automatically on `pre-commit`, `pre-push`, and more. Fully opt-in. |
+| **Quick Setup with `frx init`** | Get started in seconds — auto-generates a `config.yaml` with all options and helpful comments. |
+| **Update Checking** | Background update checks keep you informed. Use `frx check-update` to check manually. |
+| **Advanced Pipeline** | Automate your full CI/CD workflow. Named pipelines, retries, timeouts, conditions, env vars. |
+| **Multi-Platform Build** | Build all platforms with `--target all`, or pick specific ones: `frx build -t ios,android`. |
+| **Notification System** | Real-time build notifications to Slack and Microsoft Teams via `frx notify`. |
 
 ## Features Overview
 
@@ -148,17 +154,25 @@ Then simply:
 
 ### Commands
 
-| Command                                           | Description                                                                                      |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `frx init`                                        | Initialize a new FRX project by creating a starter config.yaml file with helpful comments.       |
-| `frx build`                                       | Builds the release APK, uploads to Cloud, and generates a QR code & link.                        |
-| `frx build -s`                                    | Displays the current configuration settings. This helps verify if your setup is correct.         |
-| `frx build -c <path_to_config>`                   | Use this flag to specify a custom configuration file path, overriding the default `config.yaml`. |
-| `frx build --target all`                          | Builds release builds for all supported platforms (iOS, Android, Web, macOS, Windows, Linux).    |
-| `frx notify --platform slack --message 'message'` | Sends a notification to Slack with a custom message.                                             |
-| `frx notify --platform teams --message 'message'` | Sends a notification to Microsoft Teams with a custom message.                                   |
-| `frx check-update`                                | Manually check if a new version of FRX is available.                                             |
-| `frx version`                                     | Display the current version of Flutter Release X (frx).                                          |
+| Command | Description |
+| --- | --- |
+| `frx init` | Initialize a new FRX project — creates `config.yaml` with hooks, pipelines, and all options. |
+| `frx build` | Build the release APK, upload to cloud, and generate a QR code & download link. |
+| `frx build -s` | Show the current configuration settings. |
+| `frx build -c <path>` | Use a custom config file path. |
+| `frx build --target all` | Build for all platforms (iOS, Android, Web, macOS, Windows, Linux). |
+| `frx pipeline list` | List all configured pipelines. |
+| `frx pipeline run <name>` | Run a specific named pipeline. |
+| `frx pipeline validate` | Validate your pipeline config. |
+| `frx hooks install` | Install git hooks defined in `config.yaml` into `.git/hooks/`. |
+| `frx hooks uninstall` | Remove all FRX-managed git hooks. |
+| `frx hooks list` | Show all configured hooks and their install status. |
+| `frx hooks run <name>` | Manually trigger a git hook by name. |
+| `frx hooks validate` | Validate your hooks configuration. |
+| `frx notify --platform slack --message 'msg'` | Send a Slack notification. |
+| `frx notify --platform teams --message 'msg'` | Send a Microsoft Teams notification. |
+| `frx check-update` | Check if a new version of FRX is available. |
+| `frx version` | Display the current FRX version. |
 
 ### Examples
 
@@ -613,6 +627,114 @@ pipeline_steps:
 | **custom_exit_condition** | Regex/text in output that triggers failure | No | N/A |
 | **depends_on** | List of step names that must run first | No | `[]` |
 
+---
+
+## Git Hooks
+
+> Automate quality checks on every `git commit` and `git push` — powered by your FRX pipelines. Fully opt-in, zero friction.
+
+FRX ships a Husky-like git hooks system built on top of its own pipeline engine. Define hooks in `config.yaml`, install them once, and git takes care of the rest.
+
+### How it works
+
+```
+git commit
+   └─▶ .git/hooks/pre-commit   (installed by frx hooks install)
+           └─▶ frx hooks run pre-commit
+                   └─▶ Runs your steps from config.yaml
+                           └─▶ exit 0 → commit proceeds
+                               exit 1 → commit ABORTED
+```
+
+### Hook Commands
+
+| Command | Description |
+| --- | --- |
+| `frx hooks install` | Install all enabled hooks into `.git/hooks/` |
+| `frx hooks install --dry-run` | Preview what would be installed (no files written) |
+| `frx hooks uninstall` | Remove all FRX-managed hooks |
+| `frx hooks uninstall --hook pre-commit` | Remove a single hook |
+| `frx hooks list` | Status table: configured hooks + install state on disk |
+| `frx hooks run pre-commit` | Manually trigger a hook (great for testing) |
+| `frx hooks validate` | Validate your hooks config and show actionable errors |
+
+### Configuration
+
+Add a `hooks:` section to your `config.yaml`:
+
+```yaml
+hooks:
+  pre-commit:
+    enabled: true                   # opt-in — set to false to skip without removing
+    description: "Quality gates"
+    stop_on_failure: true           # abort commit if any step fails (default: true)
+    steps:
+      - name: "Analyze"
+        command: "flutter analyze"
+
+      - name: "Tests"
+        command: "flutter test"
+        timeout: 120                # kill step after 120s
+
+      - name: "Format Check"
+        command: "dart format --set-exit-if-changed ."
+        allow_failure: true         # warn only — don't block the commit
+
+  commit-msg:
+    enabled: false
+    description: "Enforce Conventional Commits format"
+    steps:
+      - name: "Validate Message"
+        command: "grep -qE '^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?: .+' $1"
+
+  pre-push:
+    enabled: false
+    description: "Full test suite before push"
+    run_pipeline: ci                # delegate to a named FRX pipeline
+```
+
+### Step Fields
+
+| Field | Description | Required | Default |
+| --- | --- | --- | --- |
+| `name` | Label shown in output | Yes | — |
+| `command` | Shell command to run | Yes | — |
+| `description` | Human-readable description | No | — |
+| `allow_failure` | Warn instead of failing | No | `false` |
+| `stop_on_failure` | Abort hook chain on failure | No | `true` |
+| `timeout` | Kill step after N seconds | No | No limit |
+| `env` | Per-step environment variables | No | `{}` |
+| `working_directory` | Override working directory | No | Current dir |
+
+### Supported Hook Names
+
+Any standard git hook name works. Most common ones:
+
+| Hook | When it fires |
+| --- | --- |
+| `pre-commit` | Before commit is created — ideal for lint & tests |
+| `commit-msg` | After you write the message — validate format |
+| `prepare-commit-msg` | Before the message editor opens |
+| `post-commit` | After commit is done (can't abort) |
+| `pre-push` | Before pushing to remote — final quality check |
+| `post-merge` | After a merge/pull — e.g. run `flutter pub get` |
+
+### Getting Started in 3 Steps
+
+```bash
+# 1. Add hooks: to your config.yaml (or run frx init to get a template)
+# 2. Install
+frx hooks install
+
+# 3. Verify
+frx hooks list
+```
+
+That's it. Git will now invoke FRX automatically on every commit.
+
+> **Note:** FRX never overwrites hooks it didn't create. If a custom hook already exists in `.git/hooks/`, FRX skips it and tells you how to replace it safely.
+
+---
 
 ## Steps for Setup
 

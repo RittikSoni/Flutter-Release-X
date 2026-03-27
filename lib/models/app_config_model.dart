@@ -109,8 +109,7 @@ class FlutterReleaseXAppConfigModel {
     HooksConfigModel? hooksConfig;
     if (yamlMap['hooks'] != null) {
       try {
-        hooksConfig =
-            HooksConfigModel.fromYaml(yamlMap['hooks'] as Map? ?? {});
+        hooksConfig = HooksConfigModel.fromYaml(yamlMap['hooks'] as Map? ?? {});
       } catch (e) {
         print('⚠️ Warning: Failed to parse "hooks": $e');
         print(
@@ -1196,8 +1195,7 @@ class HookModel {
   });
 
   bool get hasSteps => steps.isNotEmpty;
-  bool get hasPipeline =>
-      runPipeline != null && runPipeline!.trim().isNotEmpty;
+  bool get hasPipeline => runPipeline != null && runPipeline!.trim().isNotEmpty;
 
   factory HookModel.fromYaml(String name, Map<String, dynamic> yamlMap) {
     final stepsData = yamlMap['steps'];

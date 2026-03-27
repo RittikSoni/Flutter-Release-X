@@ -106,8 +106,7 @@ class _HooksUninstallCommand extends Command {
   String get name => 'uninstall';
 
   @override
-  String get description =>
-      'Remove FRX-managed git hooks from .git/hooks/.';
+  String get description => 'Remove FRX-managed git hooks from .git/hooks/.';
 
   _HooksUninstallCommand() {
     argParser.addOption(

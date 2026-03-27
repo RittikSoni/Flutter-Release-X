@@ -1,3 +1,15 @@
+## v0.7.0
+
+- **New Command `frx hooks`**: Added a dedicated command for managing git hooks.
+  - `frx hooks install`: Install all enabled hooks into `.git/hooks/`
+  - `frx hooks uninstall`: Remove all FRX-managed git hooks
+  - `frx hooks list`: Show all configured hooks and their install status
+  - `frx hooks run <name>`: Manually trigger a git hook by name
+  - `frx hooks validate`: Validate your hooks configuration
+- **Enhanced `config.yaml`**: Added a new `hooks:` section for configuring git hooks.
+- **Improved `frx init`**: Updated the starter configuration template with the new hooks format and comprehensive examples for common workflows.
+- **Documentation**: Updated `README.md` with a detailed hooks section and better guidance.
+
 ## v0.6.0
 
 - **New Command `frx pipeline`**: Added a dedicated command for managing and running pipelines.

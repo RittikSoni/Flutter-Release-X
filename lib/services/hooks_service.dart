@@ -68,8 +68,7 @@ class FlutterReleaseXHooksService {
       exit(1);
     }
 
-    final hooksDir =
-        Directory('${gitDir.path}${Platform.pathSeparator}hooks');
+    final hooksDir = Directory('${gitDir.path}${Platform.pathSeparator}hooks');
     if (!hooksDir.existsSync()) {
       hooksDir.createSync(recursive: true);
       print('📁 Created .git/hooks/ directory');
@@ -93,8 +92,8 @@ class FlutterReleaseXHooksService {
 
     for (final entry in enabledHooks.entries) {
       final hookName = entry.key;
-      final hookFile = File(
-          '${hooksDir.path}${Platform.pathSeparator}$hookName');
+      final hookFile =
+          File('${hooksDir.path}${Platform.pathSeparator}$hookName');
 
       // Check if an existing, non-FRX hook script is already there
       if (hookFile.existsSync()) {
@@ -128,8 +127,7 @@ class FlutterReleaseXHooksService {
     if (installed > 0) {
       print(
           '🎉 Done! $installed hook(s) installed${skipped > 0 ? ', $skipped skipped' : ''}.');
-      print(
-          '   Git will now run "frx hooks run <hook-name>" automatically.');
+      print('   Git will now run "frx hooks run <hook-name>" automatically.');
     } else if (skipped > 0) {
       print('⚠️  All hooks were skipped (custom hooks already present).');
     }
@@ -153,8 +151,7 @@ class FlutterReleaseXHooksService {
       exit(1);
     }
 
-    final hooksDir =
-        Directory('${gitDir.path}${Platform.pathSeparator}hooks');
+    final hooksDir = Directory('${gitDir.path}${Platform.pathSeparator}hooks');
     if (!hooksDir.existsSync()) {
       print('ℹ️  No .git/hooks/ directory found — nothing to uninstall.');
       return;
@@ -191,8 +188,7 @@ class FlutterReleaseXHooksService {
 
     int removed = 0;
     for (final name in toRemove) {
-      final hookFile = File(
-          '${hooksDir.path}${Platform.pathSeparator}$name');
+      final hookFile = File('${hooksDir.path}${Platform.pathSeparator}$name');
       if (!hookFile.existsSync()) {
         print('   ⚠️  "$name" not found — skipping.');
         continue;
@@ -234,8 +230,7 @@ class FlutterReleaseXHooksService {
       print('         - name: "Analyze"');
       print('           command: "flutter analyze"');
       print('');
-      print(
-          '   Run "frx hooks install" after adding your hooks.');
+      print('   Run "frx hooks install" after adding your hooks.');
       print('');
       return;
     }
@@ -262,8 +257,8 @@ class FlutterReleaseXHooksService {
       // Check disk install status
       String installed = '    ❌    ';
       if (hooksDir != null) {
-        final hookFile = File(
-            '${hooksDir.path}${Platform.pathSeparator}${entry.key}');
+        final hookFile =
+            File('${hooksDir.path}${Platform.pathSeparator}${entry.key}');
         if (hookFile.existsSync()) {
           final content = hookFile.readAsStringSync();
           installed =
@@ -273,7 +268,9 @@ class FlutterReleaseXHooksService {
 
       final source = hook.hasPipeline
           ? '→ pipeline: ${hook.runPipeline}'.padRight(26)
-          : (hook.hasSteps ? '${hook.steps.length} inline step(s)'.padRight(26) : '(none)'.padRight(26));
+          : (hook.hasSteps
+              ? '${hook.steps.length} inline step(s)'.padRight(26)
+              : '(none)'.padRight(26));
 
       print('║ $name ║$enabled║ $steps ║$installed ║ $source ║');
     }
@@ -284,8 +281,7 @@ class FlutterReleaseXHooksService {
     print('💡 Manage hooks:');
     print('   frx hooks install              Install all enabled hooks');
     print('   frx hooks uninstall            Remove all FRX-managed hooks');
-    print(
-        '   frx hooks uninstall --hook pre-commit   Remove a specific hook');
+    print('   frx hooks uninstall --hook pre-commit   Remove a specific hook');
     print('   frx hooks run pre-commit       Manually trigger a hook');
     print('');
   }
@@ -308,10 +304,8 @@ class FlutterReleaseXHooksService {
     final hook = hooksConfig.hooks[hookName];
 
     if (hook == null) {
-      print(
-          '❌ Hook "$hookName" is not configured in config.yaml.');
-      print(
-          '   Available hooks: ${hooksConfig.hooks.keys.join(', ')}');
+      print('❌ Hook "$hookName" is not configured in config.yaml.');
+      print('   Available hooks: ${hooksConfig.hooks.keys.join(', ')}');
       if (exitOnFailure) exit(1);
       return HookRunResult(
         hookName: hookName,
@@ -369,7 +363,8 @@ class FlutterReleaseXHooksService {
 
     // ── Option B: run inline steps ────────────────────────────────────────────
     if (!hook.hasSteps) {
-      print('⚠️  Hook "$hookName" has no steps and no run_pipeline. Nothing to run.');
+      print(
+          '⚠️  Hook "$hookName" has no steps and no run_pipeline. Nothing to run.');
       totalStopwatch.stop();
       return HookRunResult(
         hookName: hookName,
@@ -423,16 +418,14 @@ class FlutterReleaseXHooksService {
       final elapsed = stepStopwatch.elapsed;
 
       if (result.exitCode == 0) {
-        print(
-            '   ✅ ${step.name} — passed (${_formatDuration(elapsed)})');
+        print('   ✅ ${step.name} — passed (${_formatDuration(elapsed)})');
         stepResults.add(HookStepResult(
           stepName: step.name,
           passed: true,
           duration: elapsed,
         ));
       } else if (step.allowFailure) {
-        print(
-            '   ⚠️  ${step.name} — failed (allow_failure, continuing)');
+        print('   ⚠️  ${step.name} — failed (allow_failure, continuing)');
         stepResults.add(HookStepResult(
           stepName: step.name,
           passed: false,
@@ -478,8 +471,7 @@ class FlutterReleaseXHooksService {
   static Future<Directory?> _findGitDir(String startDir) async {
     var dir = Directory(startDir);
     while (true) {
-      final gitDir =
-          Directory('${dir.path}${Platform.pathSeparator}.git');
+      final gitDir = Directory('${dir.path}${Platform.pathSeparator}.git');
       if (gitDir.existsSync()) return gitDir;
       final parent = dir.parent;
       if (parent.path == dir.path) return null; // Reached filesystem root
@@ -489,10 +481,9 @@ class FlutterReleaseXHooksService {
 
   /// Generates a POSIX shell script that calls `frx hooks run <hookName>`.
   static String _buildUnixScript(String hookName, String? configPath) {
-    final configArg =
-        configPath != null && configPath != 'config.yaml'
-            ? ' --config "$configPath"'
-            : '';
+    final configArg = configPath != null && configPath != 'config.yaml'
+        ? ' --config "$configPath"'
+        : '';
     return '''#!/usr/bin/env bash
 $_kFrxHookMarker
 # Hook: $hookName
@@ -520,10 +511,9 @@ fi
 
   /// Generates a Windows batch wrapper that calls `frx hooks run <hookName>`.
   static String _buildWindowsScript(String hookName, String? configPath) {
-    final configArg =
-        configPath != null && configPath != 'config.yaml'
-            ? ' --config "$configPath"'
-            : '';
+    final configArg = configPath != null && configPath != 'config.yaml'
+        ? ' --config "$configPath"'
+        : '';
     return '''@echo off
 rem $_kFrxHookMarker
 rem Hook: $hookName
@@ -579,8 +569,7 @@ if %errorlevel% equ 0 (
           '$icon  Hook "$hookName" — $passed passed, $warned warned, $failed failed (${_formatDuration(total)})');
 
       for (final r in results) {
-        final icon =
-            r.passed ? '✅' : (r.warned ? '⚠️ ' : '❌');
+        final icon = r.passed ? '✅' : (r.warned ? '⚠️ ' : '❌');
         final note = r.note != null ? ' (${r.note})' : '';
         print('   $icon ${r.stepName}$note — ${_formatDuration(r.duration)}');
       }
@@ -635,8 +624,12 @@ if %errorlevel% equ 0 (
 
     if (errors.isNotEmpty || warnings.isNotEmpty) {
       print('');
-      for (final e in errors) { print('   ❌ $e'); }
-      for (final w in warnings) { print('   ⚠️  $w'); }
+      for (final e in errors) {
+        print('   ❌ $e');
+      }
+      for (final w in warnings) {
+        print('   ⚠️  $w');
+      }
       print('');
     }
 
