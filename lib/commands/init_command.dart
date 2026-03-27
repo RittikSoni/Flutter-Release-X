@@ -407,6 +407,89 @@ qr_code:
 #
 # Uncomment and customize as needed:
 # pipelines: {}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# GIT HOOKS (Optional — Opt-In)
+# ──────────────────────────────────────────────────────────────────────────────
+# Run commands automatically on git events (pre-commit, pre-push, etc.)
+# Similar to Husky, but powered by FRX pipelines & steps.
+#
+# 📖 Get started:
+#   1. Configure your hooks below (set enabled: true)
+#   2. Run: frx hooks install       → writes scripts to .git/hooks/
+#   3. Run: frx hooks list          → see all hooks and their status
+#   4. Run: frx hooks run pre-commit → manually test a hook
+#   5. Run: frx hooks uninstall     → remove all FRX-managed hooks
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# SUPPORTED HOOK NAMES (any git hook name is valid)
+# ──────────────────────────────────────────────────────────────────────────────
+#   pre-commit       — runs before a commit is created (most common)
+#   commit-msg       — validates the commit message
+#   prepare-commit-msg — edits the commit message template
+#   pre-push         — runs before git push
+#   post-commit      — runs after a commit is created
+#   pre-merge-commit — runs before a merge commit
+#   ... and all other standard git hooks
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP FIELDS (same pattern as pipeline steps)
+# ──────────────────────────────────────────────────────────────────────────────
+#   name             (required) Step label shown in output
+#   command          (required) Shell command to run
+#   description      (optional) Human-readable description
+#   allow_failure    (optional) If true, step failure is a warning (default: false)
+#   env              (optional) Environment variables: { KEY: value }
+#   working_directory (optional) Override working directory for this step
+#   timeout          (optional) Kill step after N seconds
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# EXAMPLE: Inline Steps
+# ──────────────────────────────────────────────────────────────────────────────
+# hooks:
+#   pre-commit:
+#     enabled: true
+#     description: "Lint and test before every commit"
+#     stop_on_failure: true
+#     steps:
+#       - name: "Analyze"
+#         command: "flutter analyze"
+#         description: "Run static analysis"
+#
+#       - name: "Format Check"
+#         command: "dart format --set-exit-if-changed ."
+#         allow_failure: true   # Warn but don't block commit
+#
+#       - name: "Unit Tests"
+#         command: "flutter test"
+#         timeout: 120
+#
+#   commit-msg:
+#     enabled: false
+#     description: "Enforce conventional commit message format"
+#     steps:
+#       - name: "Validate Message"
+#         command: "grep -qE '^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?: .+' \$1 || (echo 'Invalid commit message format' && exit 1)"
+#
+#   pre-push:
+#     enabled: false
+#     description: "Full test suite before push"
+#     steps:
+#       - name: "Tests"
+#         command: "flutter test"
+#         timeout: 300
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# EXAMPLE: Delegate to an FRX Pipeline
+# ──────────────────────────────────────────────────────────────────────────────
+# hooks:
+#   pre-push:
+#     enabled: true
+#     run_pipeline: ci   # Runs the "ci" pipeline defined in pipelines: above
+#
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# hooks: {}   # Uncomment and configure to enable hooks
 ''';
   }
 }

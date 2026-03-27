@@ -13,6 +13,9 @@ class FlutterReleaseXAppConfigModel {
   /// New named pipelines map. Takes precedence over [pipelineSteps].
   final Map<String, PipelineModel>? pipelines;
 
+  /// Git hooks configuration (optional, opt-in). Keyed by hook name, e.g. "pre-commit".
+  final HooksConfigModel hooks;
+
   // Constructor with default values
   FlutterReleaseXAppConfigModel({
     this.flutterPath,
@@ -20,9 +23,11 @@ class FlutterReleaseXAppConfigModel {
     QrCodeModel? qrCode,
     this.pipelineSteps,
     this.pipelines,
+    HooksConfigModel? hooks,
   })  : uploadOptions =
             uploadOptions ?? UploadOptionsModel(), // Default for uploadOptions
-        qrCode = qrCode ?? QrCodeModel(); // Default for qrCode
+        qrCode = qrCode ?? QrCodeModel(), // Default for qrCode
+        hooks = hooks ?? HooksConfigModel();
 
   /// Returns the resolved pipelines map.
   ///
@@ -100,12 +105,26 @@ class FlutterReleaseXAppConfigModel {
           '   Consider migrating your "pipeline_steps" to the "pipelines" format for better organization.');
     }
 
+    // Parse hooks config
+    HooksConfigModel? hooksConfig;
+    if (yamlMap['hooks'] != null) {
+      try {
+        hooksConfig =
+            HooksConfigModel.fromYaml(yamlMap['hooks'] as Map? ?? {});
+      } catch (e) {
+        print('⚠️ Warning: Failed to parse "hooks": $e');
+        print(
+            '   Ensure hooks is a map of hook names (e.g. pre-commit) with steps.');
+      }
+    }
+
     return FlutterReleaseXAppConfigModel(
       flutterPath: yamlMap['flutter_path'],
       uploadOptions: UploadOptionsModel.fromYaml(yamlMap['upload_options']),
       qrCode: QrCodeModel.fromYaml(yamlMap['qr_code']),
       pipelineSteps: legacySteps,
       pipelines: namedPipelines,
+      hooks: hooksConfig,
     );
   }
 
@@ -117,6 +136,7 @@ class FlutterReleaseXAppConfigModel {
       'qr_code': qrCode.toMap(),
       'pipeline_steps': pipelineSteps?.map((step) => step.toMap()).toList(),
       'pipelines': pipelines?.map((key, val) => MapEntry(key, val.toMap())),
+      'hooks': hooks.toMap(),
     };
   }
 }
@@ -1066,4 +1086,240 @@ class PipelineConfigValidator {
       ));
     }
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HOOKS MODELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// All supported git hook names (for validation / user hints).
+const _kValidHookNames = [
+  'applypatch-msg',
+  'pre-applypatch',
+  'post-applypatch',
+  'pre-commit',
+  'pre-merge-commit',
+  'prepare-commit-msg',
+  'commit-msg',
+  'post-commit',
+  'pre-rebase',
+  'post-checkout',
+  'post-merge',
+  'pre-push',
+  'pre-receive',
+  'update',
+  'proc-receive',
+  'post-receive',
+  'post-update',
+  'reference-transaction',
+  'push-to-checkout',
+  'pre-auto-gc',
+  'post-rewrite',
+  'sendemail-validate',
+  'fsmonitor-watchman',
+  'p4-changelist',
+  'p4-prepare-changelist',
+  'p4-post-changelist',
+  'p4-pre-submit',
+  'post-index-change',
+];
+
+/// Top-level hooks configuration — holds all configured git hooks.
+class HooksConfigModel {
+  /// Map keyed by git hook name (e.g. `pre-commit`, `pre-push`).
+  final Map<String, HookModel> hooks;
+
+  HooksConfigModel({Map<String, HookModel>? hooks})
+      : hooks = hooks ?? <String, HookModel>{};
+
+  bool get isEmpty => hooks.isEmpty;
+  bool get isNotEmpty => hooks.isNotEmpty;
+
+  /// Returns only `enabled` hooks.
+  Map<String, HookModel> get enabledHooks =>
+      Map.fromEntries(hooks.entries.where((e) => e.value.enabled));
+
+  factory HooksConfigModel.fromYaml(Map<dynamic, dynamic> yamlMap) {
+    final result = <String, HookModel>{};
+    for (final entry in yamlMap.entries) {
+      final hookName = entry.key.toString().trim().toLowerCase();
+
+      // Warn about unknown hook names but still parse (user may know better)
+      if (!_kValidHookNames.contains(hookName)) {
+        print(
+            '⚠️  [hooks] Unknown hook name: "$hookName". Valid names include: ${_kValidHookNames.take(6).join(', ')}, ...');
+      }
+
+      if (entry.value == null) continue;
+      try {
+        final hookMap = Map<String, dynamic>.from(entry.value as Map);
+        result[hookName] = HookModel.fromYaml(hookName, hookMap);
+      } catch (e) {
+        print('⚠️  [hooks] Failed to parse hook "$hookName": $e');
+      }
+    }
+    return HooksConfigModel(hooks: result);
+  }
+
+  Map<String, dynamic> toMap() =>
+      hooks.map((key, val) => MapEntry(key, val.toMap()));
+}
+
+/// Configuration for a single git hook, e.g. `pre-commit`.
+class HookModel {
+  /// Git hook name, e.g. `pre-commit`.
+  final String name;
+
+  /// Whether this hook is installed/active. Defaults to `false`.
+  final bool enabled;
+
+  /// Inline steps to run sequentially.
+  final List<HookStepModel> steps;
+
+  /// If set, runs a named FRX pipeline instead of inline [steps].
+  /// Pipeline must exist in the `pipelines:` section of config.yaml.
+  final String? runPipeline;
+
+  /// If `true` (default), abort git operation when any step fails (exit code != 0).
+  final bool stopOnFailure;
+
+  /// Optional human-readable description shown in `frx hooks list`.
+  final String? description;
+
+  HookModel({
+    required this.name,
+    this.enabled = false,
+    this.steps = const [],
+    this.runPipeline,
+    this.stopOnFailure = true,
+    this.description,
+  });
+
+  bool get hasSteps => steps.isNotEmpty;
+  bool get hasPipeline =>
+      runPipeline != null && runPipeline!.trim().isNotEmpty;
+
+  factory HookModel.fromYaml(String name, Map<String, dynamic> yamlMap) {
+    final stepsData = yamlMap['steps'];
+    final steps = <HookStepModel>[];
+    if (stepsData != null && stepsData is List) {
+      for (int i = 0; i < stepsData.length; i++) {
+        try {
+          steps.add(HookStepModel.fromYaml(
+              Map<String, dynamic>.from(stepsData[i] as Map)));
+        } catch (e) {
+          print('⚠️  [hooks.$name] Failed to parse step #${i + 1}: $e');
+        }
+      }
+    }
+
+    final runPipeline = yamlMap['run_pipeline']?.toString().trim();
+    final runPipelineNormalized =
+        (runPipeline == null || runPipeline.isEmpty) ? null : runPipeline;
+
+    // Validate: must have steps OR run_pipeline
+    if (steps.isEmpty && runPipelineNormalized == null) {
+      print(
+          '⚠️  [hooks.$name] Hook has no steps and no run_pipeline. It will do nothing when triggered.');
+    }
+
+    return HookModel(
+      name: name,
+      enabled: yamlMap['enabled'] == true,
+      steps: steps,
+      runPipeline: runPipelineNormalized,
+      stopOnFailure: yamlMap['stop_on_failure'] ?? true,
+      description: yamlMap['description']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'enabled': enabled,
+        if (description != null) 'description': description,
+        'stop_on_failure': stopOnFailure,
+        if (runPipeline != null) 'run_pipeline': runPipeline,
+        if (steps.isNotEmpty) 'steps': steps.map((s) => s.toMap()).toList(),
+      };
+}
+
+/// A single step within a git hook.
+class HookStepModel {
+  final String name;
+  final String command;
+
+  /// Per-step environment variables.
+  final Map<String, String>? env;
+
+  /// Working directory override.
+  final String? workingDirectory;
+
+  /// Timeout in seconds. Step is killed if exceeded.
+  final int? timeout;
+
+  /// If `true`, a failing step is logged but does NOT abort the hook.
+  final bool allowFailure;
+
+  /// Human-readable description.
+  final String? description;
+
+  HookStepModel({
+    required this.name,
+    required this.command,
+    this.env,
+    this.workingDirectory,
+    this.timeout,
+    this.allowFailure = false,
+    this.description,
+  });
+
+  factory HookStepModel.fromYaml(Map<String, dynamic> yamlMap) {
+    if (yamlMap['name'] == null || yamlMap['command'] == null) {
+      final missing = <String>[];
+      if (yamlMap['name'] == null) missing.add('name');
+      if (yamlMap['command'] == null) missing.add('command');
+      throw ArgumentError(
+          'Hook step missing required field(s): ${missing.join(', ')}');
+    }
+
+    Map<String, String>? envMap;
+    if (yamlMap['env'] != null) {
+      try {
+        envMap = Map<String, String>.from(
+          (yamlMap['env'] as Map)
+              .map((k, v) => MapEntry(k.toString(), v.toString())),
+        );
+      } catch (_) {
+        print(
+            '⚠️  [hooks step "${yamlMap['name']}"] Invalid env format. Ignoring env.');
+      }
+    }
+
+    int? timeout;
+    if (yamlMap['timeout'] != null) {
+      timeout = yamlMap['timeout'] is int
+          ? yamlMap['timeout'] as int
+          : int.tryParse(yamlMap['timeout'].toString());
+      if (timeout != null && timeout <= 0) timeout = null;
+    }
+
+    return HookStepModel(
+      name: yamlMap['name'].toString(),
+      command: yamlMap['command'].toString(),
+      env: envMap,
+      workingDirectory: yamlMap['working_directory']?.toString(),
+      timeout: timeout,
+      allowFailure: yamlMap['allow_failure'] == true,
+      description: yamlMap['description']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'command': command,
+        if (env != null) 'env': env,
+        if (workingDirectory != null) 'working_directory': workingDirectory,
+        if (timeout != null) 'timeout': timeout,
+        'allow_failure': allowFailure,
+        if (description != null) 'description': description,
+      };
 }

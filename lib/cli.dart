@@ -2,6 +2,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:flutter_release_x/commands/build_command.dart';
 import 'package:flutter_release_x/commands/check_update_command.dart';
+import 'package:flutter_release_x/commands/hooks_command.dart';
 import 'package:flutter_release_x/commands/init_command.dart';
 import 'package:flutter_release_x/commands/notify_command/notify_command.dart';
 import 'package:flutter_release_x/commands/pipeline_command.dart';
@@ -25,7 +26,8 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
           ..addCommand(FlutterReleaseXVersionCommand())
           ..addCommand(FlutterReleaseXCheckUpdateCommand())
           ..addCommand(FlutterReleaseXInitCommand())
-          ..addCommand(FlutterReleaseXPipelineCommand());
+          ..addCommand(FlutterReleaseXPipelineCommand())
+          ..addCommand(FlutterReleaseXHooksCommand());
 
     runner.argParser.addFlag(
       'version',
@@ -44,10 +46,11 @@ A powerful CLI tool to build and release Flutter & Non-Flutter apps effortlessly
       }
 
       // Check for updates in the background (non-blocking)
-      // Skip if running check-update, version, or init commands
+      // Skip if running check-update, version, init, or hooks commands
       if (!arguments.contains('check-update') &&
           !arguments.contains('version') &&
-          !arguments.contains('init')) {
+          !arguments.contains('init') &&
+          !arguments.contains('hooks')) {
         _checkForUpdatesInBackground();
       }
 
