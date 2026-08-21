@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
+import 'package:flutter_release_x/models/build_record_model.dart';
 
 class FlutterReleaseXSlackService {
   static final dio = Dio();
@@ -82,6 +83,7 @@ class FlutterReleaseXSlackService {
     bool? isShareQR,
     bool? isShareDownloadLink,
     List<String>? mentions,
+    BuildRecordModel? buildRecord,
   }) async {
     if (isShareQR == true) {
       await _uploadQrCode(
@@ -120,6 +122,36 @@ class FlutterReleaseXSlackService {
                       "🚀 *$finalMessage ${isShareDownloadLink == true ? "<$downloadLink|Download>" : ""}*"
                 }
               },
+              if (buildRecord != null)
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Version:*\n${buildRecord.version}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Platform:*\n${buildRecord.platform} (${buildRecord.buildType})"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Git Branch:*\n${buildRecord.gitBranch}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n${buildRecord.gitCommit}"
+                    }
+                  ]
+                },
+              if (buildRecord?.changelog != null && buildRecord!.changelog!.isNotEmpty)
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*What's New:*\n```\n${buildRecord.changelog}\n```"
+                  }
+                },
               if (isShareDownloadLink == true)
                 {
                   "type": "actions",

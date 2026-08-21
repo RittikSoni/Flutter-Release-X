@@ -16,6 +16,9 @@ class FlutterReleaseXAppConfigModel {
   /// Git hooks configuration (optional, opt-in). Keyed by hook name, e.g. "pre-commit".
   final HooksConfigModel hooks;
 
+  /// Version tracking configuration
+  final TrackVersionModel trackVersion;
+
   // Constructor with default values
   FlutterReleaseXAppConfigModel({
     this.flutterPath,
@@ -24,10 +27,12 @@ class FlutterReleaseXAppConfigModel {
     this.pipelineSteps,
     this.pipelines,
     HooksConfigModel? hooks,
+    TrackVersionModel? trackVersion,
   })  : uploadOptions =
             uploadOptions ?? UploadOptionsModel(), // Default for uploadOptions
         qrCode = qrCode ?? QrCodeModel(), // Default for qrCode
-        hooks = hooks ?? HooksConfigModel();
+        hooks = hooks ?? HooksConfigModel(),
+        trackVersion = trackVersion ?? TrackVersionModel();
 
   /// Returns the resolved pipelines map.
   ///
@@ -124,6 +129,7 @@ class FlutterReleaseXAppConfigModel {
       pipelineSteps: legacySteps,
       pipelines: namedPipelines,
       hooks: hooksConfig,
+      trackVersion: TrackVersionModel.fromYaml(yamlMap['track_version'] as Map?),
     );
   }
 
@@ -136,6 +142,7 @@ class FlutterReleaseXAppConfigModel {
       'pipeline_steps': pipelineSteps?.map((step) => step.toMap()).toList(),
       'pipelines': pipelines?.map((key, val) => MapEntry(key, val.toMap())),
       'hooks': hooks.toMap(),
+      'track_version': trackVersion.toMap(),
     };
   }
 }
@@ -1320,4 +1327,100 @@ class HookStepModel {
         'allow_failure': allowFailure,
         if (description != null) 'description': description,
       };
+}
+
+class TrackVersionModel {
+  final bool enabled;
+  final bool autoUpdatePubspec;
+  final LocalTrackingModel local;
+  final GoogleSheetsTrackingModel googleSheets;
+
+  TrackVersionModel({
+    this.enabled = false,
+    this.autoUpdatePubspec = false,
+    LocalTrackingModel? local,
+    GoogleSheetsTrackingModel? googleSheets,
+  })  : local = local ?? LocalTrackingModel(),
+        googleSheets = googleSheets ?? GoogleSheetsTrackingModel();
+
+  factory TrackVersionModel.fromYaml(Map<dynamic, dynamic>? yamlMap) {
+    final map = yamlMap ?? <dynamic, dynamic>{};
+    return TrackVersionModel(
+      enabled: map['enabled'] ?? false,
+      autoUpdatePubspec: map['auto_update_pubspec'] ?? false,
+      local: LocalTrackingModel.fromYaml(map['local'] as Map?),
+      googleSheets: GoogleSheetsTrackingModel.fromYaml(map['google_sheets'] as Map?),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'enabled': enabled,
+      'auto_update_pubspec': autoUpdatePubspec,
+      'local': local.toMap(),
+      'google_sheets': googleSheets.toMap(),
+    };
+  }
+}
+
+class LocalTrackingModel {
+  final bool enabled;
+  final String path;
+
+  LocalTrackingModel({
+    this.enabled = true,
+    this.path = 'frx_history.json',
+  });
+
+  factory LocalTrackingModel.fromYaml(Map<dynamic, dynamic>? yamlMap) {
+    final map = yamlMap ?? <dynamic, dynamic>{};
+    return LocalTrackingModel(
+      enabled: map['enabled'] ?? true,
+      path: map['path'] ?? 'frx_history.json',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'enabled': enabled,
+      'path': path,
+    };
+  }
+}
+
+class GoogleSheetsTrackingModel {
+  final bool enabled;
+  final String? clientId;
+  final String? clientSecret;
+  final String? spreadsheetId;
+  final String? sheetName;
+
+  GoogleSheetsTrackingModel({
+    this.enabled = false,
+    this.clientId,
+    this.clientSecret,
+    this.spreadsheetId,
+    this.sheetName,
+  });
+
+  factory GoogleSheetsTrackingModel.fromYaml(Map<dynamic, dynamic>? yamlMap) {
+    final map = yamlMap ?? <dynamic, dynamic>{};
+    return GoogleSheetsTrackingModel(
+      enabled: map['enabled'] ?? false,
+      clientId: map['client_id'],
+      clientSecret: map['client_secret'],
+      spreadsheetId: map['spreadsheet_id'],
+      sheetName: map['sheet_name'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'enabled': enabled,
+      'client_id': clientId,
+      'client_secret': clientSecret,
+      'spreadsheet_id': spreadsheetId,
+      'sheet_name': sheetName,
+    };
+  }
 }

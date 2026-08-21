@@ -7,8 +7,10 @@ import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kenums.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/models/app_config_model.dart';
+import 'package:flutter_release_x/models/build_record_model.dart';
 import 'package:flutter_release_x/services/slack_service.dart';
 import 'package:flutter_release_x/services/teams_service.dart';
+import 'package:flutter_release_x/services/version_tracking_service.dart';
 import 'package:flutter_release_x/state_management/upload_state.dart';
 import 'package:qr/qr.dart';
 import 'package:image/image.dart' as img;
@@ -32,6 +34,7 @@ class FlutterReleaseXHelpers {
     String? customSlackMsg,
     bool? shareLink,
     bool? shareQr,
+    BuildRecordModel? buildRecord,
   }) async {
     final slackService = FlutterReleaseXSlackService();
     final uploadState = FlutterReleaseXUploadState();
@@ -61,6 +64,7 @@ class FlutterReleaseXHelpers {
           downloadLink: downloadLink ?? FlutterReleaseXKstrings.packageLink,
           isShareQR: isShareQR,
           isShareDownloadLink: isShareDownloadLink,
+          buildRecord: buildRecord,
         );
       } catch (e, s) {
         showHighlight(
@@ -80,6 +84,7 @@ class FlutterReleaseXHelpers {
     String? customTeamsMsg,
     bool? shareLink,
     bool? shareQr,
+    BuildRecordModel? buildRecord,
   }) async {
     final teamsService = FlutterReleaseXTeamsService();
     final uploadState = FlutterReleaseXUploadState();
@@ -106,6 +111,7 @@ class FlutterReleaseXHelpers {
           downloadLink: downloadLink ?? FlutterReleaseXKstrings.packageLink,
           isShareQR: isShareQR,
           isShareDownloadLink: isShareDownloadLink,
+          buildRecord: buildRecord,
         );
       } catch (e, s) {
         showHighlight(
@@ -989,6 +995,29 @@ class FlutterReleaseXHelpers {
         print(
             '\n❌ Stopping remaining pipelines due to failure in "${pipeline.name}".');
         break;
+      } else {
+        // Track version history if enabled
+        final trackConfig = config.trackVersion;
+        if (trackConfig.enabled) {
+          final version = await FlutterReleaseXVersionTrackingService.resolveNextVersion(trackConfig);
+          final gitBranch = await FlutterReleaseXVersionTrackingService.getGitBranch();
+          final gitCommit = await FlutterReleaseXVersionTrackingService.getGitCommit();
+          
+          final uploadState = FlutterReleaseXUploadState();
+          final downloadLink = uploadState.uploadLink;
+
+          final record = BuildRecordModel(
+            version: version,
+            platform: 'Pipeline (${pipeline.name})',
+            buildType: 'Custom',
+            timestamp: DateTime.now(),
+            gitBranch: gitBranch,
+            gitCommit: gitCommit,
+            status: 'Success',
+            downloadLink: downloadLink,
+          );
+          await FlutterReleaseXVersionTrackingService(trackConfig).track(record);
+        }
       }
     }
 

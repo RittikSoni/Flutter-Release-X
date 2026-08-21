@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter_release_x/helpers/helpers.dart';
+import 'package:flutter_release_x/models/build_record_model.dart';
 import 'package:http/http.dart' as http;
 
 class FlutterReleaseXTeamsService {
@@ -88,6 +89,7 @@ class FlutterReleaseXTeamsService {
     bool? isShareQR,
     bool? isShareDownloadLink,
     List<String>? mentions,
+    BuildRecordModel? buildRecord,
   }) async {
     try {
       // Note: Teams webhooks don't support @mentions directly
@@ -98,7 +100,7 @@ class FlutterReleaseXTeamsService {
       final finalMessage = '$message$formattedMentions';
 
       // Create adaptive card message
-      final cardBody = [
+      final cardBody = <Map<String, dynamic>>[
         {
           'type': 'TextBlock',
           'text': finalMessage,
@@ -107,6 +109,26 @@ class FlutterReleaseXTeamsService {
           'weight': 'Bolder',
         },
       ];
+
+      if (buildRecord != null) {
+        cardBody.add({
+          'type': 'FactSet',
+          'facts': [
+            {'title': 'Version:', 'value': buildRecord.version},
+            {'title': 'Platform:', 'value': '${buildRecord.platform} (${buildRecord.buildType})'},
+            {'title': 'Git Branch:', 'value': buildRecord.gitBranch},
+            {'title': 'Commit:', 'value': buildRecord.gitCommit},
+          ]
+        });
+        
+        if (buildRecord.changelog != null && buildRecord.changelog!.isNotEmpty) {
+          cardBody.add({
+            'type': 'TextBlock',
+            'text': '**What\'s New:**\n\n${buildRecord.changelog}',
+            'wrap': true,
+          });
+        }
+      }
 
       // Add download button if sharing link
       if (isShareDownloadLink == true && downloadLink.isNotEmpty) {

@@ -44,6 +44,7 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 - [⚙️ Configuration](#configuration)
   - [Config file with example](#config-file)
   - [Flutter Path](#flutter-path)
+  - [Version Tracking](#version-tracking)
   - [Upload Options](#upload-options)
     - [GitHub](#github)
     - [Google Drive](#google-drive)
@@ -60,6 +61,7 @@ Learn everything about FRX, from **setup to quick examples to advanced configura
 - [🌐 Cloud Integration](#cloud-integration)
   - [GitHub Setup](#github-configuration)
   - [Google Drive Setup](#google-drive-configuration)
+  - [Google Sheets Tracking Setup](#google-sheets-tracking-setup)
   - [Diawi Setup](#diawi-configuration)
   - [AWS S3 Setup](#aws-s3-configuration)
   - [GitLab Setup](#gitlab-configuration)
@@ -312,6 +314,19 @@ Create a `config.yaml` file in the root directory of your project to specify you
 # Example for macOS: /Users/USER_NAME/development/flutter/bin/flutter
 flutter_path: FLUTTER/BINARY/PATH
 
+track_version:
+  enabled: true
+  auto_update_pubspec: false # Set to true to automatically increment pubspec version build number
+  local:
+    enabled: true
+    path: "frx_history.json"
+  google_sheets:
+    enabled: true
+    client_id: "YOUR_GOOGLE_CLIENT_ID"
+    client_secret: "YOUR_GOOGLE_CLIENT_SECRET"
+    spreadsheet_id: "YOUR_SPREADSHEET_ID"
+    sheet_name: "Builds"
+
 upload_options:
   github:
     enabled: true
@@ -440,6 +455,22 @@ pipeline_steps:
 | Key            | Description                | Example                                                                                                |
 | -------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `flutter_path` | Path to the Flutter binary | `C:/dev/flutter/bin/flutter.bat` (Windows), `/Users/USER_NAME/development/flutter/bin/flutter` (macOS) |
+
+---
+
+## Version Tracking
+
+| Key | Description | Required | Default / Example |
+| --- | --- | --- | --- |
+| `enabled` | Enable smart version tracking | Yes | `true` |
+| `auto_update_pubspec` | If true, automatically updates the build number in `pubspec.yaml` before build. | No | `false` |
+| `local` > `enabled` | Enable local JSON history | Yes | `true` |
+| `local` > `path` | Path to the history file | Yes | `"frx_history.json"` |
+| `google_sheets` > `enabled` | Enable Google Sheets tracking | No | `true` |
+| `google_sheets` > `client_id` | Google API Client ID | Yes (if enabled) | `"YOUR_GOOGLE_CLIENT_ID"` |
+| `google_sheets` > `client_secret`| Google API Client Secret | Yes (if enabled) | `"YOUR_GOOGLE_CLIENT_SECRET"` |
+| `google_sheets` > `spreadsheet_id`| ID of your Google Sheet | Yes (if enabled) | `"YOUR_SPREADSHEET_ID"` |
+| `google_sheets` > `sheet_name` | The name of the tab in the spreadsheet | No | `"Builds"` |
 
 ---
 
@@ -849,6 +880,50 @@ To upload files to Google Drive, follow these steps to set up your credentials:
    ```
 
    By following these steps, your application will be able to authenticate with Google Drive using the client ID and secret to upload files.
+
+### Google Sheets Tracking Setup
+
+To track your build history in a Google Sheet, follow these steps to set up your credentials:
+
+1. **Create a Google Cloud Project**:
+
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   - Create a new project or select an existing one.
+
+2. **Enable the Google Sheets API**:
+
+   - In the Google Cloud Console, navigate to **APIs & Services > Library**.
+   - Search for "Google Sheets API" and enable it.
+
+3. **Create OAuth 2.0 Credentials**:
+
+   - Go to **APIs & Services > Credentials**.
+   - Click on **Create Credentials** and select **OAuth Client ID**.
+   - Configure the consent screen if prompted.
+   - Set the application type to **Desktop App**.
+   - Note down the generated **Client ID** and **Client Secret**.
+
+4. **Create a Google Sheet**:
+
+   - Create a new Google Sheet where you want to track your builds.
+   - Note the **Spreadsheet ID** from the URL (the long string of characters between `/d/` and `/edit`).
+   - Create a tab (e.g. `Builds`) where records will be appended.
+
+5. **Set Up Your Project**:
+
+   ```yaml
+   track_version:
+     enabled: true
+     auto_update_pubspec: false # Set to true to automatically increment pubspec version build number
+     google_sheets:
+       enabled: true
+       client_id: YOUR_CLIENT_ID
+       client_secret: YOUR_CLIENT_SECRET
+       spreadsheet_id: YOUR_SPREADSHEET_ID
+       sheet_name: "Builds"
+   ```
+
+   Once configured, FRX will prompt you to authenticate the first time you run a build.
 
 ### Diawi Configuration
 

@@ -1,8 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter_release_x/commands/prompt_storage_options.dart';
+import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kstrings.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
+import 'package:flutter_release_x/models/build_record_model.dart';
+import 'package:flutter_release_x/services/version_tracking_service.dart';
+import 'package:flutter_release_x/state_management/upload_state.dart';
 
 class FlutterReleaseXKplatforms {
   static String getBuildPath(String platform) {
@@ -85,20 +89,45 @@ class FlutterReleaseXKplatforms {
 
       if (buildSuccess) {
         final buildPath = FlutterReleaseXKplatforms.getBuildPath(platform);
-
         // Upload, generate qr, & notify slack/teams only if platform is not web or linux
         if (platform != 'linux' && platform != 'web') {
           // Upload build to GitHub or other storage
           await flutterReleaseXpromptUploadOption(buildPath);
+        }
 
+        BuildRecordModel? record;
+        final config = FlutterReleaseXConfig().config.trackVersion;
+        if (config.enabled) {
+          final uploadState = FlutterReleaseXUploadState();
+          final downloadLink = uploadState.uploadLink;
+
+          final version = await FlutterReleaseXVersionTrackingService.resolveNextVersion(config);
+          final gitBranch = await FlutterReleaseXVersionTrackingService.getGitBranch();
+          final gitCommit = await FlutterReleaseXVersionTrackingService.getGitCommit();
+          
+          record = BuildRecordModel(
+            version: version,
+            platform: platform,
+            buildType: 'Release',
+            timestamp: DateTime.now(),
+            gitBranch: gitBranch,
+            gitCommit: gitCommit,
+            status: 'Success',
+            downloadLink: downloadLink,
+            localBuildPath: buildPath,
+          );
+          await FlutterReleaseXVersionTrackingService(config).track(record);
+        }
+
+        if (platform != 'linux' && platform != 'web') {
           // Generate QR code and link
           await FlutterReleaseXHelpers.generateQrCodeAndLink();
 
           // Notify Slack if enabled
-          await FlutterReleaseXHelpers.notifySlack();
+          await FlutterReleaseXHelpers.notifySlack(buildRecord: record);
 
           // Notify Teams if enabled
-          await FlutterReleaseXHelpers.notifyTeams();
+          await FlutterReleaseXHelpers.notifyTeams(buildRecord: record);
         }
         print('✅ $platform build completed and ready to share!');
       } else {

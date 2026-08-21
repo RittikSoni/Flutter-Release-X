@@ -5,6 +5,7 @@ import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/constants/kplatforms.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:flutter_release_x/models/app_config_model.dart';
+import 'package:flutter_release_x/services/version_tracking_service.dart';
 
 class FlutterReleaseXBuildCommand extends Command {
   @override
@@ -56,6 +57,12 @@ class FlutterReleaseXBuildCommand extends Command {
     if (showConfig) {
       FlutterReleaseXHelpers.showUserConfig();
       return;
+    }
+
+    // Auto-bump pubspec if configured
+    final config = FlutterReleaseXConfig().config.trackVersion;
+    if (config.enabled && config.autoUpdatePubspec) {
+      await FlutterReleaseXVersionTrackingService.bumpPubspecVersion();
     }
 
     /// Supported platforms for flutter default flow.

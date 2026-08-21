@@ -4,6 +4,7 @@ import 'package:args/command_runner.dart';
 import 'package:flutter_release_x/configs/config.dart';
 import 'package:flutter_release_x/helpers/helpers.dart';
 import 'package:flutter_release_x/models/app_config_model.dart';
+import 'package:flutter_release_x/services/version_tracking_service.dart';
 
 /// The `frx pipeline` command for managing and inspecting pipelines.
 ///
@@ -229,6 +230,12 @@ class _PipelineRunCommand extends Command {
   Future<void> run() async {
     final configPath = argResults?['config'];
     FlutterReleaseXConfig().loadConfig(configPath);
+
+    // Auto-bump pubspec if configured
+    final trackConfig = FlutterReleaseXConfig().config.trackVersion;
+    if (trackConfig.enabled && trackConfig.autoUpdatePubspec) {
+      await FlutterReleaseXVersionTrackingService.bumpPubspecVersion();
+    }
 
     String? pipelineName;
     if (argResults!.rest.isNotEmpty) {
